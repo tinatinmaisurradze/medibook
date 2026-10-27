@@ -80,7 +80,7 @@ export default function DoctorSchedule() {
                       <StatusBadge status={a.status} />
                       <Link
                         to={`/doctor/visits/${a.id}`}
-                        className="inline-flex min-h-9 items-center rounded-md border border-line px-3 text-sm font-medium hover:border-brand hover:text-brand-dark"
+                        className="inline-flex min-h-9 items-center rounded-md border border-line px-3 text-sm font-medium hover:border-accent hover:text-accent"
                       >
                         ანკეტა
                       </Link>
@@ -136,7 +136,7 @@ export default function DoctorSchedule() {
                         <span className="line-clamp-2 break-words">{a.diagnosis ?? '—'}</span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Link to={`/doctor/visits/${a.id}`} className="whitespace-nowrap font-medium text-brand-dark underline">
+                        <Link to={`/doctor/visits/${a.id}`} className="whitespace-nowrap font-medium text-accent underline">
                           ანკეტის ნახვა
                         </Link>
                       </td>

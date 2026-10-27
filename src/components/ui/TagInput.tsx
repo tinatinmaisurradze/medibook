@@ -53,7 +53,7 @@ export function TagInput({ label, value, onChange, placeholder, hint, maxItems =
           onKeyDown={onKeyDown}
           placeholder={placeholder}
           aria-invalid={!!error}
-          className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm placeholder:text-muted/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
         />
         <Button type="button" variant="secondary" onClick={add}>
           დამატება
@@ -72,7 +72,7 @@ export function TagInput({ label, value, onChange, placeholder, hint, maxItems =
             <li
               key={item}
               className={`inline-flex items-center gap-1 rounded-full py-1 pl-3 pr-1 text-sm ${
-                tone === 'danger' ? 'bg-danger-tint text-danger' : 'bg-brand-tint text-brand-dark'
+                tone === 'danger' ? 'bg-danger-tint text-danger' : 'bg-brand-tint text-accent'
               }`}
             >
               {item}

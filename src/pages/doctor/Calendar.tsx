@@ -61,7 +61,7 @@ export default function DoctorCalendar() {
             <ul className="mt-4 divide-y divide-line">
               {dayItems.map((a) => (
                 <li key={a.id}>
-                  <Link to={`/doctor/visits/${a.id}`} className="flex items-center justify-between gap-3 py-3 hover:text-brand-dark">
+                  <Link to={`/doctor/visits/${a.id}`} className="flex items-center justify-between gap-3 py-3 hover:text-accent">
                     <span>
                       <span className="font-medium">{a.time}</span> · {a.patientName}
                       {a.reason && <span className="block text-sm text-muted">{a.reason}</span>}

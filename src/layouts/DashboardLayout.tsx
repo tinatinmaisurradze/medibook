@@ -43,7 +43,7 @@ export function DashboardLayout() {
           onClick={() => setOpen(false)}
           className={({ isActive }) =>
             `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
-              isActive ? 'bg-brand text-white' : 'text-ink hover:bg-brand-tint'
+              isActive ? 'bg-ink text-white' : 'text-ink hover:bg-brand-tint'
             }`
           }
         >
@@ -56,7 +56,7 @@ export function DashboardLayout() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] md:grid-cols-[260px_1fr]">
-      <header className="col-span-full flex h-16 items-center justify-between border-b border-line bg-surface px-4">
+      <header className="sticky top-0 z-40 col-span-full flex h-16 items-center justify-between border-b border-line bg-surface/85 px-4 backdrop-blur-xl backdrop-saturate-150">
         <div className="flex items-center gap-3">
           <button
             className="rounded-md p-2 hover:bg-brand-tint md:hidden"

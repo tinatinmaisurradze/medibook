@@ -75,17 +75,17 @@ export function MonthCalendar({ month, onMonthChange, counts, selected, onSelect
               aria-label={`${day} ${MONTHS[m]}${count ? `, ${count} ვიზიტი` : ''}${dayOff ? ', დასვენების დღე' : ''}`}
               className={`flex aspect-square min-h-11 flex-col items-center justify-center rounded-md border text-sm transition-colors ${
                 isSelected
-                  ? 'border-brand bg-brand text-white'
+                  ? 'border-accent bg-brand text-ink'
                   : isToday
-                    ? 'border-brand text-brand-dark'
+                    ? 'border-accent text-accent'
                     : dayOff
                       ? 'border-transparent bg-canvas text-muted hover:border-line'
-                      : 'border-transparent hover:border-brand hover:bg-brand-tint'
+                      : 'border-transparent hover:border-accent hover:bg-brand-tint'
               }`}
             >
               <span className="font-medium">{day}</span>
               {count > 0 && (
-                <span className={`mt-0.5 rounded-full px-1.5 text-[11px] leading-4 ${isSelected ? 'bg-white text-brand-dark' : 'bg-brand text-white'}`}>{count}</span>
+                <span className={`mt-0.5 rounded-full px-1.5 text-[11px] leading-4 ${isSelected ? 'bg-white text-accent' : 'bg-brand text-ink'}`}>{count}</span>
               )}
             </button>
           )

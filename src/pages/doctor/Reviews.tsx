@@ -1,61 +1,9 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useAsync } from '@/hooks/useAsync'
 import { profileService } from '@/services/profileService'
 import { reviewService } from '@/services/doctorPortalService'
-import { errorMessage } from '@/services/http'
-import { useToast } from '@/context/ToastContext'
-import { replySchema, type ReplyForm } from '@/utils/validation'
-import { RatingSummary, ReviewItem } from '@/components/ReviewList'
-import { Button } from '@/components/ui/Button'
-import { TextArea } from '@/components/ui/FormField'
+import { RatingSummary, RatingTiles } from '@/components/ReviewList'
 import { EmptyState, ErrorState } from '@/components/ui/States'
-import type { ReviewView } from '@/types'
-
-function ReplyEditor({ review, onDone }: { review: ReviewView; onDone: () => void }) {
-  const { notify } = useToast()
-  const [open, setOpen] = useState(false)
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<ReplyForm>({ resolver: zodResolver(replySchema), mode: 'onTouched', defaultValues: { reply: review.doctorReply ?? '' } })
-
-  const onSubmit = async (data: ReplyForm) => {
-    try {
-      await reviewService.reply(review.id, data.reply)
-      notify('პასუხი გამოქვეყნდა')
-      setOpen(false)
-      onDone()
-    } catch (e) {
-      notify(errorMessage(e), 'error')
-    }
-  }
-
-  if (!open) {
-    return (
-      <Button variant="secondary" size="sm" className="mt-3" onClick={() => setOpen(true)}>
-        {review.doctorReply ? 'პასუხის შეცვლა' : 'პასუხის დაწერა'}
-      </Button>
-    )
-  }
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-3 space-y-3">
-      <TextArea label="თქვენი პასუხი (ხედავს ყველა)" rows={3} hint={`${(watch('reply') ?? '').length} / 500`} error={errors.reply?.message} {...register('reply')} />
-      <div className="flex gap-2">
-        <Button type="submit" size="sm" loading={isSubmitting}>
-          გამოქვეყნება
-        </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
-          გაუქმება
-        </Button>
-      </div>
-    </form>
-  )
-}
+import { Stars } from '@/components/ui/Badges'
 
 export default function DoctorReviews() {
   const data = useAsync(async () => {
@@ -64,10 +12,13 @@ export default function DoctorReviews() {
     return reviewService.forDoctor(profile.doctor.id)
   }, [])
 
+  const last5 = data.data?.reviews.slice(0, 5) ?? []
+  const last5Avg = last5.length ? last5.reduce((s, r) => s + r.rating, 0) / last5.length : 0
+
   return (
     <div>
       <h1 className="text-3xl font-bold">შეფასებები</h1>
-      <p className="mt-1 text-muted">პაციენტების შეფასებები. პაციენტის სრული სახელი არ ჩანს, პასუხს კი ყველა ხედავს.</p>
+      <p className="mt-1 max-w-xl text-muted">პაციენტები ვარსკვლავებით აფასებენ მხოლოდ დასრულებულ ვიზიტს. შეფასება ანონიმურია და ტექსტის გარეშე.</p>
 
       {data.loading && <div className="mt-6 skeleton h-64 w-full" aria-hidden />}
       {data.error && (
@@ -78,20 +29,32 @@ export default function DoctorReviews() {
 
       {data.data && (
         <div className="mt-6 space-y-6">
-          <section className="rounded-lg border border-line bg-surface p-6 shadow-card">
+          <section className="rounded-2xl border border-line bg-surface p-6 shadow-card sm:p-8">
             <RatingSummary summary={data.data} />
           </section>
 
-          {data.data.reviews.length === 0 ? (
+          {data.data.count === 0 ? (
             <EmptyState title="შეფასებები ჯერ არ არის" text="პაციენტები დასრულებული ვიზიტის შემდეგ შეძლებენ შეფასებას." />
           ) : (
-            <div className="space-y-3">
-              {data.data.reviews.map((r) => (
-                <ReviewItem key={r.id} review={r}>
-                  <ReplyEditor review={r} onDone={data.reload} />
-                </ReviewItem>
-              ))}
-            </div>
+            <>
+              <section className="rounded-2xl bg-lav/40 p-5" aria-labelledby="trend-title">
+                <h2 id="trend-title" className="text-sm font-bold uppercase tracking-wide text-accent">
+                  ბოლო {last5.length} შეფასება
+                </h2>
+                <div className="mt-2 flex flex-wrap items-center gap-4">
+                  <span className="font-display text-3xl font-bold">{last5Avg.toFixed(1)}</span>
+                  <Stars value={last5Avg} size={20} />
+                  <span className="text-sm text-muted">{last5Avg >= data.data.average ? 'საერთო საშუალოზე მაღალია' : 'საერთო საშუალოზე დაბალია'}</span>
+                </div>
+              </section>
+
+              <section aria-labelledby="recent-title">
+                <h2 id="recent-title" className="mb-3 text-xl font-bold">
+                  ბოლო შეფასებები
+                </h2>
+                <RatingTiles reviews={data.data.reviews.slice(0, 12)} />
+              </section>
+            </>
           )}
         </div>
       )}

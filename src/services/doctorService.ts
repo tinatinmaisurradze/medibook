@@ -6,8 +6,10 @@ export interface DoctorFilters {
   specialty?: SpecialtyKey | ''
   clinicId?: number | ''
   minRating?: number | ''
-  sort?: 'rating' | 'experience' | 'name'
+  availability?: 'today' | 'tomorrow' | 'week' | ''
+  sort?: 'rating' | 'experience' | 'name' | 'soonest'
   page?: number
+  pageSize?: number
 }
 
 function qs(params: Record<string, string | number | undefined | ''>) {

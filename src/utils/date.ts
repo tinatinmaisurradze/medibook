@@ -50,3 +50,11 @@ export function msUntil(date: string, time: string): number {
   d.setHours(h, m, 0, 0)
   return d.getTime() - Date.now()
 }
+
+/** "დღეს", "ხვალ" or the full date */
+export function relativeDay(iso: string): string {
+  const today = toISODate(new Date())
+  if (iso === today) return 'დღეს'
+  if (iso === toISODate(addDays(new Date(), 1))) return 'ხვალ'
+  return formatDate(iso)
+}

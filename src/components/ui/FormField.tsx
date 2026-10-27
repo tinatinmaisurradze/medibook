@@ -7,7 +7,7 @@ interface BaseProps {
 }
 
 const control =
-  'w-full rounded-md border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30'
+  'w-full rounded-md border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30'
 
 export const TextField = forwardRef<HTMLInputElement, BaseProps & InputHTMLAttributes<HTMLInputElement>>(
   ({ label, error, hint, id, ...rest }, ref) => {

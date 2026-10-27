@@ -4,13 +4,15 @@ import { Menu, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { BrandMark } from '@/components/BrandMark'
 import { UserMenu } from '@/components/UserMenu'
+import { useScrolled } from '@/hooks/useScrolled'
 
 const linkCls = ({ isActive }: { isActive: boolean }) =>
-  `rounded-md px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-brand-tint text-brand-dark' : 'text-ink hover:bg-brand-tint'}`
+  `rounded-md px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-ink text-white' : 'text-ink hover:bg-brand-tint'}`
 
 export function PublicLayout() {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
+  const scrolled = useScrolled()
 
   const links = (
     <>
@@ -37,7 +39,13 @@ export function PublicLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
+      <header
+        className={`sticky top-0 z-40 border-b transition-[background-color,box-shadow,border-color] duration-200 ${
+          scrolled || open
+            ? 'border-line bg-surface/85 shadow-[0_10px_30px_-14px_rgb(29_21_48/0.35)] backdrop-blur-xl backdrop-saturate-150'
+            : 'border-transparent bg-transparent'
+        }`}
+      >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <BrandMark />
@@ -53,7 +61,7 @@ export function PublicLayout() {
                 <Link to="/login" className="rounded-md px-3 py-2 text-sm font-medium hover:bg-brand-tint">
                   შესვლა
                 </Link>
-                <Link to="/register" className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark">
+                <Link to="/register" className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-ink hover:bg-brand-dark">
                   რეგისტრაცია
                 </Link>
               </div>

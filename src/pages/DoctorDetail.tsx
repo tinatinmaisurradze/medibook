@@ -10,7 +10,7 @@ import { EmptyState, ErrorState } from '@/components/ui/States'
 import { addDays, dayOfMonth, formatDate, monthName, parseISODate, toISODate, weekdayShort } from '@/utils/date'
 import { Button } from '@/components/ui/Button'
 import { reviewService } from '@/services/doctorPortalService'
-import { RatingSummary, ReviewItem } from '@/components/ReviewList'
+import { RatingSummary, RatingTiles } from '@/components/ReviewList'
 
 export default function DoctorDetail() {
   const { id } = useParams()
@@ -25,7 +25,6 @@ export default function DoctorDetail() {
   const [date, setDate] = useState(days[0])
   const slots = useAsync(() => doctorService.slots(doctorId, date), [doctorId, date])
   const reviews = useAsync(() => reviewService.forDoctor(doctorId), [doctorId])
-  const [showAll, setShowAll] = useState(false)
 
   if (doctor.loading) {
     return (
@@ -38,7 +37,7 @@ export default function DoctorDetail() {
   if (doctor.error || !doctor.data) {
     return (
       <div className="mx-auto max-w-lg">
-        <EmptyState title="ექიმი ვერ მოიძებნა" text={doctor.error ?? undefined} action={<Link to="/doctors" className="font-medium text-brand-dark underline">ექიმების სიაზე დაბრუნება</Link>} />
+        <EmptyState title="ექიმი ვერ მოიძებნა" text={doctor.error ?? undefined} action={<Link to="/doctors" className="font-medium text-accent underline">ექიმების სიაზე დაბრუნება</Link>} />
       </div>
     )
   }
@@ -54,13 +53,13 @@ export default function DoctorDetail() {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
-      <section>
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
+      <section className="min-w-0">
         <div className="flex items-start gap-5">
           <Avatar name={d.fullName} size={80} />
           <div>
             <h1 className="text-3xl font-bold">{d.fullName}</h1>
-            <p className="text-brand-dark">{SPECIALTY_LABELS[d.specialty]}</p>
+            <p className="text-accent">{SPECIALTY_LABELS[d.specialty]}</p>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted">
               <Rating value={d.rating} count={d.reviewCount} />
               <span>{d.experienceYears} წლის გამოცდილება</span>
@@ -111,28 +110,21 @@ export default function DoctorDetail() {
               <ErrorState message={reviews.error} onRetry={reviews.reload} />
             </div>
           )}
-          {reviews.data && reviews.data.count === 0 && <p className="mt-3 rounded-md bg-canvas p-4 text-sm text-muted">ამ ექიმს ჯერ შეფასებები არ აქვს.</p>}
+          {reviews.data && reviews.data.count === 0 && <p className="mt-3 rounded-md bg-canvas p-4 text-sm text-muted">შეფასებები ჯერ არ არის.</p>}
           {reviews.data && reviews.data.count > 0 && (
             <>
               <div className="mt-4 rounded-lg border border-line bg-surface p-5">
                 <RatingSummary summary={reviews.data} />
               </div>
-              <div className="mt-4 space-y-3">
-                {(showAll ? reviews.data.reviews : reviews.data.reviews.slice(0, 3)).map((r) => (
-                  <ReviewItem key={r.id} review={r} />
-                ))}
+              <div className="mt-4">
+                <RatingTiles reviews={reviews.data.reviews.slice(0, 6)} />
               </div>
-              {reviews.data.reviews.length > 3 && (
-                <Button variant="secondary" size="sm" className="mt-3" onClick={() => setShowAll((v) => !v)}>
-                  {showAll ? 'ნაკლების ჩვენება' : `ყველა შეფასება (${reviews.data.reviews.length})`}
-                </Button>
-              )}
             </>
           )}
         </section>
       </section>
 
-      <section aria-labelledby="slots-title" className="h-fit rounded-lg border border-line bg-surface p-5 shadow-card">
+      <section aria-labelledby="slots-title" className="h-fit min-w-0 rounded-lg border border-line bg-surface p-5 shadow-card">
         <h2 id="slots-title" className="text-xl font-bold">
           ვიზიტის დრო
         </h2>
@@ -148,7 +140,7 @@ export default function DoctorDetail() {
                 onClick={() => setDate(iso)}
                 aria-pressed={active}
                 className={`flex w-14 shrink-0 flex-col items-center rounded-md border px-1 py-2 text-sm transition-colors ${
-                  active ? 'border-brand bg-brand text-white' : off ? 'border-line bg-canvas text-muted' : 'border-line hover:border-brand'
+                  active ? 'border-accent bg-brand text-ink' : off ? 'border-line bg-canvas text-muted' : 'border-line hover:border-accent'
                 }`}
               >
                 <span className="text-xs">{weekdayShort(iso)}</span>
@@ -183,7 +175,7 @@ export default function DoctorDetail() {
                   disabled={!s.available}
                   onClick={() => choose(s.time)}
                   className={`min-h-10 rounded-md border text-sm font-medium transition-colors ${
-                    s.available ? 'border-brand/50 text-brand-dark hover:bg-brand hover:text-white' : 'cursor-not-allowed border-line bg-canvas text-muted line-through'
+                    s.available ? 'border-accent/40 text-accent hover:bg-brand hover:text-ink' : 'cursor-not-allowed border-line bg-canvas text-muted line-through'
                   }`}
                   aria-label={s.available ? `${s.time} თავისუფალია` : `${s.time} დაკავებულია`}
                 >
@@ -199,7 +191,7 @@ export default function DoctorDetail() {
         )}
         {!user && (
           <div className="mt-4 text-sm text-muted">
-            დაჯავშნისთვის დაგჭირდებათ <Link to="/login" className="font-medium text-brand-dark underline">შესვლა</Link>. დროის არჩევის შემდეგ ავტომატურად დაბრუნდებით.
+            დაჯავშნისთვის დაგჭირდებათ <Link to="/login" className="font-medium text-accent underline">შესვლა</Link>. დროის არჩევის შემდეგ ავტომატურად დაბრუნდებით.
           </div>
         )}
         <Button variant="ghost" size="sm" className="mt-3" onClick={slots.reload}>

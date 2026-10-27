@@ -1,25 +1,27 @@
 import { ApiError, handleRequest } from './mockApi'
 
+/** The session token lives in sessionStorage: every browser tab has its own login,
+ * so two different accounts can be used side by side (the data is shared through localStorage). */
 const TOKEN_KEY = 'medibook_token'
 
 export const tokenStore = {
   get(): string | null {
     try {
-      return localStorage.getItem(TOKEN_KEY)
+      return sessionStorage.getItem(TOKEN_KEY)
     } catch {
       return null
     }
   },
   set(token: string) {
     try {
-      localStorage.setItem(TOKEN_KEY, token)
+      sessionStorage.setItem(TOKEN_KEY, token)
     } catch {
       /* ignore */
     }
   },
   clear() {
     try {
-      localStorage.removeItem(TOKEN_KEY)
+      sessionStorage.removeItem(TOKEN_KEY)
     } catch {
       /* ignore */
     }

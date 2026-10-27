@@ -12,7 +12,7 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs:
           role="tab"
           aria-selected={value === t.id}
           onClick={() => onChange(t.id)}
-          className={`rounded px-4 py-2 text-sm font-medium transition-colors ${value === t.id ? 'bg-brand text-white' : 'hover:bg-brand-tint'}`}
+          className={`rounded px-4 py-2 text-sm font-medium transition-colors ${value === t.id ? 'bg-ink text-white' : 'hover:bg-brand-tint'}`}
         >
           {t.label}
         </button>

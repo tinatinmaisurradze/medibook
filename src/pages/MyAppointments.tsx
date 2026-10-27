@@ -49,7 +49,7 @@ export default function MyAppointments() {
             role="tab"
             aria-selected={tab === t}
             onClick={() => setTab(t)}
-            className={`rounded px-4 py-2 text-sm font-medium transition-colors ${tab === t ? 'bg-brand text-white' : 'hover:bg-brand-tint'}`}
+            className={`rounded px-4 py-2 text-sm font-medium transition-colors ${tab === t ? 'bg-ink text-white' : 'hover:bg-brand-tint'}`}
           >
             {t === 'upcoming' ? 'მომავალი' : 'ისტორია და რეცეპტები'}
           </button>
@@ -69,7 +69,7 @@ export default function MyAppointments() {
           <EmptyState
             title={tab === 'upcoming' ? 'მომავალი ვიზიტები არ გაქვთ' : 'ისტორია ჯერ ცარიელია'}
             text={tab === 'upcoming' ? 'იპოვეთ ექიმი და დაჯავშნეთ პირველი ვიზიტი.' : 'დასრულებული და გაუქმებული ვიზიტები აქ გამოჩნდება.'}
-            action={tab === 'upcoming' && <Link to="/doctors" className="inline-flex min-h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-dark">ექიმის პოვნა</Link>}
+            action={tab === 'upcoming' && <Link to="/doctors" className="inline-flex min-h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-ink hover:bg-brand-dark">ექიმის პოვნა</Link>}
           />
         )}
 
@@ -80,7 +80,7 @@ export default function MyAppointments() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold">{a.doctorName}</h2>
-                  <p className="text-sm text-brand-dark">{SPECIALTY_LABELS[a.specialty]}</p>
+                  <p className="text-sm text-accent">{SPECIALTY_LABELS[a.specialty]}</p>
                 </div>
                 <StatusBadge status={a.status} />
               </div>
@@ -105,7 +105,7 @@ export default function MyAppointments() {
               )}
 
               {a.status !== 'cancelled' && (
-                <Link to={`/my-appointments/${a.id}`} className="mt-4 inline-flex items-center font-medium text-brand-dark underline">
+                <Link to={`/my-appointments/${a.id}`} className="mt-4 inline-flex items-center font-medium text-accent underline">
                   სრული ანკეტის ნახვა
                 </Link>
               )}

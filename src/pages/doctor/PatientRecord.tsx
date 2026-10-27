@@ -24,7 +24,7 @@ export default function PatientRecord() {
   if (rec.error || !rec.data) {
     return (
       <div className="mx-auto max-w-lg">
-        <EmptyState title="პაციენტი ვერ მოიძებნა" text="ბარათი მხოლოდ იმ პაციენტებისთვის იხსნება, რომლებთანაც ვიზიტი გაქვთ." action={<Link to="/doctor/patients" className="font-medium text-brand-dark underline">პაციენტების სია</Link>} />
+        <EmptyState title="პაციენტი ვერ მოიძებნა" text="ბარათი მხოლოდ იმ პაციენტებისთვის იხსნება, რომლებთანაც ვიზიტი გაქვთ." action={<Link to="/doctor/patients" className="font-medium text-accent underline">პაციენტების სია</Link>} />
         {rec.error && (
           <div className="mt-4">
             <ErrorState message={rec.error} onRetry={rec.reload} />
@@ -38,7 +38,7 @@ export default function PatientRecord() {
 
   return (
     <div>
-      <Link to="/doctor/patients" className="inline-flex items-center gap-1 text-sm font-medium text-brand-dark hover:underline">
+      <Link to="/doctor/patients" className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline">
         <ArrowLeft size={16} aria-hidden />
         პაციენტების სია
       </Link>
@@ -47,7 +47,7 @@ export default function PatientRecord() {
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <section className="rounded-lg border border-line bg-surface p-5 shadow-card">
           <h2 className="flex items-center gap-2 text-lg font-bold">
-            <User size={20} className="text-brand" aria-hidden />
+            <User size={20} className="text-accent" aria-hidden />
             ზოგადი ინფორმაცია
           </h2>
           <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
@@ -72,7 +72,7 @@ export default function PatientRecord() {
 
         <section className="rounded-lg border border-line bg-surface p-5 shadow-card">
           <h2 className="flex items-center gap-2 text-lg font-bold">
-            <HeartPulse size={20} className="text-brand" aria-hidden />
+            <HeartPulse size={20} className="text-accent" aria-hidden />
             სამედიცინო ისტორია
           </h2>
           <div className="mt-3">

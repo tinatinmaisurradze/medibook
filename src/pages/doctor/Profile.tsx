@@ -92,7 +92,7 @@ function ProfessionalForm({ doctor, onSaved }: { doctor: Doctor; onSaved: () => 
             <dd className="mt-0.5 font-medium">{doctor.workDays.map((d) => DAYS[d]).join(', ') || '—'}</dd>
           </div>
         </dl>
-        <Link to={`/doctors/${doctor.id}`} className="mt-4 inline-block text-sm font-medium text-brand-dark underline">
+        <Link to={`/doctors/${doctor.id}`} className="mt-4 inline-block text-sm font-medium text-accent underline">
           როგორ ჩანს ჩემი გვერდი პაციენტებისთვის
         </Link>
       </section>
