@@ -10,6 +10,7 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<User>
   register: (data: { fullName: string; email: string; phone?: string; password: string }) => Promise<User>
   logout: () => void
+  updateUser: (user: User) => void
   hasRole: (...roles: Role[]) => boolean
 }
 
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tokenStore.clear()
         setUser(null)
       },
+      updateUser: setUser,
       hasRole: (...roles) => !!user && roles.includes(user.role),
     }),
     [user, initializing, accept],

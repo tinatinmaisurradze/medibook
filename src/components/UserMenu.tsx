@@ -1,7 +1,8 @@
 import { LogOut } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
+import { profilePath } from '@/utils/roles'
 import { Button } from './ui/Button'
 
 const ROLE_LABEL = { patient: 'პაციენტი', doctor: 'ექიმი', admin: 'ადმინისტრატორი' } as const
@@ -13,10 +14,10 @@ export function UserMenu() {
   if (!user) return null
   return (
     <div className="flex items-center gap-3">
-      <div className="hidden text-right leading-tight sm:block">
+      <Link to={profilePath(user.role)} className="hidden rounded-md px-2 py-1 text-right leading-tight hover:bg-brand-tint sm:block" aria-label="ჩემი პროფილი">
         <p className="text-sm font-medium">{user.fullName}</p>
         <p className="text-xs text-muted">{ROLE_LABEL[user.role]}</p>
-      </div>
+      </Link>
       <Button
         variant="secondary"
         size="sm"

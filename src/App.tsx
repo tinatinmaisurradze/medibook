@@ -15,6 +15,15 @@ const DoctorDetail = lazy(() => import('@/pages/DoctorDetail'))
 const Book = lazy(() => import('@/pages/Book'))
 const MyAppointments = lazy(() => import('@/pages/MyAppointments'))
 const DashboardRedirect = lazy(() => import('@/pages/DashboardRedirect'))
+const VisitDetail = lazy(() => import('@/pages/VisitDetail'))
+const PatientProfile = lazy(() => import('@/pages/PatientProfile'))
+const DoctorDashboard = lazy(() => import('@/pages/doctor/Dashboard'))
+const DoctorCalendar = lazy(() => import('@/pages/doctor/Calendar'))
+const DoctorPatients = lazy(() => import('@/pages/doctor/Patients'))
+const PatientRecord = lazy(() => import('@/pages/doctor/PatientRecord'))
+const DoctorReviews = lazy(() => import('@/pages/doctor/Reviews'))
+const DoctorProfile = lazy(() => import('@/pages/doctor/Profile'))
+const AdminProfile = lazy(() => import('@/pages/admin/Profile'))
 const DoctorSchedule = lazy(() => import('@/pages/doctor/Schedule'))
 const AdminStats = lazy(() => import('@/pages/admin/Stats'))
 const DoctorSchedules = lazy(() => import('@/pages/admin/DoctorSchedules'))
@@ -40,6 +49,8 @@ export default function App() {
           <Route element={<ProtectedRoute roles={['patient']} />}>
             <Route path="/book/:doctorId" element={<Book />} />
             <Route path="/my-appointments" element={<MyAppointments />} />
+            <Route path="/my-appointments/:id" element={<VisitDetail />} />
+            <Route path="/profile" element={<PatientProfile />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
@@ -47,7 +58,14 @@ export default function App() {
         {/* Doctor workspace */}
         <Route element={<ProtectedRoute roles={['doctor']} />}>
           <Route element={<DashboardLayout />}>
+            <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+            <Route path="/doctor/calendar" element={<DoctorCalendar />} />
             <Route path="/doctor/schedule" element={<DoctorSchedule />} />
+            <Route path="/doctor/patients" element={<DoctorPatients />} />
+            <Route path="/doctor/patients/:id" element={<PatientRecord />} />
+            <Route path="/doctor/reviews" element={<DoctorReviews />} />
+            <Route path="/doctor/profile" element={<DoctorProfile />} />
+            <Route path="/doctor/visits/:id" element={<VisitDetail />} />
           </Route>
         </Route>
 
@@ -58,6 +76,7 @@ export default function App() {
             <Route path="/admin/schedule" element={<DoctorSchedules />} />
             <Route path="/admin/rooms" element={<Rooms />} />
             <Route path="/admin/cancellations" element={<Cancellations />} />
+            <Route path="/admin/profile" element={<AdminProfile />} />
           </Route>
         </Route>
       </Routes>

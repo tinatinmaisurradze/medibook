@@ -92,16 +92,22 @@ export default function MyAppointments() {
               {a.status === 'completed' && (a.diagnosis || a.prescription) && (
                 <div className="mt-4 rounded-md bg-canvas p-4 text-sm">
                   {a.diagnosis && (
-                    <p>
+                    <p className="line-clamp-2 break-words">
                       <span className="font-medium">დიაგნოზი:</span> {a.diagnosis}
                     </p>
                   )}
                   {a.prescription && (
-                    <p className="mt-1">
+                    <p className="mt-1 line-clamp-2 break-words">
                       <span className="font-medium">დანიშნულება:</span> {a.prescription}
                     </p>
                   )}
                 </div>
+              )}
+
+              {a.status !== 'cancelled' && (
+                <Link to={`/my-appointments/${a.id}`} className="mt-4 inline-flex items-center font-medium text-brand-dark underline">
+                  სრული ანკეტის ნახვა
+                </Link>
               )}
 
               {a.status === 'confirmed' && (

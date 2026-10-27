@@ -9,6 +9,8 @@ import { Avatar, Rating } from '@/components/ui/Badges'
 import { EmptyState, ErrorState } from '@/components/ui/States'
 import { addDays, dayOfMonth, formatDate, monthName, parseISODate, toISODate, weekdayShort } from '@/utils/date'
 import { Button } from '@/components/ui/Button'
+import { reviewService } from '@/services/doctorPortalService'
+import { RatingSummary, ReviewItem } from '@/components/ReviewList'
 
 export default function DoctorDetail() {
   const { id } = useParams()
@@ -22,6 +24,8 @@ export default function DoctorDetail() {
   const days = useMemo(() => Array.from({ length: 14 }, (_, i) => toISODate(addDays(new Date(), i))), [])
   const [date, setDate] = useState(days[0])
   const slots = useAsync(() => doctorService.slots(doctorId, date), [doctorId, date])
+  const reviews = useAsync(() => reviewService.forDoctor(doctorId), [doctorId])
+  const [showAll, setShowAll] = useState(false)
 
   if (doctor.loading) {
     return (
@@ -58,13 +62,19 @@ export default function DoctorDetail() {
             <h1 className="text-3xl font-bold">{d.fullName}</h1>
             <p className="text-brand-dark">{SPECIALTY_LABELS[d.specialty]}</p>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted">
-              <Rating value={d.rating} />
+              <Rating value={d.rating} count={d.reviewCount} />
               <span>{d.experienceYears} წლის გამოცდილება</span>
             </div>
           </div>
         </div>
 
         <p className="mt-6 max-w-prose">{d.bio}</p>
+        {(d.education || d.languages.length > 0) && (
+          <ul className="mt-4 space-y-1 text-sm text-muted">
+            {d.education && <li>განათლება: {d.education}</li>}
+            {d.languages.length > 0 && <li>ენები: {d.languages.join(', ')}</li>}
+          </ul>
+        )}
 
         <dl className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
           <div className="rounded-md border border-line bg-surface p-4">
@@ -90,6 +100,36 @@ export default function DoctorDetail() {
             <dd className="text-muted">ვიზიტი {d.slotMinutes} წთ</dd>
           </div>
         </dl>
+
+        <section className="mt-10" aria-labelledby="reviews-title">
+          <h2 id="reviews-title" className="text-2xl font-bold">
+            პაციენტების შეფასებები
+          </h2>
+          {reviews.loading && <div className="skeleton mt-4 h-32 w-full" aria-hidden />}
+          {reviews.error && (
+            <div className="mt-4">
+              <ErrorState message={reviews.error} onRetry={reviews.reload} />
+            </div>
+          )}
+          {reviews.data && reviews.data.count === 0 && <p className="mt-3 rounded-md bg-canvas p-4 text-sm text-muted">ამ ექიმს ჯერ შეფასებები არ აქვს.</p>}
+          {reviews.data && reviews.data.count > 0 && (
+            <>
+              <div className="mt-4 rounded-lg border border-line bg-surface p-5">
+                <RatingSummary summary={reviews.data} />
+              </div>
+              <div className="mt-4 space-y-3">
+                {(showAll ? reviews.data.reviews : reviews.data.reviews.slice(0, 3)).map((r) => (
+                  <ReviewItem key={r.id} review={r} />
+                ))}
+              </div>
+              {reviews.data.reviews.length > 3 && (
+                <Button variant="secondary" size="sm" className="mt-3" onClick={() => setShowAll((v) => !v)}>
+                  {showAll ? 'ნაკლების ჩვენება' : `ყველა შეფასება (${reviews.data.reviews.length})`}
+                </Button>
+              )}
+            </>
+          )}
+        </section>
       </section>
 
       <section aria-labelledby="slots-title" className="h-fit rounded-lg border border-line bg-surface p-5 shadow-card">

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { BarChart3, CalendarDays, DoorOpen, Menu, Stethoscope, UserRoundX, X, type LucideIcon } from 'lucide-react'
+import { BarChart3, CalendarDays, ClipboardList, DoorOpen, LayoutDashboard, Menu, Star, Stethoscope, UserCog, UserRoundX, Users, X, type LucideIcon } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { BrandMark } from '@/components/BrandMark'
 import { UserMenu } from '@/components/UserMenu'
@@ -12,12 +12,20 @@ interface NavItem {
 }
 
 const NAV: Record<'doctor' | 'admin', NavItem[]> = {
-  doctor: [{ to: '/doctor/schedule', label: 'ჩემი განრიგი', icon: CalendarDays }],
+  doctor: [
+    { to: '/doctor/dashboard', label: 'დეშბორდი', icon: LayoutDashboard },
+    { to: '/doctor/calendar', label: 'კალენდარი', icon: CalendarDays },
+    { to: '/doctor/schedule', label: 'ვიზიტების სია', icon: ClipboardList },
+    { to: '/doctor/patients', label: 'პაციენტები', icon: Users },
+    { to: '/doctor/reviews', label: 'შეფასებები', icon: Star },
+    { to: '/doctor/profile', label: 'პროფილი', icon: UserCog },
+  ],
   admin: [
     { to: '/admin/stats', label: 'სტატისტიკა', icon: BarChart3 },
     { to: '/admin/schedule', label: 'ექიმების გრაფიკი', icon: Stethoscope },
     { to: '/admin/rooms', label: 'კაბინეტები', icon: DoorOpen },
     { to: '/admin/cancellations', label: 'გაუქმებული ვიზიტები', icon: UserRoundX },
+    { to: '/admin/profile', label: 'პროფილი', icon: UserCog },
   ],
 }
 

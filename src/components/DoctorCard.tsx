@@ -13,7 +13,7 @@ export function DoctorCard({ doctor, clinic }: { doctor: Doctor; clinic?: Clinic
           <h3 className="truncate text-lg font-semibold">{doctor.fullName}</h3>
           <p className="text-sm text-brand-dark">{SPECIALTY_LABELS[doctor.specialty]}</p>
           <div className="mt-1 flex items-center gap-3 text-sm text-muted">
-            <Rating value={doctor.rating} />
+            <Rating value={doctor.rating} count={doctor.reviewCount} />
             <span className="inline-flex items-center gap-1">
               <Clock size={14} aria-hidden />
               {doctor.experienceYears} წლის გამოცდილება

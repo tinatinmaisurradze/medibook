@@ -1,55 +1,13 @@
 import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { Link } from 'react-router-dom'
 import { useAsync } from '@/hooks/useAsync'
 import { appointmentService } from '@/services/appointmentService'
-import { errorMessage } from '@/services/http'
-import { useToast } from '@/context/ToastContext'
 import type { AppointmentView } from '@/types'
 import { addDays, formatDate, toISODate } from '@/utils/date'
-import { visitSchema, type VisitForm } from '@/utils/validation'
 import { StatusBadge } from '@/components/ui/Badges'
 import { Button } from '@/components/ui/Button'
-import { TextArea } from '@/components/ui/FormField'
+import { VisitEditor } from '@/components/VisitEditor'
 import { EmptyState, ErrorState } from '@/components/ui/States'
-
-function VisitEditor({ appt, onDone }: { appt: AppointmentView; onDone: () => void }) {
-  const { notify } = useToast()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<VisitForm>({
-    resolver: zodResolver(visitSchema),
-    mode: 'onTouched',
-    defaultValues: { diagnosis: appt.diagnosis ?? '', prescription: appt.prescription ?? '' },
-  })
-
-  const onSubmit = async (data: VisitForm) => {
-    try {
-      await appointmentService.recordVisit(appt.id, data)
-      notify('ჩანაწერი შენახულია')
-      onDone()
-    } catch (e) {
-      notify(errorMessage(e), 'error')
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-4 space-y-3 rounded-md bg-canvas p-4">
-      <TextArea label="დიაგნოზი" rows={2} error={errors.diagnosis?.message} {...register('diagnosis')} />
-      <TextArea label="დანიშნულება" rows={3} error={errors.prescription?.message} {...register('prescription')} />
-      <div className="flex gap-2">
-        <Button type="submit" size="sm" loading={isSubmitting}>
-          შენახვა და ვიზიტის დასრულება
-        </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
-          გაუქმება
-        </Button>
-      </div>
-    </form>
-  )
-}
 
 export default function DoctorSchedule() {
   const list = useAsync(() => appointmentService.mine(), [])
@@ -120,19 +78,29 @@ export default function DoctorSchedule() {
                     </div>
                     <div className="flex items-center gap-2">
                       <StatusBadge status={a.status} />
+                      <Link
+                        to={`/doctor/visits/${a.id}`}
+                        className="inline-flex min-h-9 items-center rounded-md border border-line px-3 text-sm font-medium hover:border-brand hover:text-brand-dark"
+                      >
+                        ანკეტა
+                      </Link>
                       <Button size="sm" variant="secondary" onClick={() => setOpenId(openId === a.id ? null : a.id)}>
                         ჩანაწერის დამატება
                       </Button>
                     </div>
                   </div>
                   {openId === a.id && (
-                    <VisitEditor
-                      appt={a}
-                      onDone={() => {
-                        setOpenId(null)
-                        list.reload()
-                      }}
-                    />
+                    <div className="mt-4">
+                      <VisitEditor
+                        appointmentId={a.id}
+                        initialDiagnosis={a.diagnosis}
+                        initialPrescription={a.prescription}
+                        onDone={() => {
+                          setOpenId(null)
+                          list.reload()
+                        }}
+                      />
+                    </div>
                   )}
                 </article>
               ))}
@@ -151,6 +119,7 @@ export default function DoctorSchedule() {
                     <th className="px-4 py-3 font-medium">პაციენტი</th>
                     <th className="px-4 py-3 font-medium">სტატუსი</th>
                     <th className="px-4 py-3 font-medium">დიაგნოზი</th>
+                    <th className="px-4 py-3 font-medium" />
                   </tr>
                 </thead>
                 <tbody>
@@ -163,7 +132,14 @@ export default function DoctorSchedule() {
                       <td className="px-4 py-3">
                         <StatusBadge status={a.status} />
                       </td>
-                      <td className="px-4 py-3">{a.diagnosis ?? '—'}</td>
+                      <td className="max-w-xs px-4 py-3">
+                        <span className="line-clamp-2 break-words">{a.diagnosis ?? '—'}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link to={`/doctor/visits/${a.id}`} className="whitespace-nowrap font-medium text-brand-dark underline">
+                          ანკეტის ნახვა
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

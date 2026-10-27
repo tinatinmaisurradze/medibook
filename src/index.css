@@ -51,3 +51,8 @@ h1, h2, h3 { font-family: 'Noto Serif Georgian', Georgia, serif; line-height: 1.
 @layer components {
   .skeleton { @apply animate-pulse rounded-md bg-line; }
 }
+
+@media print {
+  header, footer, aside, .no-print { display: none !important; }
+  body { background: #fff; }
+}

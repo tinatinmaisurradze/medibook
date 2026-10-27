@@ -12,11 +12,23 @@ export function StatusBadge({ status }: { status: AppointmentStatus }) {
   return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${s.cls}`}>{s.label}</span>
 }
 
-export function Rating({ value }: { value: number }) {
+export function Rating({ value, count }: { value: number; count?: number }) {
   return (
-    <span className="inline-flex items-center gap-1 text-sm font-medium" aria-label={`რეიტინგი ${value} 5-დან`}>
+    <span className="inline-flex items-center gap-1 text-sm font-medium" aria-label={`რეიტინგი ${value} 5-დან${count !== undefined ? `, ${count} შეფასება` : ''}`}>
       <Star size={14} className="fill-gold text-gold" aria-hidden />
       {value.toFixed(1)}
+      {count !== undefined && count > 0 && <span className="font-normal text-muted">({count})</span>}
+    </span>
+  )
+}
+
+/** Five stars, filled up to the rounded value (display only) */
+export function Stars({ value, size = 16 }: { value: number; size?: number }) {
+  return (
+    <span className="inline-flex" role="img" aria-label={`${value} 5-დან`}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Star key={n} size={size} className={n <= Math.round(value) ? 'fill-gold text-gold' : 'text-line'} aria-hidden />
+      ))}
     </span>
   )
 }

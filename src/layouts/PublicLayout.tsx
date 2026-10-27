@@ -18,9 +18,14 @@ export function PublicLayout() {
         ექიმები
       </NavLink>
       {user?.role === 'patient' && (
-        <NavLink to="/my-appointments" className={linkCls} onClick={() => setOpen(false)}>
-          ჩემი ვიზიტები
-        </NavLink>
+        <>
+          <NavLink to="/my-appointments" className={linkCls} onClick={() => setOpen(false)}>
+            ჩემი ვიზიტები
+          </NavLink>
+          <NavLink to="/profile" className={linkCls} onClick={() => setOpen(false)}>
+            პროფილი
+          </NavLink>
+        </>
       )}
       {(user?.role === 'doctor' || user?.role === 'admin') && (
         <NavLink to="/dashboard" className={linkCls} onClick={() => setOpen(false)}>

@@ -1,10 +1,11 @@
-import type { AdminStats, AppointmentView, Doctor } from '@/types'
+import type { AdminStats, AppointmentDetail, AppointmentView, Doctor } from '@/types'
 import { http } from './http'
 
 export const appointmentService = {
   create: (data: { doctorId: number; date: string; time: string; reason?: string }) =>
     http.post<AppointmentView>('/api/appointments', data),
   mine: () => http.get<AppointmentView[]>('/api/appointments/me'),
+  get: (id: number) => http.get<AppointmentDetail>(`/api/appointments/${id}`),
   cancel: (id: number) => http.patch<AppointmentView>(`/api/appointments/${id}/cancel`),
   recordVisit: (id: number, data: { diagnosis: string; prescription: string }) =>
     http.patch<AppointmentView>(`/api/appointments/${id}/visit`, data),

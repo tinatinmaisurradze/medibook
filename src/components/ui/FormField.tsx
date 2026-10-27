@@ -1,4 +1,4 @@
-import { forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { forwardRef, useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 
 interface BaseProps {
   label: string
@@ -11,7 +11,8 @@ const control =
 
 export const TextField = forwardRef<HTMLInputElement, BaseProps & InputHTMLAttributes<HTMLInputElement>>(
   ({ label, error, hint, id, ...rest }, ref) => {
-    const fieldId = id ?? rest.name
+    const autoId = useId()
+    const fieldId = id ?? rest.name ?? autoId
     return (
       <div>
         <label htmlFor={fieldId} className="mb-1.5 block text-sm font-medium">
@@ -42,7 +43,8 @@ TextField.displayName = 'TextField'
 
 export const TextArea = forwardRef<HTMLTextAreaElement, BaseProps & TextareaHTMLAttributes<HTMLTextAreaElement>>(
   ({ label, error, hint, id, ...rest }, ref) => {
-    const fieldId = id ?? rest.name
+    const autoId = useId()
+    const fieldId = id ?? rest.name ?? autoId
     return (
       <div>
         <label htmlFor={fieldId} className="mb-1.5 block text-sm font-medium">
