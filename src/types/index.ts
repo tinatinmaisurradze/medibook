@@ -46,8 +46,6 @@ export interface Doctor {
   languages: string[]
   /** Computed by the API from reviews */
   reviewCount: number
-  /** Only in the doctors list: the earliest free slots (up to 3) on the first day that has any */
-  nextAvailable?: { date: string; times: string[] } | null
 }
 
 export type AppointmentStatus = 'confirmed' | 'completed' | 'cancelled'
@@ -138,18 +136,24 @@ export interface Review {
   doctorId: number
   patientId: number
   appointmentId: number
-  /** 1-5 stars. Free-text comments are intentionally not supported. */
   rating: number
+  comment?: string
   createdAt: string
+  doctorReply?: string
+  doctorReplyAt?: string
 }
 
-/** A rating as shown to other people: anonymous, only the stars and the month */
+/** Review as shown to other people: the patient name is shortened ("ნინო გ.") */
 export interface ReviewView {
   id: number
   doctorId: number
   appointmentId: number
   rating: number
+  comment?: string
   createdAt: string
+  patientName: string
+  doctorReply?: string
+  doctorReplyAt?: string
 }
 
 export interface ReviewsSummary {
@@ -165,38 +169,22 @@ export interface ProfileResponse {
   doctor: Doctor | null
 }
 
-export interface DaySlot {
-  time: string
-  status: 'free' | 'booked' | 'past'
-  appointment: AppointmentView | null
-  /** the patient shared an allergy list that is not empty */
-  hasAllergyAlert: boolean
-}
-
-export interface PatientBrief {
-  /** null = no medical profile, false = patient does not share it */
-  shared: boolean | null
-  allergies: string[]
-  conditions: string[]
-  medications: string[]
-  visitsWithMe: number
-  lastDiagnosis?: string
-}
-
 export interface DoctorDashboardData {
   today: string
-  isWorkingDay: boolean
-  nextWorkingDay: string | null
-  workHours: { start: string; end: string }
-  slotMinutes: number
-  daySlots: DaySlot[]
-  occupancy: { booked: number; total: number; free: number; percent: number; firstFree: string | null; endsAt: string | null }
-  nextAppointment: (AppointmentView & { brief: PatientBrief }) | null
+  todayAppointments: AppointmentView[]
+  nextAppointment: AppointmentView | null
+  stats: {
+    today: number
+    next7Days: number
+    completedThisMonth: number
+    patients: number
+    rating: number
+    reviewCount: number
+  }
   /** Confirmed visits whose time has passed and still need a record */
   pendingRecords: AppointmentView[]
-  weekLoad: { date: string; booked: number; total: number }[]
-  stats: { next7Days: number; completedThisMonth: number; patients: number; rating: number; reviewCount: number; last5Average: number | null }
-  recentRatings: ReviewView[]
+  weekLoad: { date: string; count: number }[]
+  latestReviews: ReviewView[]
 }
 
 export interface DoctorPatientSummary {

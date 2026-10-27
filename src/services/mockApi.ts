@@ -11,7 +11,7 @@
  * Swapping it for a real server only requires replacing services/http.ts.
  */
 import type { z, ZodTypeAny } from 'zod'
-import { createSeedDb, SPECIALTY_LABELS, type Db } from '@/data/seed'
+import { createSeedDb, type Db } from '@/data/seed'
 import type {
   AdminStats,
   Appointment,
@@ -19,12 +19,10 @@ import type {
   AppointmentView,
   AuthResponse,
   Doctor,
-  DaySlot,
   DoctorDashboardData,
   DoctorPatientRecord,
   DoctorPatientSummary,
   Paginated,
-  PatientBrief,
   ProfileResponse,
   Review,
   ReviewsSummary,
@@ -41,6 +39,7 @@ import {
   medicalSchema,
   passwordChangeSchema,
   registerFields,
+  replySchema,
   reviewSchema,
   visitSchema,
 } from '@/utils/validation'
@@ -169,9 +168,25 @@ function doctorWithStats(db: Db, doctor: Doctor): Doctor {
   return { ...doctor, rating, reviewCount: rs.length }
 }
 
-function reviewView(_db: Db, r: Review): ReviewView {
-  // anonymous on purpose: only the stars and the date are shown to other people
-  return { id: r.id, doctorId: r.doctorId, appointmentId: r.appointmentId, rating: r.rating, createdAt: r.createdAt }
+/** "ნინო გელაშვილი" -> "ნინო გ." (reviews do not expose full patient names) */
+function shortName(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/)
+  return parts.length < 2 ? parts[0] : `${parts[0]} ${parts[parts.length - 1].charAt(0)}.`
+}
+
+function reviewView(db: Db, r: Review): ReviewView {
+  const patient = db.users.find((u) => u.id === r.patientId)
+  return {
+    id: r.id,
+    doctorId: r.doctorId,
+    appointmentId: r.appointmentId,
+    rating: r.rating,
+    comment: r.comment,
+    createdAt: r.createdAt,
+    patientName: patient ? shortName(patient.fullName) : 'პაციენტი',
+    doctorReply: r.doctorReply,
+    doctorReplyAt: r.doctorReplyAt,
+  }
 }
 
 function summarize(db: Db, doctorId: number): ReviewsSummary {
@@ -202,18 +217,6 @@ function buildSlots(db: Db, doctor: Doctor, date: string): Slot[] {
   }
   return slots
 }
-
-/** the earliest free slots (up to 3) on the first day within `days` that has any */
-function nextAvailability(db: Db, doctor: Doctor, days = 14): { date: string; times: string[] } | null {
-  for (let i = 0; i < days; i++) {
-    const date = toISODate(addDays(new Date(), i))
-    const free = buildSlots(db, doctor, date).filter((s) => s.available)
-    if (free.length) return { date, times: free.slice(0, 3).map((s) => s.time) }
-  }
-  return null
-}
-
-const hasFreeSlotOn = (db: Db, doctor: Doctor, date: string) => buildSlots(db, doctor, date).some((s) => s.available)
 
 /** failed logins per e-mail: brute-force protection */
 const failedLogins = new Map<string, { count: number; since: number }>()
@@ -344,38 +347,18 @@ route('GET', '/api/doctors', ({ db, query }) => {
   const specialty = query.get('specialty') as SpecialtyKey | null
   const clinicId = Number(query.get('clinicId')) || null
   const minRating = Number(query.get('minRating')) || 0
-  const availability = query.get('availability')
   const q = (query.get('q') ?? '').trim().toLowerCase()
   const sort = query.get('sort') ?? 'rating'
   const page = Math.max(1, Number(query.get('page')) || 1)
   const pageSize = Math.min(50, Number(query.get('pageSize')) || PAGE_SIZE)
 
-  let list = db.doctors.filter((d) => d.active).map((d) => ({ ...doctorWithStats(db, d), nextAvailable: nextAvailability(db, d) }))
+  let list = db.doctors.filter((d) => d.active).map((d) => doctorWithStats(db, d))
   if (specialty) list = list.filter((d) => d.specialty === specialty)
   if (clinicId) list = list.filter((d) => d.clinicId === clinicId)
   if (minRating) list = list.filter((d) => d.rating >= minRating)
-  if (q) {
-    list = list.filter((d) => d.fullName.toLowerCase().includes(q) || SPECIALTY_LABELS[d.specialty].toLowerCase().includes(q))
-  }
-  if (availability === 'today' || availability === 'tomorrow' || availability === 'week') {
-    const todayIso = toISODate(new Date())
-    const tomorrowIso = toISODate(addDays(new Date(), 1))
-    list = list.filter((d) => {
-      const doctor = db.doctors.find((x) => x.id === d.id)!
-      if (availability === 'today') return hasFreeSlotOn(db, doctor, todayIso)
-      if (availability === 'tomorrow') return hasFreeSlotOn(db, doctor, tomorrowIso)
-      return nextAvailability(db, doctor, 7) !== null
-    })
-  }
-  const soonest = (d: (typeof list)[number]) => (d.nextAvailable ? `${d.nextAvailable.date}${d.nextAvailable.times[0]}` : '9999')
+  if (q) list = list.filter((d) => d.fullName.toLowerCase().includes(q))
   list = [...list].sort((a, b) =>
-    sort === 'experience'
-      ? b.experienceYears - a.experienceYears
-      : sort === 'name'
-        ? a.fullName.localeCompare(b.fullName, 'ka')
-        : sort === 'soonest'
-          ? soonest(a).localeCompare(soonest(b))
-          : b.rating - a.rating,
+    sort === 'experience' ? b.experienceYears - a.experienceYears : sort === 'name' ? a.fullName.localeCompare(b.fullName, 'ka') : b.rating - a.rating,
   )
   const total = list.length
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
@@ -512,6 +495,7 @@ route('POST', '/api/reviews', ({ db, token, body }) => {
     patientId: user.id,
     appointmentId: appt.id,
     rating: input.rating,
+    comment: input.comment || undefined,
     createdAt: new Date().toISOString(),
   }
   db.reviews.push(review)
@@ -519,23 +503,18 @@ route('POST', '/api/reviews', ({ db, token, body }) => {
   return reviewView(db, review)
 })
 
-/* ----- doctor workspace ----- */
+route('POST', '/api/reviews/:id/reply', ({ db, token, params, body }) => {
+  const user = requireAuth(db, token, ['doctor'])
+  const review = db.reviews.find((r) => r.id === Number(params[0]) && r.doctorId === user.doctorId)
+  if (!review) throw new ApiError(404, 'NOT_FOUND', 'შეფასება ვერ მოიძებნა')
+  const input = parse(replySchema, body)
+  review.doctorReply = input.reply
+  review.doctorReplyAt = new Date().toISOString()
+  saveDb(db)
+  return reviewView(db, review)
+})
 
-function patientBrief(db: Db, doctorId: number, patientId: number): PatientBrief {
-  const medical = db.medical[patientId]
-  const shared = medical ? medical.sharedWithDoctors : null
-  const past = db.appointments
-    .filter((a) => a.doctorId === doctorId && a.patientId === patientId && a.status === 'completed')
-    .sort(byDateTimeDesc)
-  return {
-    shared,
-    allergies: shared ? medical.allergies : [],
-    conditions: shared ? medical.chronicConditions : [],
-    medications: shared ? medical.medications : [],
-    visitsWithMe: db.appointments.filter((a) => a.doctorId === doctorId && a.patientId === patientId && a.status !== 'cancelled').length,
-    lastDiagnosis: past[0]?.diagnosis,
-  }
-}
+/* ----- doctor workspace ----- */
 
 route('GET', '/api/doctor/dashboard', ({ db, token }) => {
   const user = requireAuth(db, token, ['doctor'])
@@ -543,74 +522,33 @@ route('GET', '/api/doctor/dashboard', ({ db, token }) => {
   if (!doctor) throw new ApiError(404, 'NOT_FOUND', 'ექიმის პროფილი ვერ მოიძებნა')
 
   const mine = db.appointments.filter((a) => a.doctorId === doctor.id)
-  const active = mine.filter((a) => a.status !== 'cancelled')
   const confirmed = mine.filter((a) => a.status === 'confirmed')
   const today = toISODate(new Date())
 
-  // today as a ruler of slots
-  const slots = buildSlots(db, doctor, today)
-  const daySlots: DaySlot[] = slots.map((slot) => {
-    const appt = active.find((a) => a.date === today && a.time === slot.time)
-    const view = appt ? toView(db, appt) : null
-    const medical = appt ? db.medical[appt.patientId] : undefined
-    return {
-      time: slot.time,
-      status: appt ? 'booked' : msUntil(today, slot.time) <= 0 ? 'past' : 'free',
-      appointment: view,
-      hasAllergyAlert: !!medical && medical.sharedWithDoctors && medical.allergies.length > 0,
-    }
-  })
-  const booked = daySlots.filter((s) => s.status === 'booked')
-  const freeLeft = daySlots.filter((s) => s.status === 'free')
-  const lastBooked = booked[booked.length - 1]
-  const occupancy = {
-    booked: booked.length,
-    total: daySlots.length,
-    free: freeLeft.length,
-    percent: daySlots.length ? Math.round((booked.length / daySlots.length) * 100) : 0,
-    firstFree: freeLeft[0]?.time ?? null,
-    endsAt: lastBooked ? minutesToTime(timeToMinutes(lastBooked.time) + doctor.slotMinutes) : null,
-  }
-
-  let nextWorkingDay: string | null = null
-  if (daySlots.length === 0) {
-    for (let i = 1; i < 14 && !nextWorkingDay; i++) {
-      const date = toISODate(addDays(new Date(), i))
-      if (buildSlots(db, doctor, date).length) nextWorkingDay = date
-    }
-  }
-
+  const todayAppointments = confirmed.filter((a) => a.date === today).sort(byDateTimeAsc).map((a) => toView(db, a))
   const next = confirmed.filter((a) => msUntil(a.date, a.time) > 0).sort(byDateTimeAsc)[0]
   const pendingRecords = confirmed.filter((a) => msUntil(a.date, a.time) <= 0).sort(byDateTimeAsc).map((a) => toView(db, a))
-
   const weekLoad = Array.from({ length: 7 }, (_, i) => {
     const date = toISODate(addDays(new Date(), i))
-    return { date, booked: active.filter((a) => a.date === date).length, total: buildSlots(db, doctor, date).length }
+    return { date, count: confirmed.filter((a) => a.date === date).length }
   })
-
   const summary = summarize(db, doctor.id)
-  const last5 = summary.reviews.slice(0, 5)
 
   return {
     today,
-    isWorkingDay: daySlots.length > 0,
-    nextWorkingDay,
-    workHours: doctor.workHours,
-    slotMinutes: doctor.slotMinutes,
-    daySlots,
-    occupancy,
-    nextAppointment: next ? { ...toView(db, next), brief: patientBrief(db, doctor.id, next.patientId) } : null,
-    pendingRecords,
-    weekLoad,
+    todayAppointments,
+    nextAppointment: next ? toView(db, next) : null,
     stats: {
-      next7Days: weekLoad.reduce((sum, d) => sum + d.booked, 0),
+      today: todayAppointments.length,
+      next7Days: weekLoad.reduce((sum, d) => sum + d.count, 0),
       completedThisMonth: mine.filter((a) => a.status === 'completed' && a.date.startsWith(today.slice(0, 7))).length,
-      patients: new Set(active.map((a) => a.patientId)).size,
+      patients: new Set(mine.filter((a) => a.status !== 'cancelled').map((a) => a.patientId)).size,
       rating: doctorWithStats(db, doctor).rating,
       reviewCount: summary.count,
-      last5Average: last5.length ? Math.round((last5.reduce((sum, r) => sum + r.rating, 0) / last5.length) * 10) / 10 : null,
     },
-    recentRatings: last5,
+    pendingRecords,
+    weekLoad,
+    latestReviews: summary.reviews.slice(0, 3),
   } satisfies DoctorDashboardData
 })
 

@@ -24,7 +24,7 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-        formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema), mode: 'onTouched' })
 
   if (user) return <Navigate to={from ?? defaultHome(user.role)} replace />
@@ -58,7 +58,7 @@ export default function Login() {
       <h1 className="text-3xl font-bold">შესვლა</h1>
       <p className="mt-1 text-muted">
         არ გაქვთ ანგარიში?{' '}
-        <Link to="/register" className="font-medium text-accent underline">
+        <Link to="/register" className="font-medium text-brand-dark underline">
           დარეგისტრირდით
         </Link>
       </p>
@@ -89,7 +89,7 @@ export default function Login() {
             { title: 'ადმინისტრატორი', icon: <ShieldCheck size={16} aria-hidden />, list: [{ ...DEMO_ACCOUNTS.admin, sub: 'admin' }] },
           ].map((g) => (
             <div key={g.title} className="rounded-xl border border-line bg-surface p-3">
-              <p className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold text-accent">
+              <p className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold text-brand-dark">
                 {g.icon}
                 {g.title}
               </p>
@@ -100,7 +100,7 @@ export default function Login() {
                       type="button"
                       disabled={quickBusy !== null}
                       onClick={() => quickLogin(a.email)}
-                      className="w-full rounded-lg border border-transparent bg-canvas px-3 py-2 text-left transition-colors hover:border-accent hover:bg-brand-tint disabled:opacity-60"
+                      className="w-full rounded-lg border border-transparent bg-canvas px-3 py-2 text-left transition-colors hover:border-brand hover:bg-brand-tint disabled:opacity-60"
                     >
                       <span className="block truncate text-sm font-medium">{a.name}</span>
                       <span className="block truncate text-xs text-muted">{quickBusy === a.email ? 'შესვლა...' : a.sub}</span>

@@ -40,7 +40,7 @@ export default function Book() {
 
   if (doctor.loading) return <div className="skeleton mx-auto h-72 max-w-xl" aria-hidden />
   if (!doctor.data) {
-    return <EmptyState title="ექიმი ვერ მოიძებნა" action={<Link to="/doctors" className="font-medium text-accent underline">ექიმების სია</Link>} />
+    return <EmptyState title="ექიმი ვერ მოიძებნა" action={<Link to="/doctors" className="font-medium text-brand-dark underline">ექიმების სია</Link>} />
   }
 
   const d = doctor.data
@@ -66,7 +66,7 @@ export default function Book() {
           <Avatar name={d.fullName} />
           <div>
             <p className="text-lg font-semibold">{d.fullName}</p>
-            <p className="text-sm text-accent">{SPECIALTY_LABELS[d.specialty]}</p>
+            <p className="text-sm text-brand-dark">{SPECIALTY_LABELS[d.specialty]}</p>
           </div>
         </div>
         <ul className="mt-4 grid gap-2 text-sm">
@@ -80,7 +80,7 @@ export default function Book() {
             <DoorOpen size={16} className="text-muted" aria-hidden /> {clinic?.name}, {d.room}
           </li>
         </ul>
-        <Link to={`/doctors/${d.id}`} className="mt-4 inline-block text-sm font-medium text-accent underline">
+        <Link to={`/doctors/${d.id}`} className="mt-4 inline-block text-sm font-medium text-brand-dark underline">
           დროის შეცვლა
         </Link>
       </div>
@@ -96,7 +96,7 @@ export default function Book() {
         )}
         <TextArea
           label="ვიზიტის მიზეზი (არასავალდებულო)"
-          placeholder="მაგ: წნევის მატება, ყოველწლიური გასინჯვა"
+          placeholder="მაგ: ზეწოლის მატება, ყოველწლიური გასინჯვა"
           hint={`${reasonLength} / 300`}
           error={errors.reason?.message}
           {...register('reason')}

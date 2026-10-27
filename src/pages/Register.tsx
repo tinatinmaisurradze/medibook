@@ -40,7 +40,7 @@ export default function Register() {
       <h1 className="text-3xl font-bold">რეგისტრაცია</h1>
       <p className="mt-1 text-muted">
         უკვე გაქვთ ანგარიში?{' '}
-        <Link to="/login" className="font-medium text-accent underline">
+        <Link to="/login" className="font-medium text-brand-dark underline">
           შედით
         </Link>
       </p>

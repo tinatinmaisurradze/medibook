@@ -4,7 +4,7 @@ import type { Role } from '@/types'
 export function defaultHome(role: Role): string {
   if (role === 'doctor') return '/doctor/dashboard'
   if (role === 'admin') return '/admin/stats'
-  return '/'
+  return '/doctors'
 }
 
 export function profilePath(role: Role): string {

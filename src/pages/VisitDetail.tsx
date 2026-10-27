@@ -6,17 +6,18 @@ import { useAuth } from '@/context/AuthContext'
 import { useAsync } from '@/hooks/useAsync'
 import { appointmentService } from '@/services/appointmentService'
 import { formatDate } from '@/utils/date'
-import { StatusBadge, Stars } from '@/components/ui/Badges'
+import { StatusBadge } from '@/components/ui/Badges'
 import { Button } from '@/components/ui/Button'
 import { EmptyState, ErrorState } from '@/components/ui/States'
 import { VisitEditor } from '@/components/VisitEditor'
+import { ReviewItem } from '@/components/ReviewList'
 import { ReviewForm } from '@/components/ReviewForm'
 
 function Card({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
     <section className="rounded-lg border border-line bg-surface p-5 shadow-card">
       <h2 className="flex items-center gap-2 text-lg font-bold">
-        <span className="text-accent" aria-hidden>
+        <span className="text-brand" aria-hidden>
           {icon}
         </span>
         {title}
@@ -63,7 +64,7 @@ export default function VisitDetail() {
           title="ვიზიტი ვერ მოიძებნა"
           text={visit.error ?? 'ეს ვიზიტი არ არსებობს ან თქვენ მასზე წვდომა არ გაქვთ.'}
           action={
-            <Link to={backTo} className="font-medium text-accent underline">
+            <Link to={backTo} className="font-medium text-brand-dark underline">
               დაბრუნება სიაზე
             </Link>
           }
@@ -82,7 +83,7 @@ export default function VisitDetail() {
 
   return (
     <div>
-      <Link to={backTo} className="no-print inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline">
+      <Link to={backTo} className="no-print inline-flex items-center gap-1 text-sm font-medium text-brand-dark hover:underline">
         <ArrowLeft size={16} aria-hidden />
         {isDoctor ? 'ჩემს განრიგზე' : 'ჩემს ვიზიტებზე'}
       </Link>
@@ -195,14 +196,10 @@ export default function VisitDetail() {
           </h2>
           <div className="mt-3">
             {v.review ? (
-              <div className="flex items-center gap-3 rounded-lg border border-line bg-surface p-5 shadow-card">
-                <Stars value={v.review.rating} size={24} />
-                <span className="font-display text-xl font-bold">{v.review.rating}/5</span>
-                <span className="text-sm text-muted">გმადლობთ შეფასებისთვის</span>
-              </div>
+              <ReviewItem review={v.review} />
             ) : (
               <div className="rounded-lg border border-line bg-surface p-5 shadow-card">
-                <p className="mb-3 text-sm text-muted">როგორი იყო ვიზიტი? შეფასება ანონიმურად ქვეყნდება და ექიმის რეიტინგში აისახება.</p>
+                <p className="mb-3 text-sm text-muted">როგორი იყო ვიზიტი? შეფასებას სხვა პაციენტები ექიმის არჩევისას ხედავენ, თქვენი სრული სახელი კი არა.</p>
                 <ReviewForm appointmentId={v.id} onDone={visit.reload} />
               </div>
             )}

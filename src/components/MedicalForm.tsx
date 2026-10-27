@@ -61,7 +61,7 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="max-w-2xl space-y-6">
-      <div className="flex gap-3 rounded-md bg-brand-tint p-4 text-sm text-accent">
+      <div className="flex gap-3 rounded-md bg-brand-tint p-4 text-sm text-brand-dark">
         <ShieldCheck size={20} className="mt-0.5 shrink-0" aria-hidden />
         <p>
           ეს ინფორმაცია პირადია. ის მხოლოდ თქვენ ხედავთ და იმ ექიმებს, რომლებთანაც ვიზიტი გაქვთ, თუ ქვემოთ გაზიარებას ჩართავთ. ადმინისტრაციას მასზე წვდომა არ აქვს.
@@ -82,7 +82,7 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
           <select
             id="bloodType"
             {...register('bloodType')}
-            className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+            className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-[#0d7a83]/30"
           >
             <option value="">არ არის მითითებული</option>
             {BLOOD_TYPES.map((b) => (
@@ -111,7 +111,7 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
       />
 
       <label className="flex items-start gap-3 rounded-md border border-line bg-surface p-4">
-        <input type="checkbox" className="mt-1 h-4 w-4 accent-[rgb(var(--c-accent))]" {...register('sharedWithDoctors')} />
+        <input type="checkbox" className="mt-1 h-4 w-4 accent-[var(--color-brand)]" {...register('sharedWithDoctors')} />
         <span className="text-sm">
           <span className="font-medium">ექიმებისთვის ხელმისაწვდომობა</span>
           <span className="mt-0.5 block text-muted">დაუშვით ამ ინფორმაციის ნახვა ექიმებისთვის, რომლებთანაც ვიზიტი გაქვთ. გამორთვის შემთხვევაში ექიმი ვერ ნახავს.</span>

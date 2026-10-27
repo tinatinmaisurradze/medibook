@@ -10,8 +10,8 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-ink hover:bg-brand-dark disabled:bg-brand/40 disabled:text-ink/50',
-  secondary: 'border border-line bg-surface text-ink hover:border-accent hover:text-accent disabled:opacity-50',
+  primary: 'bg-brand text-white hover:bg-brand-dark disabled:bg-[#0d7a83]/50',
+  secondary: 'border border-line bg-surface text-ink hover:border-brand hover:text-brand-dark disabled:opacity-50',
   danger: 'border border-danger text-danger hover:bg-danger-tint disabled:opacity-50',
   ghost: 'text-ink hover:bg-brand-tint disabled:opacity-50',
 }

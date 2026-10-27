@@ -4,32 +4,27 @@
 
 /* Design Tokens (8px grid spacing, 4 core colours + semantic colours) */
 :root {
-  /* palette: lavender (calm), chartreuse (available / go), tomato (attention) + deep aubergine ink.
-     Stored as "R G B" channels so Tailwind opacity utilities (bg-surface/80, ring-accent/30) work. */
-  --c-ink: 29 21 48;
-  --c-muted: 98 88 122;
-  --c-canvas: 246 243 250;
-  --c-surface: 255 255 255;
-  --c-line: 227 220 238;
-  --c-brand: 212 255 63;          /* chartreuse #D4FF3F */
-  --c-brand-dark: 190 240 24;
-  --c-brand-tint: 239 231 250;    /* soft lavender */
-  --c-lav: 203 179 232;           /* lavender #CBB3E8 */
-  --c-accent: 79 44 145;          /* deep violet for text, icons, links */
-  --c-star: 79 44 145;
-  --c-danger: 201 52 37;          /* readable tomato for text */
-  --c-signal: 227 66 52;          /* tomato #E34234 for fills and markers */
-  --c-danger-tint: 253 236 234;
-  --c-ok: 46 107 18;
-  --c-ok-tint: 234 248 201;
+  --color-ink: #11283a;
+  --color-muted: #5b6f7e;
+  --color-brand: #0d7a83;
+  --color-brand-dark: #095c63;
+  --color-brand-tint: #e2f1f0;
+  --color-canvas: #f4f8f8;
+  --color-surface: #ffffff;
+  --color-line: #d9e3e6;
+  --color-gold: #d99a1e;
+  --color-danger: #b4322f;
+  --color-danger-tint: #fbeaea;
+  --color-ok: #1f7a4d;
+  --color-ok-tint: #e3f3ea;
 
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
-  --radius-md: 10px;
-  --radius-lg: 18px;
-  --shadow-sm: 0 1px 2px rgb(29 21 48 / 0.05), 0 4px 16px rgb(29 21 48 / 0.06);
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(17, 40, 58, 0.06), 0 2px 8px rgba(17, 40, 58, 0.05);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -38,8 +33,8 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: rgb(var(--c-canvas));
-  color: rgb(var(--c-ink));
+  background: var(--color-canvas);
+  color: var(--color-ink);
   font-family: 'Noto Sans Georgian', system-ui, sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -47,7 +42,7 @@ body {
 
 h1, h2, h3 { font-family: 'Noto Serif Georgian', Georgia, serif; line-height: 1.25; }
 
-:focus-visible { outline: 3px solid rgb(var(--c-accent)); outline-offset: 2px; border-radius: 4px; }
+:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
@@ -60,4 +55,23 @@ h1, h2, h3 { font-family: 'Noto Serif Georgian', Georgia, serif; line-height: 1.
 @media print {
   header, footer, aside, .no-print { display: none !important; }
   body { background: #fff; }
+}
+
+/* Sticky header: transparent at the top of the page, frosted glass after scrolling */
+.app-header {
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 10px 30px -14px rgba(17, 40, 58, 0.35);
+  border-bottom-color: var(--color-line);
+}
+.app-header--top {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  border-bottom-color: transparent;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-header { background: #ffffff; }
 }

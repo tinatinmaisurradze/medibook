@@ -5,7 +5,7 @@ function List({ items, tone }: { items: string[]; tone?: 'danger' }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {items.map((i) => (
-        <li key={i} className={`rounded-full px-3 py-0.5 text-sm ${tone === 'danger' ? 'bg-danger-tint text-danger' : 'bg-brand-tint text-accent'}`}>
+        <li key={i} className={`rounded-full px-3 py-0.5 text-sm ${tone === 'danger' ? 'bg-danger-tint text-danger' : 'bg-brand-tint text-brand-dark'}`}>
           {i}
         </li>
       ))}

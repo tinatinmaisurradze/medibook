@@ -30,7 +30,7 @@ export default function DoctorPatients() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="სახელი ან ელ-ფოსტა"
-          className="w-full rounded-md border border-line bg-surface py-2.5 pl-9 pr-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+          className="w-full rounded-md border border-line bg-surface py-2.5 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-[#0d7a83]/30"
         />
       </div>
 
@@ -64,7 +64,7 @@ export default function DoctorPatients() {
                     <td className="px-4 py-3">{p.lastVisit ? formatDate(p.lastVisit) : '—'}</td>
                     <td className="px-4 py-3">{p.nextVisit ? formatDate(p.nextVisit) : '—'}</td>
                     <td className="px-4 py-3 text-right">
-                      <Link to={`/doctor/patients/${p.patientId}`} className="whitespace-nowrap font-medium text-accent underline">
+                      <Link to={`/doctor/patients/${p.patientId}`} className="whitespace-nowrap font-medium text-brand-dark underline">
                         პაციენტის ბარათი
                       </Link>
                     </td>

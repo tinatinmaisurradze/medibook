@@ -1,30 +1,26 @@
 import { Star } from 'lucide-react'
-import { useState } from 'react'
 
-/** Star rating picker for the keyboard and touch (a radio group of five stars) */
+const LABELS = ['', 'ცუდი', 'დამაკმაყოფილებელი', 'კარგი', 'ძალიან კარგი', 'შესანიშნავი']
+
+/** Star rating picker, usable with the keyboard (buttons in a radio group) */
 export function StarInput({ value, onChange, error }: { value: number; onChange: (v: number) => void; error?: string }) {
-  const [hover, setHover] = useState(0)
-  const shown = hover || value
   return (
     <div>
-      <div role="radiogroup" aria-label="შეფასება" className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+      <div role="radiogroup" aria-label="შეფასება" className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
             role="radio"
             aria-checked={value === n}
-            aria-label={`${n} ვარსკვლავი 5-დან`}
+            aria-label={`${n} ვარსკვლავი: ${LABELS[n]}`}
             onClick={() => onChange(n)}
-            onMouseEnter={() => setHover(n)}
-            onFocus={() => setHover(n)}
-            onBlur={() => setHover(0)}
-            className="rounded-md p-1.5 transition-transform hover:scale-110"
+            className="rounded p-1"
           >
-            <Star size={34} strokeWidth={1.4} className={n <= shown ? 'fill-star text-star' : 'text-lav'} aria-hidden />
+            <Star size={28} className={n <= value ? 'fill-gold text-gold' : 'text-line hover:text-gold'} aria-hidden />
           </button>
         ))}
-        {value > 0 && <span className="ml-3 font-display text-2xl font-bold">{value}/5</span>}
+        {value > 0 && <span className="ml-2 text-sm text-muted">{LABELS[value]}</span>}
       </div>
       {error && (
         <p className="mt-1 text-sm text-danger" role="alert">

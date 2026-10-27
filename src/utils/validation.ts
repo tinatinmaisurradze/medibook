@@ -132,12 +132,17 @@ export type PasswordChangeForm = z.infer<typeof passwordChangeSchema>
 
 /* ---------- reviews ---------- */
 
-/** Ratings are stars only: no free text, so the rating stays about the visit and cannot be abused */
 export const reviewSchema = z.object({
   appointmentId: z.number().int().positive(),
   rating: z.number().int('აირჩიეთ შეფასება').min(1, 'აირჩიეთ შეფასება').max(5, 'აირჩიეთ შეფასება'),
+  comment: safeText(500).optional(),
 })
 export type ReviewPayload = z.infer<typeof reviewSchema>
+
+export const replySchema = z.object({
+  reply: safeText(500).pipe(z.string().min(2, 'პასუხი ძალიან მოკლეა')),
+})
+export type ReplyForm = z.infer<typeof replySchema>
 
 /** server-side checks for booking input */
 export const bookingPayloadSchema = z.object({

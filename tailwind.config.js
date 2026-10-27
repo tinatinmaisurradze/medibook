@@ -4,18 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: 'rgb(var(--c-ink) / <alpha-value>)',
-        muted: 'rgb(var(--c-muted) / <alpha-value>)',
-        brand: { DEFAULT: 'rgb(var(--c-brand) / <alpha-value>)', dark: 'rgb(var(--c-brand-dark) / <alpha-value>)', tint: 'rgb(var(--c-brand-tint) / <alpha-value>)' },
-        lav: 'rgb(var(--c-lav) / <alpha-value>)',
-        accent: 'rgb(var(--c-accent) / <alpha-value>)',
-        canvas: 'rgb(var(--c-canvas) / <alpha-value>)',
-        surface: 'rgb(var(--c-surface) / <alpha-value>)',
-        line: 'rgb(var(--c-line) / <alpha-value>)',
-        star: 'rgb(var(--c-star) / <alpha-value>)',
-        signal: 'rgb(var(--c-signal) / <alpha-value>)',
-        danger: { DEFAULT: 'rgb(var(--c-danger) / <alpha-value>)', tint: 'rgb(var(--c-danger-tint) / <alpha-value>)' },
-        ok: { DEFAULT: 'rgb(var(--c-ok) / <alpha-value>)', tint: 'rgb(var(--c-ok-tint) / <alpha-value>)' },
+        ink: 'var(--color-ink)',
+        muted: 'var(--color-muted)',
+        brand: { DEFAULT: 'var(--color-brand)', dark: 'var(--color-brand-dark)', tint: 'var(--color-brand-tint)' },
+        canvas: 'var(--color-canvas)',
+        surface: 'var(--color-surface)',
+        line: 'var(--color-line)',
+        gold: 'var(--color-gold)',
+        danger: { DEFAULT: 'var(--color-danger)', tint: 'var(--color-danger-tint)' },
+        ok: { DEFAULT: 'var(--color-ok)', tint: 'var(--color-ok-tint)' },
       },
       fontFamily: {
         sans: ['"Noto Sans Georgian"', 'system-ui', 'sans-serif'],

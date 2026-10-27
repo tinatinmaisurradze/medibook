@@ -15,7 +15,7 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div role="alert" className="rounded-lg border border-danger/40 bg-danger-tint px-6 py-8 text-center">
+    <div role="alert" className="rounded-lg border border-[#b4322f]/40 bg-danger-tint px-6 py-8 text-center">
       <CircleAlert className="mx-auto mb-2 text-danger" size={28} aria-hidden />
       <p className="text-sm text-danger">{message}</p>
       {onRetry && (

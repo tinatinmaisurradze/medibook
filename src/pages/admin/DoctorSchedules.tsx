@@ -56,7 +56,7 @@ function Row({ doctor, onSaved }: { doctor: Doctor; onSaved: () => void }) {
                 type="button"
                 aria-pressed={on}
                 onClick={() => setDays((cur) => (on ? cur.filter((x) => x !== d) : [...cur, d].sort()))}
-                className={`rounded px-2 py-1 text-xs font-medium ${on ? 'bg-ink text-white' : 'border border-line'}`}
+                className={`rounded px-2 py-1 text-xs font-medium ${on ? 'bg-brand text-white' : 'border border-line'}`}
               >
                 {l}
               </button>
