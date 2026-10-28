@@ -9,6 +9,7 @@ import { errorMessage } from '@/services/http'
 import { BLOOD_TYPES, medicalFormSchema, type MedicalFormValues } from '@/utils/validation'
 import { TextField, TextArea } from './ui/FormField'
 import { TagInput } from './ui/TagInput'
+import { SelectField } from './ui/SelectField'
 import { Button } from './ui/Button'
 
 const toNumber = (v?: string) => (v && v.trim() ? Number(v.replace(',', '.')) : undefined)
@@ -75,23 +76,14 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div>
-          <label htmlFor="bloodType" className="mb-1.5 block text-sm font-medium">
-            სისხლის ჯგუფი
-          </label>
-          <select
-            id="bloodType"
-            {...register('bloodType')}
-            className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-[#0d7a83]/30"
-          >
-            <option value="">არ არის მითითებული</option>
-            {BLOOD_TYPES.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SelectField label="სისხლის ჯგუფი" {...register('bloodType')}>
+          <option value="">არ არის მითითებული</option>
+          {BLOOD_TYPES.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </SelectField>
         <TextField label="სიმაღლე (სმ)" inputMode="decimal" error={errors.heightCm?.message} {...register('heightCm')} />
         <TextField label="წონა (კგ)" inputMode="decimal" error={errors.weightKg?.message} {...register('weightKg')} />
       </div>

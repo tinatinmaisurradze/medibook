@@ -8,7 +8,7 @@ import { errorMessage } from '@/services/http'
 import { loginSchema, type LoginForm } from '@/utils/validation'
 import { TextField } from '@/components/ui/FormField'
 import { Button } from '@/components/ui/Button'
-import { defaultHome } from '@/utils/roles'
+import { afterLoginPath } from '@/utils/roles'
 import { DEMO_ACCOUNTS } from '@/data/seed'
 import { UserRound, Stethoscope, ShieldCheck } from 'lucide-react'
 
@@ -27,7 +27,7 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema), mode: 'onTouched' })
 
-  if (user) return <Navigate to={from ?? defaultHome(user.role)} replace />
+  if (user) return <Navigate to={afterLoginPath(user.role, from)} replace />
 
   const quickLogin = async (email: string) => {
     setServerError(null)
@@ -35,7 +35,7 @@ export default function Login() {
     try {
       const u = await login(email, 'Demo1234!')
       notify(`მოგესალმებით, ${u.fullName}`)
-      navigate(from ?? defaultHome(u.role), { replace: true })
+      navigate(afterLoginPath(u.role, from), { replace: true })
     } catch (e) {
       setServerError(errorMessage(e))
       setQuickBusy(null)
@@ -47,7 +47,7 @@ export default function Login() {
     try {
       const u = await login(data.email, data.password)
       notify(`მოგესალმებით, ${u.fullName}`)
-      navigate(from ?? defaultHome(u.role), { replace: true })
+      navigate(afterLoginPath(u.role, from), { replace: true })
     } catch (e) {
       setServerError(errorMessage(e))
     }
@@ -56,6 +56,9 @@ export default function Login() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-3xl font-bold">შესვლა</h1>
+      {from && (from.startsWith('/book') || from.includes('#slots')) && (
+        <p className="mt-3 rounded-md bg-brand-tint px-4 py-3 text-sm text-brand-dark">ვიზიტის დასაჯავშნად ჯერ შედით ანგარიშში. შესვლის შემდეგ პირდაპირ დაბრუნდებით არჩეულ ექიმთან.</p>
+      )}
       <p className="mt-1 text-muted">
         არ გაქვთ ანგარიში?{' '}
         <Link to="/register" className="font-medium text-brand-dark underline">

@@ -4,6 +4,7 @@ import { StatusBadge } from '@/components/ui/Badges'
 import { EmptyState, ErrorState } from '@/components/ui/States'
 import { formatDate } from '@/utils/date'
 import { Button } from '@/components/ui/Button'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { appointmentService } from '@/services/appointmentService'
 import { errorMessage } from '@/services/http'
 import { useToast } from '@/context/ToastContext'
@@ -13,6 +14,8 @@ export default function Cancellations() {
   const { notify } = useToast()
   const list = useAsync(() => adminService.appointments(), [])
   const [busy, setBusy] = useState<number | null>(null)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
+  const confirmTarget = (list.data ?? []).find((x) => x.id === confirmId)
 
   const cancelled = (list.data ?? []).filter((a) => a.status === 'cancelled')
   const upcoming = (list.data ?? []).filter((a) => a.status === 'confirmed').reverse()
@@ -27,6 +30,7 @@ export default function Cancellations() {
       notify(errorMessage(e), 'error')
     } finally {
       setBusy(null)
+      setConfirmId(null)
     }
   }
 
@@ -81,7 +85,7 @@ export default function Cancellations() {
                   <td className="px-4 py-3">{a.patientName}</td>
                   <td className="px-4 py-3">{a.doctorName}</td>
                   <td className="px-4 py-3 text-right">
-                    <Button size="sm" variant="danger" loading={busy === a.id} onClick={() => cancel(a.id)}>გაუქმება</Button>
+                    <Button size="sm" variant="danger" loading={busy === a.id} onClick={() => setConfirmId(a.id)}>გაუქმება</Button>
                   </td>
                 </tr>
               ))}
@@ -89,6 +93,29 @@ export default function Cancellations() {
           </table>
         </div>
       </section>
+
+      <ConfirmDialog
+        open={confirmTarget !== undefined}
+        title="ვიზიტის გაუქმება"
+        description={
+          confirmTarget && (
+            <>
+              <p className="font-medium text-ink">
+                {confirmTarget.patientName} · {confirmTarget.doctorName}
+              </p>
+              <p>
+                {formatDate(confirmTarget.date)}, {confirmTarget.time}
+              </p>
+              <p className="mt-1">ვიზიტი გაუქმდება და დრო თავისუფალი გახდება ახალი ჯავშნისთვის.</p>
+            </>
+          )
+        }
+        confirmLabel="ვიზიტის გაუქმება"
+        cancelLabel="არა, ვიზიტი დარჩეს"
+        busy={busy !== null}
+        onConfirm={() => confirmId !== null && cancel(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   )
 }

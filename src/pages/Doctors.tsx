@@ -9,6 +9,7 @@ import { doctorService, type DoctorFilters } from '@/services/doctorService'
 import { DoctorCard } from '@/components/DoctorCard'
 import { DoctorCardSkeleton, EmptyState, ErrorState } from '@/components/ui/States'
 import { Button } from '@/components/ui/Button'
+import { SelectField } from '@/components/ui/SelectField'
 
 const selectCls =
   'w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-[#0d7a83]/30'
@@ -67,53 +68,33 @@ export default function Doctors() {
             className={`${selectCls} pl-9`}
           />
         </div>
-        <div>
-          <label htmlFor="f-specialty" className="sr-only">
-            სპეციალობა
-          </label>
-          <select id="f-specialty" className={selectCls} value={specialty} onChange={(e) => setParam('specialty', e.target.value)}>
-            <option value="">ყველა სპეციალობა</option>
-            {Object.entries(SPECIALTY_LABELS).map(([k, label]) => (
-              <option key={k} value={k}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="f-clinic" className="sr-only">
-            კლინიკა
-          </label>
-          <select id="f-clinic" className={selectCls} value={clinicId} onChange={(e) => setParam('clinicId', e.target.value)}>
-            <option value="">ყველა კლინიკა</option>
-            {clinics.data?.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="f-rating" className="sr-only">
-            მინიმალური რეიტინგი
-          </label>
-          <select id="f-rating" className={selectCls} value={minRating} onChange={(e) => setParam('minRating', e.target.value)}>
-            <option value="">ნებისმიერი რეიტინგი</option>
-            <option value="4.5">4.5 და მეტი</option>
-            <option value="4.7">4.7 და მეტი</option>
-            <option value="4.9">4.9 და მეტი</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="f-sort" className="sr-only">
-            დახარისხება
-          </label>
-          <select id="f-sort" className={selectCls} value={sort} onChange={(e) => setParam('sort', e.target.value)}>
-            <option value="rating">რეიტინგის მიხედვით</option>
-            <option value="experience">გამოცდილების მიხედვით</option>
-            <option value="name">სახელის მიხედვით</option>
-          </select>
-        </div>
+        <SelectField label="სპეციალობა" hideLabel value={specialty} onChange={(e) => setParam('specialty', e.target.value)}>
+          <option value="">ყველა სპეციალობა</option>
+          {Object.entries(SPECIALTY_LABELS).map(([k, label]) => (
+            <option key={k} value={k}>
+              {label}
+            </option>
+          ))}
+        </SelectField>
+        <SelectField label="კლინიკა" hideLabel value={clinicId} onChange={(e) => setParam('clinicId', e.target.value)}>
+          <option value="">ყველა კლინიკა</option>
+          {clinics.data?.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </SelectField>
+        <SelectField label="მინიმალური რეიტინგი" hideLabel value={minRating} onChange={(e) => setParam('minRating', e.target.value)}>
+          <option value="">ნებისმიერი რეიტინგი</option>
+          <option value="4.5">4.5 და მეტი</option>
+          <option value="4.7">4.7 და მეტი</option>
+          <option value="4.9">4.9 და მეტი</option>
+        </SelectField>
+        <SelectField label="დახარისხება" hideLabel value={sort} onChange={(e) => setParam('sort', e.target.value)}>
+          <option value="rating">რეიტინგის მიხედვით</option>
+          <option value="experience">გამოცდილების მიხედვით</option>
+          <option value="name">სახელის მიხედვით</option>
+        </SelectField>
       </div>
 
       <div className="mt-6" aria-live="polite">

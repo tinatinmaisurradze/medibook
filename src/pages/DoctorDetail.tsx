@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Building2, CalendarClock, DoorOpen } from 'lucide-react'
 import { SPECIALTY_LABELS } from '@/data/seed'
 import { useAsync } from '@/hooks/useAsync'
@@ -17,6 +17,7 @@ export default function DoctorDetail() {
   const doctorId = Number(id)
   const navigate = useNavigate()
   const { user } = useAuth()
+  const location = useLocation()
 
   const doctor = useAsync(() => doctorService.get(doctorId), [doctorId])
   const clinics = useAsync(() => doctorService.clinics(), [])
@@ -26,6 +27,11 @@ export default function DoctorDetail() {
   const slots = useAsync(() => doctorService.slots(doctorId, date), [doctorId, date])
   const reviews = useAsync(() => reviewService.forDoctor(doctorId), [doctorId])
   const [showAll, setShowAll] = useState(false)
+
+  // coming back from the login page with #slots: bring the time picker into view
+  useEffect(() => {
+    if (location.hash === '#slots' && doctor.data) document.getElementById('slots')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [location.hash, doctor.data])
 
   if (doctor.loading) {
     return (
@@ -67,6 +73,27 @@ export default function DoctorDetail() {
             </div>
           </div>
         </div>
+
+        {(!user || user.role === 'patient') && (
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {user ? (
+              <a href="#slots" className="inline-flex min-h-11 items-center rounded-md bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-dark">
+                ვიზიტის დაჯავშნა
+              </a>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  state={{ from: `/doctors/${d.id}#slots` }}
+                  className="inline-flex min-h-11 items-center rounded-md bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+                >
+                  ვიზიტის დაჯავშნა
+                </Link>
+                <span className="text-sm text-muted">ჯავშნისთვის საჭიროა შესვლა</span>
+              </>
+            )}
+          </div>
+        )}
 
         <p className="mt-6 max-w-prose">{d.bio}</p>
         {(d.education || d.languages.length > 0) && (
@@ -132,7 +159,7 @@ export default function DoctorDetail() {
         </section>
       </section>
 
-      <section aria-labelledby="slots-title" className="h-fit min-w-0 rounded-lg border border-line bg-surface p-5 shadow-card">
+      <section id="slots" aria-labelledby="slots-title" className="h-fit min-w-0 scroll-mt-24 rounded-lg border border-line bg-surface p-5 shadow-card">
         <h2 id="slots-title" className="text-xl font-bold">
           ვიზიტის დრო
         </h2>

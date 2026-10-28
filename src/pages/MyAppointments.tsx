@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { SPECIALTY_LABELS } from '@/data/seed'
 import { useAsync } from '@/hooks/useAsync'
 import { appointmentService } from '@/services/appointmentService'
@@ -9,18 +9,22 @@ import type { AppointmentView } from '@/types'
 import { formatDate, msUntil } from '@/utils/date'
 import { StatusBadge } from '@/components/ui/Badges'
 import { Button } from '@/components/ui/Button'
+import { Tabs } from '@/components/ui/Tabs'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState, ErrorState } from '@/components/ui/States'
 
 type Tab = 'upcoming' | 'history'
 
 export default function MyAppointments() {
   const { notify } = useToast()
-  const [tab, setTab] = useState<Tab>('upcoming')
+  const [params] = useSearchParams()
+  const [tab, setTab] = useState<Tab>(params.get('tab') === 'history' ? 'history' : 'upcoming')
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const [busyId, setBusyId] = useState<number | null>(null)
   const list = useAsync(() => appointmentService.mine(), [])
 
   const isUpcoming = (a: AppointmentView) => a.status === 'confirmed' && msUntil(a.date, a.time) > -30 * 60 * 1000
+  const confirmTarget = (list.data ?? []).find((x) => x.id === confirmId)
   const items = (list.data ?? []).filter((a) => (tab === 'upcoming' ? isUpcoming(a) : !isUpcoming(a)))
   const sorted = tab === 'upcoming' ? [...items].reverse() : items
 
@@ -29,12 +33,12 @@ export default function MyAppointments() {
     try {
       await appointmentService.cancel(id)
       notify('ვიზიტი გაუქმდა')
-      setConfirmId(null)
       list.reload()
     } catch (e) {
       notify(errorMessage(e), 'error')
     } finally {
       setBusyId(null)
+      setConfirmId(null)
     }
   }
 
@@ -42,18 +46,16 @@ export default function MyAppointments() {
     <div>
       <h1 className="text-3xl font-bold">ჩემი ვიზიტები</h1>
 
-      <div className="mt-5 inline-flex rounded-md border border-line bg-surface p-1" role="tablist">
-        {(['upcoming', 'history'] as const).map((t) => (
-          <button
-            key={t}
-            role="tab"
-            aria-selected={tab === t}
-            onClick={() => setTab(t)}
-            className={`rounded px-4 py-2 text-sm font-medium transition-colors ${tab === t ? 'bg-brand text-white' : 'hover:bg-brand-tint'}`}
-          >
-            {t === 'upcoming' ? 'მომავალი' : 'ისტორია და რეცეპტები'}
-          </button>
-        ))}
+      <div className="mt-5">
+        <Tabs
+          label="ვიზიტების ჩანართები"
+          value={tab}
+          onChange={setTab}
+          tabs={[
+            { id: 'upcoming', label: 'მომავალი' },
+            { id: 'history', label: 'ისტორია და რეცეპტები' },
+          ]}
+        />
       </div>
 
       <div className="mt-6 space-y-4" aria-live="polite">
@@ -112,17 +114,7 @@ export default function MyAppointments() {
 
               {a.status === 'confirmed' && (
                 <div className="mt-4">
-                  {confirmId === a.id ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm">ნამდვილად გსურთ გაუქმება?</span>
-                      <Button variant="danger" size="sm" loading={busyId === a.id} onClick={() => cancel(a.id)}>
-                        დიახ, გაუქმება
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setConfirmId(null)}>
-                        არა
-                      </Button>
-                    </div>
-                  ) : tooLate ? (
+                  {tooLate ? (
                     <p className="text-sm text-muted">გაუქმება შეუძლებელია: ვიზიტამდე 2 საათზე ნაკლებია.</p>
                   ) : (
                     <Button variant="secondary" size="sm" onClick={() => setConfirmId(a.id)}>
@@ -135,6 +127,26 @@ export default function MyAppointments() {
           )
         })}
       </div>
+
+      <ConfirmDialog
+        open={confirmTarget !== undefined}
+        title="ვიზიტის გაუქმება"
+        description={
+          confirmTarget && (
+            <>
+              <p className="font-medium text-ink">
+                {confirmTarget.doctorName} · {formatDate(confirmTarget.date)}, {confirmTarget.time}
+              </p>
+              <p className="mt-1">გაუქმების შემდეგ ეს დრო სხვა პაციენტისთვის გაიხსნება.</p>
+            </>
+          )
+        }
+        confirmLabel="ვიზიტის გაუქმება"
+        cancelLabel="არა, ვიზიტი დარჩეს"
+        busy={busyId !== null}
+        onConfirm={() => confirmId !== null && cancel(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   )
 }

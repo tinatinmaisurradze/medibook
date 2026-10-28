@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAsync } from '@/hooks/useAsync'
 import { profileService } from '@/services/profileService'
 import { GeneralInfoForm } from '@/components/GeneralInfoForm'
@@ -11,7 +12,9 @@ import type { MedicalProfile } from '@/types'
 type Tab = 'general' | 'medical' | 'security'
 
 export default function PatientProfile() {
-  const [tab, setTab] = useState<Tab>('general')
+  const [params] = useSearchParams()
+  const initial = params.get('tab')
+  const [tab, setTab] = useState<Tab>(initial === 'medical' || initial === 'security' ? initial : 'general')
   const profile = useAsync(() => profileService.get(), [])
   const [saved, setSaved] = useState<MedicalProfile | null>(null)
 

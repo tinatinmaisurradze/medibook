@@ -75,3 +75,22 @@ h1, h2, h3 { font-family: 'Noto Serif Georgian', Georgia, serif; line-height: 1.
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .app-header { background: #ffffff; }
 }
+
+/* iOS Safari draws date inputs as a small pill: make them behave like the other fields */
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  text-align: left;
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* confirmation dialog */
+@keyframes dialog-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialog-pop { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: none; } }
+.dialog-backdrop { animation: dialog-fade 0.15s ease-out; }
+.dialog-pop { animation: dialog-pop 0.18s ease-out; }

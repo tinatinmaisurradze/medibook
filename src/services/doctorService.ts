@@ -8,6 +8,7 @@ export interface DoctorFilters {
   minRating?: number | ''
   sort?: 'rating' | 'experience' | 'name'
   page?: number
+  pageSize?: number
 }
 
 function qs(params: Record<string, string | number | undefined | ''>) {
