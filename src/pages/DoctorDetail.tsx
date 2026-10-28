@@ -54,8 +54,8 @@ export default function DoctorDetail() {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
-      <section>
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
+      <section className="min-w-0">
         <div className="flex items-start gap-5">
           <Avatar name={d.fullName} size={80} />
           <div>
@@ -132,7 +132,7 @@ export default function DoctorDetail() {
         </section>
       </section>
 
-      <section aria-labelledby="slots-title" className="h-fit rounded-lg border border-line bg-surface p-5 shadow-card">
+      <section aria-labelledby="slots-title" className="h-fit min-w-0 rounded-lg border border-line bg-surface p-5 shadow-card">
         <h2 id="slots-title" className="text-xl font-bold">
           ვიზიტის დრო
         </h2>
