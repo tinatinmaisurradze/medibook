@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { BarChart3, CalendarDays, ClipboardList, DoorOpen, LayoutDashboard, Menu, Star, Stethoscope, UserCog, UserRoundX, Users, X, type LucideIcon } from 'lucide-react'
+import { BarChart3, CalendarDays, ClipboardList, LayoutDashboard, Menu, Star, Stethoscope, UserCog, UserRoundX, Users, X, type LucideIcon, ListChecks } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { BrandMark } from '@/components/BrandMark'
 import { UserMenu } from '@/components/UserMenu'
@@ -23,7 +23,7 @@ const NAV: Record<'doctor' | 'admin', NavItem[]> = {
   admin: [
     { to: '/admin/stats', label: 'სტატისტიკა', icon: BarChart3 },
     { to: '/admin/schedule', label: 'ექიმების გრაფიკი', icon: Stethoscope },
-    { to: '/admin/rooms', label: 'კაბინეტები', icon: DoorOpen },
+    { to: '/admin/visits', label: 'ვიზიტები', icon: ListChecks },
     { to: '/admin/cancellations', label: 'გაუქმებული ვიზიტები', icon: UserRoundX },
     { to: '/admin/profile', label: 'პროფილი', icon: UserCog },
   ],

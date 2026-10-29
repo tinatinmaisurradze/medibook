@@ -7,7 +7,10 @@ import { errorMessage } from '@/services/http'
 import { useToast } from '@/context/ToastContext'
 import type { AppointmentView } from '@/types'
 import { formatDate, msUntil } from '@/utils/date'
-import { StatusBadge } from '@/components/ui/Badges'
+import { PaymentBadge, StatusBadge } from '@/components/ui/Badges'
+import { VisitHistory } from '@/components/VisitHistory'
+import { doctorService } from '@/services/doctorService'
+import { formatPrice } from '@/utils/payment'
 import { Button } from '@/components/ui/Button'
 import { Tabs } from '@/components/ui/Tabs'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -22,11 +25,12 @@ export default function MyAppointments() {
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const [busyId, setBusyId] = useState<number | null>(null)
   const list = useAsync(() => appointmentService.mine(), [])
+  const clinics = useAsync(() => doctorService.clinics(), [])
 
   const isUpcoming = (a: AppointmentView) => a.status === 'confirmed' && msUntil(a.date, a.time) > -30 * 60 * 1000
   const confirmTarget = (list.data ?? []).find((x) => x.id === confirmId)
-  const items = (list.data ?? []).filter((a) => (tab === 'upcoming' ? isUpcoming(a) : !isUpcoming(a)))
-  const sorted = tab === 'upcoming' ? [...items].reverse() : items
+  const items = (list.data ?? []).filter(isUpcoming)
+  const sorted = [...items].reverse()
 
   const cancel = async (id: number) => {
     setBusyId(id)
@@ -58,7 +62,13 @@ export default function MyAppointments() {
         />
       </div>
 
-      <div className="mt-6 space-y-4" aria-live="polite">
+      {tab === 'history' && (
+        <div className="mt-6">
+          <VisitHistory fetcher={appointmentService.search} perspective="patient" clinics={clinics.data ?? []} showSpecialty />
+        </div>
+      )}
+
+      <div className={`mt-6 space-y-4 ${tab === 'history' ? 'hidden' : ''}`} aria-live="polite">
         {list.loading && (
           <>
             <div className="skeleton h-28 w-full" />
@@ -69,9 +79,9 @@ export default function MyAppointments() {
 
         {list.data && sorted.length === 0 && (
           <EmptyState
-            title={tab === 'upcoming' ? 'მომავალი ვიზიტები არ გაქვთ' : 'ისტორია ჯერ ცარიელია'}
-            text={tab === 'upcoming' ? 'იპოვეთ ექიმი და დაჯავშნეთ პირველი ვიზიტი.' : 'დასრულებული და გაუქმებული ვიზიტები აქ გამოჩნდება.'}
-            action={tab === 'upcoming' && <Link to="/doctors" className="inline-flex min-h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-dark">ექიმის პოვნა</Link>}
+            title="მომავალი ვიზიტები არ გაქვთ"
+            text="იპოვეთ ექიმი და დაჯავშნეთ პირველი ვიზიტი."
+            action={<Link to="/doctors" className="inline-flex min-h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-dark">ექიმის პოვნა</Link>}
           />
         )}
 
@@ -88,6 +98,11 @@ export default function MyAppointments() {
               </div>
               <p className="mt-3 text-sm">
                 {formatDate(a.date)}, {a.time} · {a.clinicName}, {a.room}
+              </p>
+              <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                <span className="text-muted">{a.serviceName ?? 'ვიზიტი'}</span>
+                <span className="font-medium">{formatPrice(a.price)}</span>
+                <PaymentBadge status={a.paymentStatus} />
               </p>
               {a.reason && <p className="mt-1 text-sm text-muted">მიზეზი: {a.reason}</p>}
 
@@ -113,7 +128,12 @@ export default function MyAppointments() {
               )}
 
               {a.status === 'confirmed' && (
-                <div className="mt-4">
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  {a.price > 0 && (a.paymentStatus === 'pending' || a.paymentStatus === 'at_clinic') && (
+                    <Link to={`/checkout/${a.id}`} className="inline-flex min-h-9 items-center rounded-md bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-dark">
+                      {a.paymentStatus === 'pending' ? 'გადახდა ახლავე' : 'გადახდა ონლაინ'}
+                    </Link>
+                  )}
                   {tooLate ? (
                     <p className="text-sm text-muted">გაუქმება შეუძლებელია: ვიზიტამდე 2 საათზე ნაკლებია.</p>
                   ) : (

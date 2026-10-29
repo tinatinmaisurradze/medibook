@@ -1,12 +1,13 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Building2, CalendarDays, Mail, Phone, Printer, Stethoscope, User } from 'lucide-react'
+import { ArrowLeft, Building2, CalendarDays, Mail, Phone, Printer, Stethoscope, User, CreditCard } from 'lucide-react'
 import { SPECIALTY_LABELS } from '@/data/seed'
 import { useAuth } from '@/context/AuthContext'
 import { useAsync } from '@/hooks/useAsync'
 import { appointmentService } from '@/services/appointmentService'
+import { formatPrice } from '@/utils/payment'
 import { formatDate } from '@/utils/date'
-import { StatusBadge } from '@/components/ui/Badges'
+import { PaymentBadge, StatusBadge } from '@/components/ui/Badges'
 import { Button } from '@/components/ui/Button'
 import { EmptyState, ErrorState } from '@/components/ui/States'
 import { VisitEditor } from '@/components/VisitEditor'
@@ -116,6 +117,26 @@ export default function VisitDetail() {
             <Row label="კაბინეტი">{v.room}</Row>
             <Row label="ვიზიტის მიზეზი">{v.reason || <span className="font-normal text-muted">არ არის მითითებული</span>}</Row>
           </dl>
+        </Card>
+
+        <Card title="გადახდა" icon={<CreditCard size={20} />}>
+          <dl>
+            <Row label="მომსახურება">{v.serviceName ?? 'ვიზიტი'}</Row>
+            <Row label="თანხა">{formatPrice(v.price)}</Row>
+            <Row label="სტატუსი">{v.paymentStatus === 'none' ? <span className="font-normal text-muted">გადასახდელი არ არის</span> : <PaymentBadge status={v.paymentStatus} />}</Row>
+            {v.receiptNo && <Row label="ქვითარი №">{v.receiptNo}</Row>}
+            {v.cardLast4 && <Row label="გადახდის საშუალება">{v.cardBrand === 'Apple Pay' ? 'Apple Pay (დემო)' : `${v.cardBrand ?? 'ბარათი'} ••••${v.cardLast4}`}</Row>}
+          </dl>
+          {window.location.pathname.startsWith('/my-appointments') && v.status === 'confirmed' && v.price > 0 && (v.paymentStatus === 'pending' || v.paymentStatus === 'at_clinic') && (
+            <Link to={`/checkout/${v.id}`} className="no-print mt-4 inline-flex min-h-10 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-dark">
+              გადახდა ონლაინ
+            </Link>
+          )}
+          {window.location.pathname.startsWith('/my-appointments') && v.paymentStatus === 'paid' && (
+            <Link to={`/checkout/${v.id}`} className="no-print mt-4 inline-block text-sm font-medium text-brand-dark underline">
+              ქვითრის ნახვა
+            </Link>
+          )}
         </Card>
 
         <Card title="ექიმი" icon={<Stethoscope size={20} />}>

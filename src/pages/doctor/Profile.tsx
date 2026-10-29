@@ -4,12 +4,16 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAsync } from '@/hooks/useAsync'
 import { profileService } from '@/services/profileService'
+import { scheduleService } from '@/services/appointmentService'
+import { LocationsEditor } from '@/components/LocationsEditor'
+import { ServicesEditor } from '@/components/ServicesEditor'
 import { doctorService } from '@/services/doctorService'
 import { errorMessage } from '@/services/http'
 import { useToast } from '@/context/ToastContext'
 import { SPECIALTY_LABELS } from '@/data/seed'
 import { doctorProfileSchema, type DoctorProfilePayload } from '@/utils/validation'
-import type { Doctor } from '@/types'
+import type { Clinic, Doctor } from '@/types'
+import type { LocationsPayload, ServicesPayload } from '@/utils/validation'
 import { GeneralInfoForm } from '@/components/GeneralInfoForm'
 import { PasswordForm } from '@/components/PasswordForm'
 import { Button } from '@/components/ui/Button'
@@ -18,8 +22,7 @@ import { TagInput } from '@/components/ui/TagInput'
 import { Tabs } from '@/components/ui/Tabs'
 import { ErrorState } from '@/components/ui/States'
 
-type Tab = 'personal' | 'professional' | 'security'
-const DAYS = ['კვირა', 'ორშაბათი', 'სამშაბათი', 'ოთხშაბათი', 'ხუთშაბათი', 'პარასკევი', 'შაბათი']
+type Tab = 'personal' | 'professional' | 'schedule' | 'security'
 
 function ProfessionalForm({ doctor, onSaved }: { doctor: Doctor; onSaved: () => void }) {
   const { notify } = useToast()
@@ -67,7 +70,7 @@ function ProfessionalForm({ doctor, onSaved }: { doctor: Doctor; onSaved: () => 
         <h3 id="work-title" className="text-lg font-bold">
           მუშაობის პარამეტრები
         </h3>
-        <p className="text-sm text-muted">ამ მონაცემებს კლინიკის ადმინისტრატორი მართავს.</p>
+        <p className="text-sm text-muted">სად, როდის და რა ფასად იღებთ, იმართება ჩანართში „გრაფიკი და ფასები“.</p>
         <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-muted">სპეციალობა</dt>
@@ -76,20 +79,6 @@ function ProfessionalForm({ doctor, onSaved }: { doctor: Doctor; onSaved: () => 
           <div>
             <dt className="text-muted">გამოცდილება</dt>
             <dd className="mt-0.5 font-medium">{doctor.experienceYears} წელი</dd>
-          </div>
-          <div>
-            <dt className="text-muted">კაბინეტი</dt>
-            <dd className="mt-0.5 font-medium">{doctor.room}</dd>
-          </div>
-          <div>
-            <dt className="text-muted">მიღების საათები</dt>
-            <dd className="mt-0.5 font-medium">
-              {doctor.workHours.start} – {doctor.workHours.end}, ვიზიტი {doctor.slotMinutes} წთ
-            </dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="text-muted">სამუშაო დღეები</dt>
-            <dd className="mt-0.5 font-medium">{doctor.workDays.map((d) => DAYS[d]).join(', ') || '—'}</dd>
           </div>
         </dl>
         <Link to={`/doctors/${doctor.id}`} className="mt-4 inline-block text-sm font-medium text-brand-dark underline">
@@ -100,17 +89,72 @@ function ProfessionalForm({ doctor, onSaved }: { doctor: Doctor; onSaved: () => 
   )
 }
 
+function ScheduleTab({ doctor, clinics, onSaved }: { doctor: Doctor; clinics: Clinic[]; onSaved: () => void }) {
+  const { notify } = useToast()
+  const [savingL, setSavingL] = useState(false)
+  const [savingS, setSavingS] = useState(false)
+  const [errL, setErrL] = useState<string | null>(null)
+  const [errS, setErrS] = useState<string | null>(null)
+
+  const saveLocations = async (data: LocationsPayload) => {
+    setSavingL(true)
+    setErrL(null)
+    try {
+      await scheduleService.saveLocations(data)
+      notify('გრაფიკი განახლდა')
+      onSaved()
+    } catch (e) {
+      setErrL(errorMessage(e))
+    } finally {
+      setSavingL(false)
+    }
+  }
+  const saveServices = async (data: ServicesPayload) => {
+    setSavingS(true)
+    setErrS(null)
+    try {
+      await scheduleService.saveServices(data)
+      notify('ფასები განახლდა')
+      onSaved()
+    } catch (e) {
+      setErrS(errorMessage(e))
+    } finally {
+      setSavingS(false)
+    }
+  }
+  const clinicIds = Array.from(new Set(doctor.locations.map((l) => l.clinicId)))
+
+  return (
+    <div className="space-y-10">
+      <section aria-labelledby="loc-title">
+        <h2 id="loc-title" className="text-xl font-bold">
+          სად და როდის ვიღებ
+        </h2>
+        <p className="mb-4 mt-1 text-sm text-muted">პაციენტები ამ გრაფიკის მიხედვით ირჩევენ დროს. შეგიძლიათ იმუშაოთ რამდენიმე კლინიკაში სხვადასხვა დღეებში.</p>
+        <LocationsEditor key={JSON.stringify(doctor.locations)} clinics={clinics} value={doctor.locations} saving={savingL} error={errL} onSave={saveLocations} />
+      </section>
+      <section aria-labelledby="svc-title">
+        <h2 id="svc-title" className="text-xl font-bold">
+          ვიზიტის ტიპები და ფასები
+        </h2>
+        <p className="mb-4 mt-1 text-sm text-muted">ფასი ყოველ კლინიკაში შეიძლება განსხვავებული იყოს. უკვე დაჯავშნილი ვიზიტები ძველ ფასს ინარჩუნებს.</p>
+        <ServicesEditor key={JSON.stringify(doctor.services)} clinics={clinics} clinicIds={clinicIds} value={doctor.services} saving={savingS} error={errS} onSave={saveServices} />
+      </section>
+    </div>
+  )
+}
+
 export default function DoctorProfile() {
   const [tab, setTab] = useState<Tab>('personal')
   const profile = useAsync(() => profileService.get(), [])
   const clinics = useAsync(() => doctorService.clinics(), [])
   const doctor = profile.data?.doctor
-  const clinic = clinics.data?.find((c) => c.id === doctor?.clinicId)
+  const clinicNames = doctor ? Array.from(new Set(doctor.locations.map((l) => clinics.data?.find((c) => c.id === l.clinicId)?.name).filter(Boolean))).join(' · ') : ''
 
   return (
     <div>
       <h1 className="text-3xl font-bold">ჩემი პროფილი</h1>
-      {clinic && <p className="mt-1 text-muted">{clinic.name}</p>}
+      {clinicNames && <p className="mt-1 text-muted">{clinicNames}</p>}
 
       <div className="mt-6">
         <Tabs
@@ -120,6 +164,7 @@ export default function DoctorProfile() {
           tabs={[
             { id: 'personal', label: 'პირადი ინფორმაცია' },
             { id: 'professional', label: 'პროფესიული ინფორმაცია' },
+            { id: 'schedule', label: 'გრაფიკი და ფასები' },
             { id: 'security', label: 'უსაფრთხოება' },
           ]}
         />
@@ -133,6 +178,14 @@ export default function DoctorProfile() {
             {profile.loading && <div className="skeleton h-64 w-full" aria-hidden />}
             {profile.error && <ErrorState message={profile.error} onRetry={profile.reload} />}
             {doctor && <ProfessionalForm key={doctor.bio + doctor.languages.join()} doctor={doctor} onSaved={profile.reload} />}
+          </>
+        )}
+
+        {tab === 'schedule' && (
+          <>
+            {profile.loading && <div className="skeleton h-64 w-full" aria-hidden />}
+            {profile.error && <ErrorState message={profile.error} onRetry={profile.reload} />}
+            {doctor && clinics.data && <ScheduleTab doctor={doctor} clinics={clinics.data} onSaved={profile.reload} />}
           </>
         )}
 

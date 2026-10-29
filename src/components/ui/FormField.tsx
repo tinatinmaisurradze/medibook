@@ -23,7 +23,7 @@ export const TextField = forwardRef<HTMLInputElement, BaseProps & InputHTMLAttri
           id={fieldId}
           aria-invalid={!!error}
           aria-describedby={error ? `${fieldId}-error` : hint ? `${fieldId}-hint` : undefined}
-          className={`${control} ${error ? 'border-danger' : 'border-line'}`}
+          className={`${control} h-12 ${error ? 'border-danger' : 'border-line'}`}
           {...rest}
         />
         {error ? (

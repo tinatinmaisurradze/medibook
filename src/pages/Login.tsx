@@ -54,7 +54,7 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-5xl">
       <h1 className="text-3xl font-bold">შესვლა</h1>
       {from && (from.startsWith('/book') || from.includes('#slots')) && (
         <p className="mt-3 rounded-md bg-brand-tint px-4 py-3 text-sm text-brand-dark">ვიზიტის დასაჯავშნად ჯერ შედით ანგარიშში. შესვლის შემდეგ პირდაპირ დაბრუნდებით არჩეულ ექიმთან.</p>
@@ -66,7 +66,8 @@ export default function Login() {
         </Link>
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 max-w-md space-y-4 rounded-xl border border-line bg-surface p-6 shadow-card">
+      <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-8">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="order-2 space-y-3 rounded-xl border border-line bg-surface p-5 shadow-card lg:order-1">
         {serverError && (
           <div role="alert" className="rounded-md bg-danger-tint px-3 py-2 text-sm text-danger">
             {serverError}
@@ -79,24 +80,24 @@ export default function Login() {
         </Button>
       </form>
 
-      <section className="mt-8" aria-labelledby="demo-title">
+      <section aria-labelledby="demo-title" className="order-1 lg:order-2">
         <h2 id="demo-title" className="text-sm font-bold uppercase tracking-wide text-muted">
           დემო ანგარიშები
         </h2>
-        <p className="mt-1 text-sm text-muted">დააჭირეთ ანგარიშს და ერთი დაწკაპუნებით შეხვალთ. პაროლი ყველასთვის: Demo1234!</p>
+        <p className="mt-1 text-sm text-muted">დააჭირეთ ანგარიშს და შეხვალთ. პაროლი ყველასთვის: Demo1234!</p>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {[
             { title: 'პაციენტები', icon: <UserRound size={16} aria-hidden />, list: DEMO_ACCOUNTS.patients.map((a) => ({ ...a, sub: a.email.split('@')[0] })) },
             { title: 'ექიმები', icon: <Stethoscope size={16} aria-hidden />, list: DEMO_ACCOUNTS.doctors.map((a) => ({ ...a, sub: a.specialty })) },
             { title: 'ადმინისტრატორი', icon: <ShieldCheck size={16} aria-hidden />, list: [{ ...DEMO_ACCOUNTS.admin, sub: 'admin' }] },
           ].map((g) => (
-            <div key={g.title} className="rounded-xl border border-line bg-surface p-3">
+            <div key={g.title} className="rounded-xl border border-line bg-surface p-2.5">
               <p className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold text-brand-dark">
                 {g.icon}
                 {g.title}
               </p>
-              <ul className="space-y-1.5">
+              <ul className="grid grid-cols-2 gap-1.5 lg:grid-cols-1">
                 {g.list.map((a) => (
                   <li key={a.email}>
                     <button
@@ -115,6 +116,7 @@ export default function Login() {
           ))}
         </div>
       </section>
+      </div>
     </div>
   )
 }

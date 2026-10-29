@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { errorMessage } from '@/services/http'
+import { errorMessage, REMOTE_API } from '@/services/http'
 import { DB_STORAGE_KEY } from '@/services/mockApi'
 
 interface State<T> {
@@ -42,7 +42,15 @@ export function useAsync<T>(loader: () => Promise<T>, deps: unknown[], live = tr
       if (e.key === DB_STORAGE_KEY) run(true)
     }
     window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
+    // with a real server other people change the data: refresh quietly every 15 s and when the tab gets the focus back
+    const tick = () => document.visibilityState === 'visible' && run(true)
+    const timer = REMOTE_API ? window.setInterval(tick, 15000) : undefined
+    if (REMOTE_API) window.addEventListener('focus', tick)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      if (timer) window.clearInterval(timer)
+      if (REMOTE_API) window.removeEventListener('focus', tick)
+    }
   }, [live, run])
 
   return { ...state, reload: () => run() }

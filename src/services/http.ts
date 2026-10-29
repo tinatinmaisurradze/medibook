@@ -30,9 +30,40 @@ export const tokenStore = {
 
 export { ApiError }
 
-/** Single place that talks to the (mock) backend. Replace the body to use a real API. */
-function request<T>(method: string, url: string, body?: unknown): Promise<T> {
-  return handleRequest<T>(method, url, body, tokenStore.get())
+/**
+ * Address of the real backend (see server/). When it is empty the app runs on the in-browser mock API.
+ * Set it in `.env.local`:  VITE_API_URL=http://localhost:4000
+ */
+const API_URL = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').replace(/\/+$/, '')
+/** true when data comes from a real server (then other browsers change it too, so screens refresh on a timer) */
+export const REMOTE_API = API_URL !== ''
+
+/** Single place that talks to the backend: the real server when configured, otherwise the mock. */
+async function request<T>(method: string, url: string, body?: unknown): Promise<T> {
+  if (!REMOTE_API) return handleRequest<T>(method, url, body, tokenStore.get())
+
+  const token = tokenStore.get()
+  let res: Response
+  try {
+    res = await fetch(`${API_URL}${url}`, {
+      method,
+      headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
+  } catch {
+    throw new ApiError(0, 'NETWORK', 'სერვერთან კავშირი ვერ დამყარდა. შეამოწმეთ ინტერნეტი და სცადეთ თავიდან')
+  }
+  let data: unknown = null
+  try {
+    data = await res.json()
+  } catch {
+    /* empty or non-JSON body */
+  }
+  if (!res.ok) {
+    const e = (data ?? {}) as { code?: string; message?: string }
+    throw new ApiError(res.status, e.code ?? 'SERVER_ERROR', e.message ?? 'დაფიქსირდა შეცდომა. სცადეთ თავიდან')
+  }
+  return data as T
 }
 
 export const http = {

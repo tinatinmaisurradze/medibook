@@ -1,3 +1,4 @@
+import { formatPrice } from '@/utils/payment'
 import { useAsync } from '@/hooks/useAsync'
 import { adminService } from '@/services/appointmentService'
 import { ErrorState } from '@/components/ui/States'
@@ -40,6 +41,36 @@ export default function AdminStats() {
               </div>
             ))}
           </div>
+
+          {stats.data.revenue && (
+            <section className="mt-8 rounded-lg border border-line bg-surface p-5 shadow-card" aria-labelledby="revenue-title">
+              <h2 id="revenue-title" className="text-xl font-bold">
+                გადახდები
+              </h2>
+              <p className="text-sm text-muted">სატესტო მონაცემები, ლარებში</p>
+              <div className="mt-4 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
+                {[
+                  { label: 'გადახდილი', value: stats.data.revenue.paid },
+                  { label: 'ელოდება ონლაინ გადახდას', value: stats.data.revenue.pending },
+                  { label: 'გადახდა რეგისტრატურაში', value: stats.data.revenue.atClinic },
+                  { label: 'დასაბრუნებელი', value: stats.data.revenue.refundPending },
+                ].map((c) => (
+                  <div key={c.label} className="rounded-lg bg-canvas p-4">
+                    <p className="text-2xl font-bold">{formatPrice(c.value)}</p>
+                    <p className="text-sm text-muted">{c.label}</p>
+                  </div>
+                ))}
+              </div>
+              <ul className="mt-5 space-y-2 text-sm">
+                {stats.data.revenue.byClinic.map((c) => (
+                  <li key={c.clinicId} className="flex items-center justify-between gap-3 border-t border-line pt-2">
+                    <span>{c.clinicName}</span>
+                    <span className="font-semibold">{formatPrice(c.paid)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="mt-8 rounded-lg border border-line bg-surface p-5 shadow-card">
             <h2 className="text-xl font-bold">ექიმების დატვირთვა</h2>

@@ -147,7 +147,55 @@ export type ReplyForm = z.infer<typeof replySchema>
 /** server-side checks for booking input */
 export const bookingPayloadSchema = z.object({
   doctorId: z.number().int().positive(),
+  clinicId: z.number().int().positive('აირჩიეთ კლინიკა'),
+  serviceId: z.number().int().positive().optional(),
+  paymentMethod: z.enum(['online', 'cashier']).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'თარიღის ფორმატი არასწორია'),
   time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'დროის ფორმატი არასწორია'),
   reason: safeText(300).optional(),
 })
+
+/* ---------- schedules, prices and payment ---------- */
+
+const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'დროის ფორმატი არასწორია')
+
+export const locationInputSchema = z
+  .object({
+    clinicId: z.number().int().positive('აირჩიეთ კლინიკა'),
+    room: safeText(40).pipe(z.string().min(1, 'მიუთითეთ კაბინეტი')),
+    days: z.array(z.number().int().min(0).max(6)).min(1, 'აირჩიეთ მინიმუმ ერთი დღე').max(7),
+    start: hhmm,
+    end: hhmm,
+    slotMinutes: z.number().int().min(10, 'ვიზიტი მინიმუმ 10 წუთია').max(120, 'ვიზიტი მაქსიმუმ 120 წუთია'),
+  })
+  .refine((v) => v.start < v.end, { path: ['end'], message: 'დასასრული დასაწყისზე გვიან უნდა იყოს' })
+
+export const locationsSchema = z.object({
+  locations: z.array(locationInputSchema).min(1, 'მინიმუმ ერთი ლოკაცია საჭიროა').max(6, 'მაქსიმუმ 6 ლოკაცია'),
+})
+export type LocationsPayload = z.infer<typeof locationsSchema>
+
+export const servicesSchema = z.object({
+  services: z
+    .array(
+      z.object({
+        clinicId: z.number().int().positive(),
+        name: safeText(80).pipe(z.string().min(2, 'სახელი ძალიან მოკლეა')),
+        price: z.number().min(0, 'ფასი უარყოფითი ვერ იქნება').max(2000, 'ფასი ძალიან მაღალია'),
+        durationMin: z.number().int().min(5).max(180),
+      }),
+    )
+    .min(1, 'მინიმუმ ერთი მომსახურებაა საჭირო')
+    .max(30),
+})
+export type ServicesPayload = z.infer<typeof servicesSchema>
+
+/** demo payment: card data is validated, never stored */
+export const paymentSchema = z.object({
+  method: z.enum(['card', 'apple_pay']),
+  cardNumber: z.string().max(30).optional(),
+  expiry: z.string().max(7).optional(),
+  cvc: z.string().max(4).optional(),
+  cardholder: safeText(60).optional(),
+})
+export type PaymentPayload = z.infer<typeof paymentSchema>

@@ -29,7 +29,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+/* no global smooth scrolling: a new page must start at the very top at once */
 
 body {
   margin: 0;

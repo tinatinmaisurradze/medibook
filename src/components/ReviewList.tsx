@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import type { ReactNode } from 'react'
 import { Stars } from './ui/Badges'
 import type { ReviewView, ReviewsSummary } from '@/types'
 
-export function RatingSummary({ summary }: { summary: ReviewsSummary }) {
+export const RatingSummary = memo(function RatingSummary({ summary }: { summary: ReviewsSummary }) {
   const max = Math.max(1, ...Object.values(summary.distribution))
   return (
     <div className="grid gap-6 sm:grid-cols-[160px_1fr]">
@@ -26,9 +27,9 @@ export function RatingSummary({ summary }: { summary: ReviewsSummary }) {
       </ul>
     </div>
   )
-}
+})
 
-export function ReviewItem({ review, children }: { review: ReviewView; children?: ReactNode }) {
+export const ReviewItem = memo(function ReviewItem({ review, children }: { review: ReviewView; children?: ReactNode }) {
   return (
     <article className="rounded-lg border border-line bg-surface p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -50,4 +51,4 @@ export function ReviewItem({ review, children }: { review: ReviewView; children?
       {children}
     </article>
   )
-}
+})

@@ -170,7 +170,7 @@ export default function Home() {
               <ErrorState message={data.error} onRetry={data.reload} />
             </div>
           )}
-          {data.data && data.data[0].data.slice(0, 6).map((d) => <DoctorCard key={d.id} doctor={d} clinic={data.data![1].find((c) => c.id === d.clinicId)} />)}
+          {data.data && data.data[0].data.slice(0, 6).map((d) => <DoctorCard key={d.id} doctor={d} clinics={data.data![1]} />)}
         </div>
       </section>
     </div>

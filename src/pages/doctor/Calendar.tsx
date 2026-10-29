@@ -27,7 +27,8 @@ export default function DoctorCalendar() {
     .filter((a) => a.date === selected && a.status !== 'cancelled')
     .sort((a, b) => a.time.localeCompare(b.time))
 
-  const free = slots.data?.slots.filter((s) => s.available).length
+  const allSlots = slots.data?.groups.flatMap((g) => g.slots) ?? []
+  const free = slots.data ? allSlots.filter((s) => s.available).length : undefined
 
   return (
     <div>
@@ -52,7 +53,7 @@ export default function DoctorCalendar() {
             {formatDate(selected)}
           </h2>
           {free !== undefined && (
-            <p className="mt-1 text-sm text-muted">{slots.data && slots.data.slots.length === 0 ? 'ამ დღეს არ იღებთ' : `თავისუფალი დრო: ${free}`}</p>
+            <p className="mt-1 text-sm text-muted">{slots.data && allSlots.length === 0 ? 'ამ დღეს არ იღებთ' : `თავისუფალი დრო: ${free}`}</p>
           )}
 
           {dayItems.length === 0 ? (

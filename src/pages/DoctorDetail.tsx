@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Building2, CalendarClock, DoorOpen } from 'lucide-react'
+import { Building2, MapPin } from 'lucide-react'
 import { SPECIALTY_LABELS } from '@/data/seed'
 import { useAsync } from '@/hooks/useAsync'
 import { doctorService } from '@/services/doctorService'
@@ -11,6 +11,8 @@ import { addDays, dayOfMonth, formatDate, monthName, parseISODate, toISODate, we
 import { Button } from '@/components/ui/Button'
 import { reviewService } from '@/services/doctorPortalService'
 import { RatingSummary, ReviewItem } from '@/components/ReviewList'
+import { DAY_SHORT, WEEK_ORDER } from '@/utils/weekdays'
+import { formatPrice } from '@/utils/payment'
 
 export default function DoctorDetail() {
   const { id } = useParams()
@@ -50,11 +52,9 @@ export default function DoctorDetail() {
   }
 
   const d = doctor.data
-  const clinic = clinics.data?.find((c) => c.id === d.clinicId)
-  const workingDay = d.workDays.includes(parseISODate(date).getDay())
 
-  const choose = (time: string) => {
-    const target = `/book/${d.id}?date=${date}&time=${time}`
+  const choose = (clinicId: number, time: string) => {
+    const target = `/book/${d.id}?date=${date}&time=${time}&clinicId=${clinicId}`
     if (user && user.role !== 'patient') return
     navigate(target)
   }
@@ -70,6 +70,7 @@ export default function DoctorDetail() {
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted">
               <Rating value={d.rating} count={d.reviewCount} />
               <span>{d.experienceYears} წლის გამოცდილება</span>
+              {d.priceFrom !== null && <span className="font-medium text-ink">ვიზიტი {formatPrice(d.priceFrom)}-დან</span>}
             </div>
           </div>
         </div>
@@ -103,30 +104,47 @@ export default function DoctorDetail() {
           </ul>
         )}
 
-        <dl className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
-          <div className="rounded-md border border-line bg-surface p-4">
-            <dt className="flex items-center gap-2 text-muted">
-              <Building2 size={16} aria-hidden /> კლინიკა
-            </dt>
-            <dd className="mt-1 font-medium">{clinic?.name ?? '...'}</dd>
-            <dd className="text-muted">{clinic?.address}</dd>
-          </div>
-          <div className="rounded-md border border-line bg-surface p-4">
-            <dt className="flex items-center gap-2 text-muted">
-              <DoorOpen size={16} aria-hidden /> კაბინეტი
-            </dt>
-            <dd className="mt-1 font-medium">{d.room}</dd>
-          </div>
-          <div className="rounded-md border border-line bg-surface p-4">
-            <dt className="flex items-center gap-2 text-muted">
-              <CalendarClock size={16} aria-hidden /> მიღების დრო
-            </dt>
-            <dd className="mt-1 font-medium">
-              {d.workHours.start} – {d.workHours.end}
-            </dd>
-            <dd className="text-muted">ვიზიტი {d.slotMinutes} წთ</dd>
-          </div>
-        </dl>
+        <section className="mt-8" aria-labelledby="where-title">
+          <h2 id="where-title" className="text-2xl font-bold">
+            სად იღებს
+          </h2>
+          <ul className="mt-4 space-y-3">
+            {d.locations.map((l) => {
+              const c = clinics.data?.find((x) => x.id === l.clinicId)
+              const prices = d.services.filter((sv) => sv.clinicId === l.clinicId)
+              return (
+                <li key={l.id} className="rounded-xl border border-line bg-surface p-4 shadow-card">
+                  <p className="flex items-center gap-2 font-semibold">
+                    <Building2 size={18} className="text-brand" aria-hidden /> {c?.name ?? '...'}
+                  </p>
+                  <p className="mt-0.5 text-sm text-muted">
+                    {c?.address}, {l.room}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-1.5" role="group" aria-label="მიღების დღეები">
+                    {WEEK_ORDER.map((day) => (
+                      <span key={day} className={`inline-flex h-8 min-w-[2.75rem] items-center justify-center rounded-md px-2 text-xs font-medium ${l.days.includes(day) ? 'bg-brand text-white' : 'bg-canvas text-muted'}`}>
+                        {DAY_SHORT[day]}
+                      </span>
+                    ))}
+                    <span className="ml-1 text-sm font-medium">
+                      {l.start} – {l.end}
+                    </span>
+                  </div>
+                  {prices.length > 0 && (
+                    <dl className="mt-3 divide-y divide-line text-sm">
+                      {prices.map((sv) => (
+                        <div key={sv.id} className="flex items-center justify-between gap-3 py-1.5">
+                          <dt className="text-muted">{sv.name}</dt>
+                          <dd className="font-semibold">{formatPrice(sv.price)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
 
         <section className="mt-10" aria-labelledby="reviews-title">
           <h2 id="reviews-title" className="text-2xl font-bold">
@@ -197,28 +215,39 @@ export default function DoctorDetail() {
             </div>
           )}
           {slots.error && <ErrorState message={slots.error} onRetry={slots.reload} />}
-          {slots.data && !workingDay && <p className="rounded-md bg-canvas p-4 text-sm text-muted">ამ დღეს ექიმი არ იღებს. აირჩიეთ სხვა თარიღი.</p>}
-          {slots.data && workingDay && slots.data.slots.every((s) => !s.available) && (
+          {slots.data && slots.data.groups.length === 0 && <p className="rounded-md bg-canvas p-4 text-sm text-muted">ამ დღეს ექიმი არ იღებს. აირჩიეთ სხვა თარიღი.</p>}
+          {slots.data && slots.data.groups.length > 0 && slots.data.groups.every((g) => g.slots.every((s) => !s.available)) && (
             <p className="rounded-md bg-canvas p-4 text-sm text-muted">ამ დღეს თავისუფალი დრო აღარ არის. სცადეთ სხვა თარიღი.</p>
           )}
-          {slots.data && workingDay && slots.data.slots.some((s) => s.available) && (
-            <div className="grid grid-cols-3 gap-2">
-              {slots.data.slots.map((s) => (
-                <button
-                  key={s.time}
-                  type="button"
-                  disabled={!s.available}
-                  onClick={() => choose(s.time)}
-                  className={`min-h-10 rounded-md border text-sm font-medium transition-colors ${
-                    s.available ? 'border-[#0d7a83]/50 text-brand-dark hover:bg-brand hover:text-white' : 'cursor-not-allowed border-line bg-canvas text-muted line-through'
-                  }`}
-                  aria-label={s.available ? `${s.time} თავისუფალია` : `${s.time} დაკავებულია`}
-                >
-                  {s.time}
-                </button>
-              ))}
-            </div>
-          )}
+          {slots.data &&
+            slots.data.groups.some((g) => g.slots.some((s) => s.available)) &&
+            slots.data.groups.map((g) => (
+              <div key={g.clinicId} className="mb-4 last:mb-0">
+                <p className="flex items-center gap-1.5 text-sm font-semibold">
+                  <MapPin size={15} className="text-brand" aria-hidden /> {g.clinicName}
+                </p>
+                <p className="mb-2 text-xs text-muted">
+                  {g.address}, {g.room} · ვიზიტი {g.slotMinutes} წთ
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {g.slots.map((s) => (
+                    <button
+                      key={`${g.clinicId}-${s.time}`}
+                      type="button"
+                      disabled={!s.available}
+                      onClick={() => choose(g.clinicId, s.time)}
+                      title={g.clinicName}
+                      className={`min-h-10 rounded-md border text-sm font-medium transition-colors ${
+                        s.available ? 'border-[#0d7a83]/50 text-brand-dark hover:bg-brand hover:text-white' : 'cursor-not-allowed border-line bg-canvas text-muted line-through'
+                      }`}
+                      aria-label={s.available ? `${s.time} თავისუფალია` : `${s.time} დაკავებულია`}
+                    >
+                      {s.time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
         </div>
 
         {user && user.role !== 'patient' && (

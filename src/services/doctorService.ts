@@ -1,12 +1,17 @@
-import type { Clinic, Doctor, Paginated, Slot, SpecialtyKey } from '@/types'
+import type { Clinic, Doctor, Paginated, SlotsResponse, SpecialtyKey } from '@/types'
 import { http } from './http'
 
 export interface DoctorFilters {
   q?: string
   specialty?: SpecialtyKey | ''
   clinicId?: number | ''
+  region?: string
+  municipality?: string
+  network?: string
   minRating?: number | ''
-  sort?: 'rating' | 'experience' | 'name'
+  maxPrice?: number | ''
+  availability?: 'today' | 'tomorrow' | 'week' | ''
+  sort?: 'rating' | 'experience' | 'name' | 'soonest' | 'price'
   page?: number
   pageSize?: number
 }
@@ -23,6 +28,6 @@ function qs(params: Record<string, string | number | undefined | ''>) {
 export const doctorService = {
   list: (f: DoctorFilters) => http.get<Paginated<Doctor>>(`/api/doctors${qs({ ...f })}`),
   get: (id: number) => http.get<Doctor>(`/api/doctors/${id}`),
-  slots: (id: number, date: string) => http.get<{ doctorId: number; date: string; slots: Slot[] }>(`/api/doctors/${id}/slots?date=${date}`),
+  slots: (id: number, date: string, clinicId?: number) => http.get<SlotsResponse>(`/api/doctors/${id}/slots${qs({ date, clinicId })}`),
   clinics: () => http.get<Clinic[]>('/api/clinics'),
 }

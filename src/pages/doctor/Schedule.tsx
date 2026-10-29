@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAsync } from '@/hooks/useAsync'
 import { appointmentService } from '@/services/appointmentService'
+import { doctorService } from '@/services/doctorService'
+import { VisitHistory } from '@/components/VisitHistory'
 import type { AppointmentView } from '@/types'
 import { addDays, formatDate, toISODate } from '@/utils/date'
 import { StatusBadge } from '@/components/ui/Badges'
@@ -11,6 +13,7 @@ import { EmptyState, ErrorState } from '@/components/ui/States'
 
 export default function DoctorSchedule() {
   const list = useAsync(() => appointmentService.mine(), [])
+  const clinics = useAsync(() => doctorService.clinics(), [])
   const [openId, setOpenId] = useState<number | null>(null)
   const today = toISODate(new Date())
   const weekEnd = toISODate(addDays(new Date(), 6))
@@ -108,45 +111,13 @@ export default function DoctorSchedule() {
           </section>
         ))}
 
-        {history.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold">ვიზიტების ისტორია</h2>
-            <div className="mt-3 overflow-x-auto rounded-lg border border-line bg-surface">
-              <table className="w-full min-w-[640px] text-left text-sm">
-                <thead className="bg-canvas text-muted">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">თარიღი</th>
-                    <th className="px-4 py-3 font-medium">პაციენტი</th>
-                    <th className="px-4 py-3 font-medium">სტატუსი</th>
-                    <th className="px-4 py-3 font-medium">დიაგნოზი</th>
-                    <th className="px-4 py-3 font-medium" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((a) => (
-                    <tr key={a.id} className="border-t border-line">
-                      <td className="px-4 py-3">
-                        {formatDate(a.date)}, {a.time}
-                      </td>
-                      <td className="px-4 py-3">{a.patientName}</td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={a.status} />
-                      </td>
-                      <td className="max-w-xs px-4 py-3">
-                        <span className="line-clamp-2 break-words">{a.diagnosis ?? '—'}</span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Link to={`/doctor/visits/${a.id}`} className="whitespace-nowrap font-medium text-brand-dark underline">
-                          ანკეტის ნახვა
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
+        <section aria-labelledby="history-title">
+          <h2 id="history-title" className="text-lg font-semibold">
+            ვიზიტების ისტორია და ძებნა
+          </h2>
+          <p className="mb-4 text-sm text-muted">მოძებნეთ პაციენტით, დიაგნოზით, მიზეზით ან თარიღით.</p>
+          <VisitHistory fetcher={appointmentService.search} perspective="doctor" clinics={clinics.data ?? []} />
+        </section>
       </div>
     </div>
   )

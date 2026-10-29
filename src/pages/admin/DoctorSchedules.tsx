@@ -2,119 +2,129 @@ import { useState } from 'react'
 import { SPECIALTY_LABELS } from '@/data/seed'
 import { useAsync } from '@/hooks/useAsync'
 import { adminService } from '@/services/appointmentService'
+import { doctorService } from '@/services/doctorService'
 import { errorMessage } from '@/services/http'
 import { useToast } from '@/context/ToastContext'
-import type { Doctor } from '@/types'
+import type { Clinic, Doctor } from '@/types'
+import { daysLabel } from '@/utils/weekdays'
+import type { LocationsPayload, ServicesPayload } from '@/utils/validation'
+import { formatPrice } from '@/utils/payment'
+import { Avatar } from '@/components/ui/Badges'
 import { Button } from '@/components/ui/Button'
+import { Tabs } from '@/components/ui/Tabs'
 import { ErrorState } from '@/components/ui/States'
+import { LocationsEditor } from '@/components/LocationsEditor'
+import { ServicesEditor } from '@/components/ServicesEditor'
 
-const DAY_LABELS = [
-  { d: 1, l: 'ორშ' },
-  { d: 2, l: 'სამ' },
-  { d: 3, l: 'ოთხ' },
-  { d: 4, l: 'ხუთ' },
-  { d: 5, l: 'პარ' },
-  { d: 6, l: 'შაბ' },
-  { d: 0, l: 'კვი' },
-]
+type Part = 'schedule' | 'prices'
 
-function Row({ doctor, onSaved }: { doctor: Doctor; onSaved: () => void }) {
+function DoctorRow({ doctor, clinics, onChanged }: { doctor: Doctor; clinics: Clinic[]; onChanged: () => void }) {
   const { notify } = useToast()
-  const [days, setDays] = useState(doctor.workDays)
-  const [start, setStart] = useState(doctor.workHours.start)
-  const [end, setEnd] = useState(doctor.workHours.end)
+  const [open, setOpen] = useState(false)
+  const [part, setPart] = useState<Part>('schedule')
   const [saving, setSaving] = useState(false)
-  const dirty = days.join() !== doctor.workDays.join() || start !== doctor.workHours.start || end !== doctor.workHours.end
-  const invalid = days.length === 0 || start >= end
+  const [error, setError] = useState<string | null>(null)
+  const clinicName = (id: number) => clinics.find((c) => c.id === id)?.name ?? '...'
 
-  const save = async (patch: Parameters<typeof adminService.updateDoctor>[1]) => {
+  const run = async (fn: () => Promise<unknown>, done: string) => {
     setSaving(true)
+    setError(null)
     try {
-      await adminService.updateDoctor(doctor.id, patch)
-      notify('ცვლილება შენახულია')
-      onSaved()
+      await fn()
+      notify(done)
+      onChanged()
     } catch (e) {
-      notify(errorMessage(e), 'error')
+      setError(errorMessage(e))
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <tr className={`border-t border-line ${doctor.active ? '' : 'bg-canvas text-muted'}`}>
-      <td className="px-4 py-3">
-        <p className="font-medium">{doctor.fullName}</p>
-        <p className="text-xs text-muted">{SPECIALTY_LABELS[doctor.specialty]}</p>
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex flex-wrap gap-1" role="group" aria-label={`${doctor.fullName}: სამუშაო დღეები`}>
-          {DAY_LABELS.map(({ d, l }) => {
-            const on = days.includes(d)
-            return (
-              <button
-                key={d}
-                type="button"
-                aria-pressed={on}
-                onClick={() => setDays((cur) => (on ? cur.filter((x) => x !== d) : [...cur, d].sort()))}
-                className={`rounded px-2 py-1 text-xs font-medium ${on ? 'bg-brand text-white' : 'border border-line'}`}
-              >
-                {l}
-              </button>
-            )
-          })}
+    <article className="rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <Avatar name={doctor.fullName} size={48} />
+          <div className="min-w-0">
+            <h2 className="font-semibold">
+              {doctor.fullName} {!doctor.active && <span className="ml-1 rounded-full bg-danger-tint px-2 py-0.5 text-xs font-medium text-danger">გამორთულია</span>}
+            </h2>
+            <p className="text-sm text-brand-dark">
+              {SPECIALTY_LABELS[doctor.specialty]} · {doctor.city}
+            </p>
+            <ul className="mt-1 space-y-0.5 text-sm text-muted">
+              {doctor.locations.map((l) => (
+                <li key={l.id}>
+                  {clinicName(l.clinicId)}: {daysLabel(l.days)}, {l.start}–{l.end}
+                </li>
+              ))}
+            </ul>
+            {doctor.priceFrom !== null && <p className="mt-1 text-sm">ფასი {formatPrice(doctor.priceFrom)}-დან</p>}
+          </div>
         </div>
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-1">
-          <input type="time" aria-label="დასაწყისი" value={start} onChange={(e) => setStart(e.target.value)} className="rounded border border-line px-2 py-1" />
-          <span>–</span>
-          <input type="time" aria-label="დასასრული" value={end} onChange={(e) => setEnd(e.target.value)} className="rounded border border-line px-2 py-1" />
-        </div>
-        {start >= end && <p className="mt-1 text-xs text-danger">დასასრული დასაწყისზე გვიან უნდა იყოს</p>}
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" disabled={!dirty || invalid} loading={saving} onClick={() => save({ workDays: days, workHours: { start, end } })}>
-            შენახვა
+        <div className="flex gap-2">
+          <Button size="sm" variant="secondary" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+            {open ? 'დახურვა' : 'გრაფიკი და ფასები'}
           </Button>
-          <Button size="sm" variant={doctor.active ? 'danger' : 'secondary'} disabled={saving} onClick={() => save({ active: !doctor.active })}>
-            {doctor.active ? 'დეაქტივაცია' : 'გააქტიურება'}
+          <Button size="sm" variant="ghost" onClick={() => run(() => adminService.setActive(doctor.id, !doctor.active), doctor.active ? 'ექიმი გამოირთო' : 'ექიმი ჩაირთო')}>
+            {doctor.active ? 'გამორთვა' : 'ჩართვა'}
           </Button>
         </div>
-      </td>
-    </tr>
+      </div>
+
+      {open && (
+        <div className="mt-5 border-t border-line pt-5">
+          <Tabs<Part>
+            label="გრაფიკი ან ფასები"
+            value={part}
+            onChange={(p) => {
+              setPart(p)
+              setError(null)
+            }}
+            tabs={[
+              { id: 'schedule', label: 'გრაფიკი' },
+              { id: 'prices', label: 'ფასები' },
+            ]}
+          />
+          <div className="mt-5">
+            {part === 'schedule' ? (
+              <LocationsEditor
+                key={JSON.stringify(doctor.locations)}
+                clinics={clinics}
+                value={doctor.locations}
+                saving={saving}
+                error={error}
+                onSave={(data: LocationsPayload) => run(() => adminService.saveLocations(doctor.id, data), 'გრაფიკი განახლდა')}
+              />
+            ) : (
+              <ServicesEditor
+                key={JSON.stringify(doctor.services)}
+                clinics={clinics}
+                clinicIds={Array.from(new Set(doctor.locations.map((l) => l.clinicId)))}
+                value={doctor.services}
+                saving={saving}
+                error={error}
+                onSave={(data: ServicesPayload) => run(() => adminService.saveServices(doctor.id, data), 'ფასები განახლდა')}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </article>
   )
 }
 
 export default function DoctorSchedules() {
-  const list = useAsync(() => adminService.doctors(), [])
+  const doctors = useAsync(() => adminService.doctors(), [])
+  const clinics = useAsync(() => doctorService.clinics(), [])
   return (
     <div>
-      <h1 className="text-3xl font-bold">ექიმების გრაფიკი</h1>
-      <p className="mt-1 text-muted">შეცვალეთ სამუშაო დღეები და საათები. გაუქმებულ დღეებზე ახალი ჯავშნები აღარ გაკეთდება.</p>
-
-      <div className="mt-6" aria-live="polite">
-        {list.loading && <div className="skeleton h-64 w-full" />}
-        {list.error && <ErrorState message={list.error} onRetry={list.reload} />}
-        {list.data && (
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface shadow-card">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-canvas text-muted">
-                <tr>
-                  <th className="px-4 py-3 font-medium">ექიმი</th>
-                  <th className="px-4 py-3 font-medium">სამუშაო დღეები</th>
-                  <th className="px-4 py-3 font-medium">საათები</th>
-                  <th className="px-4 py-3 font-medium">მოქმედება</th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.data.map((d) => (
-                  <Row key={`${d.id}-${d.workDays.join()}-${d.workHours.start}-${d.workHours.end}-${d.active}`} doctor={d} onSaved={list.reload} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      <h1 className="text-3xl font-bold">ექიმების გრაფიკი და ფასები</h1>
+      <p className="mb-6 mt-1 text-muted">ექიმი შეიძლება მუშაობდეს რამდენიმე კლინიკაში. თითოეულ ლოკაციას აქვს საკუთარი დღეები, საათები, კაბინეტი და ფასები.</p>
+      {doctors.loading && <div className="skeleton h-48 w-full" aria-hidden />}
+      {doctors.error && <ErrorState message={doctors.error} onRetry={doctors.reload} />}
+      <div className="space-y-4">
+        {doctors.data && clinics.data && doctors.data.map((d) => <DoctorRow key={d.id} doctor={d} clinics={clinics.data!} onChanged={doctors.reload} />)}
       </div>
     </div>
   )
