@@ -2,6 +2,7 @@ import { memo } from 'react'
 import type { ReactNode } from 'react'
 import { Stars } from './ui/Badges'
 import type { ReviewView, ReviewsSummary } from '@/types'
+import { tr } from '@/i18n'
 
 export const RatingSummary = memo(function RatingSummary({ summary }: { summary: ReviewsSummary }) {
   const max = Math.max(1, ...Object.values(summary.distribution))
@@ -12,9 +13,9 @@ export const RatingSummary = memo(function RatingSummary({ summary }: { summary:
         <div className="mt-1 flex justify-center sm:justify-start">
           <Stars value={summary.average} size={20} />
         </div>
-        <p className="mt-1 text-sm text-muted">{summary.count} შეფასება</p>
+        <p className="mt-1 text-sm text-muted">{tr("{0} შეფასება", [summary.count])}</p>
       </div>
-      <ul className="space-y-1.5" aria-label="შეფასებების განაწილება">
+      <ul className="space-y-1.5" aria-label={tr("შეფასებების განაწილება")}>
         {([5, 4, 3, 2, 1] as const).map((n) => (
           <li key={n} className="grid grid-cols-[20px_1fr_28px] items-center gap-2 text-sm">
             <span>{n}</span>
@@ -41,10 +42,10 @@ export const ReviewItem = memo(function ReviewItem({ review, children }: { revie
           {new Date(review.createdAt).toLocaleDateString('ka-GE')}
         </time>
       </div>
-      {review.comment ? <p className="mt-2 whitespace-pre-wrap break-words">{review.comment}</p> : <p className="mt-2 text-sm text-muted">კომენტარის გარეშე</p>}
+      {review.comment ? <p className="mt-2 whitespace-pre-wrap break-words">{review.comment}</p> : <p className="mt-2 text-sm text-muted">{tr("კომენტარის გარეშე")}</p>}
       {review.doctorReply && (
         <div className="mt-3 rounded-md bg-brand-tint p-3 text-sm">
-          <p className="font-medium text-brand-dark">ექიმის პასუხი</p>
+          <p className="font-medium text-brand-dark">{tr("ექიმის პასუხი")}</p>
           <p className="mt-1 whitespace-pre-wrap break-words">{review.doctorReply}</p>
         </div>
       )}

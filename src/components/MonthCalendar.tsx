@@ -1,9 +1,10 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { toISODate } from '@/utils/date'
 import { Button } from './ui/Button'
+import { tr } from '@/i18n'
 
-const MONTHS = ['იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი', 'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი']
-const HEADERS = ['ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ', 'კვი']
+const MONTHS = [tr("იანვარი"), tr("თებერვალი"), tr("მარტი"), tr("აპრილი"), tr("მაისი"), tr("ივნისი"), tr("ივლისი"), tr("აგვისტო"), tr("სექტემბერი"), tr("ოქტომბერი"), tr("ნოემბერი"), tr("დეკემბერი")]
+const HEADERS = [tr("ორშ"), tr("სამ"), tr("ოთხ"), tr("ხუთ"), tr("პარ"), tr("შაბ"), tr("კვი")]
 
 interface Props {
   /** any date inside the month that should be shown */
@@ -38,13 +39,11 @@ export function MonthCalendar({ month, onMonthChange, counts, selected, onSelect
           {MONTHS[m]} {year}
         </h2>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => onMonthChange(new Date(year, m - 1, 1))} aria-label="წინა თვე">
+          <Button variant="ghost" size="sm" onClick={() => onMonthChange(new Date(year, m - 1, 1))} aria-label={tr("წინა თვე")}>
             <ChevronLeft size={18} aria-hidden />
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => { onMonthChange(new Date()); onSelect(today) }}>
-            დღეს
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => onMonthChange(new Date(year, m + 1, 1))} aria-label="შემდეგი თვე">
+          <Button variant="secondary" size="sm" onClick={() => { onMonthChange(new Date()); onSelect(today) }}>{tr("დღეს")}</Button>
+          <Button variant="ghost" size="sm" onClick={() => onMonthChange(new Date(year, m + 1, 1))} aria-label={tr("შემდეგი თვე")}>
             <ChevronRight size={18} aria-hidden />
           </Button>
         </div>
@@ -72,7 +71,7 @@ export function MonthCalendar({ month, onMonthChange, counts, selected, onSelect
               type="button"
               onClick={() => onSelect(iso)}
               aria-pressed={isSelected}
-              aria-label={`${day} ${MONTHS[m]}${count ? `, ${count} ვიზიტი` : ''}${dayOff ? ', დასვენების დღე' : ''}`}
+              aria-label={`${day} ${MONTHS[m]}${count ? tr(", {0} ვიზიტი", [count]) : ''}${dayOff ? tr(", დასვენების დღე") : ''}`}
               className={`flex aspect-square min-h-11 flex-col items-center justify-center rounded-md border text-sm transition-colors ${
                 isSelected
                   ? 'border-brand bg-brand text-white'

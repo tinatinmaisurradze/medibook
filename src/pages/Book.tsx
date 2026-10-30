@@ -17,6 +17,7 @@ import { TextArea } from '@/components/ui/FormField'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/Badges'
 import { EmptyState } from '@/components/ui/States'
+import { tr } from '@/i18n'
 
 /** a large, clearly selectable choice (visit type, way of paying) */
 function Choice({ checked, onSelect, title, text, aside, icon }: { checked: boolean; onSelect: () => void; title: string; text?: string; aside?: string; icon?: React.ReactNode }) {
@@ -60,7 +61,7 @@ export default function Book() {
 
   if (doctor.loading) return <div className="skeleton mx-auto h-72 max-w-xl" aria-hidden />
   if (!doctor.data) {
-    return <EmptyState title="ექიმი ვერ მოიძებნა" action={<Link to="/doctors" className="font-medium text-brand-dark underline">ექიმების სია</Link>} />
+    return <EmptyState title={tr("ექიმი ვერ მოიძებნა")} action={<Link to="/doctors" className="font-medium text-brand-dark underline">{tr("ექიმების სია")}</Link>} />
   }
 
   const d = doctor.data
@@ -71,7 +72,7 @@ export default function Book() {
   const price = selected?.price ?? 0
 
   if (!location) {
-    return <EmptyState title="ექიმი ამ კლინიკაში არ იღებს" action={<Link to={`/doctors/${d.id}`} className="font-medium text-brand-dark underline">აირჩიეთ სხვა დრო</Link>} />
+    return <EmptyState title={tr("ექიმი ამ კლინიკაში არ იღებს")} action={<Link to={`/doctors/${d.id}`} className="font-medium text-brand-dark underline">{tr("აირჩიეთ სხვა დრო")}</Link>} />
   }
 
   const onSubmit = async (data: BookingForm) => {
@@ -87,10 +88,10 @@ export default function Book() {
         reason: data.reason?.trim() || undefined,
       })
       if (price > 0 && method === 'online') {
-        notify('ვიზიტი დაჯავშნილია. გააგრძელეთ გადახდა')
+        notify(tr("ვიზიტი დაჯავშნილია. გააგრძელეთ გადახდა"))
         navigate(`/checkout/${appt.id}`, { replace: true })
       } else {
-        notify('ვიზიტი დაჯავშნილია')
+        notify(tr("ვიზიტი დაჯავშნილია"))
         navigate('/my-appointments', { replace: true })
       }
     } catch (e) {
@@ -100,7 +101,7 @@ export default function Book() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="text-3xl font-bold">ვიზიტის დადასტურება</h1>
+      <h1 className="text-3xl font-bold">{tr("ვიზიტის დადასტურება")}</h1>
 
       <div className="mt-6 rounded-lg border border-line bg-surface p-5 shadow-card">
         <div className="flex items-center gap-4">
@@ -115,8 +116,7 @@ export default function Book() {
             <CalendarDays size={16} className="text-muted" aria-hidden /> {formatDate(date)}
           </li>
           <li className="flex items-center gap-2">
-            <Clock size={16} className="text-muted" aria-hidden /> {time}, {location.slotMinutes} წუთი
-          </li>
+            <Clock size={16} className="text-muted" aria-hidden />{' '}{tr("{0}, {1} წუთი", [time, location.slotMinutes])}</li>
           <li className="flex items-start gap-2">
             <MapPin size={16} className="mt-0.5 shrink-0 text-muted" aria-hidden />
             <span>
@@ -125,24 +125,20 @@ export default function Book() {
             </span>
           </li>
         </ul>
-        <Link to={`/doctors/${d.id}`} className="mt-4 inline-block text-sm font-medium text-brand-dark underline">
-          დროის ან კლინიკის შეცვლა
-        </Link>
+        <Link to={`/doctors/${d.id}`} className="mt-4 inline-block text-sm font-medium text-brand-dark underline">{tr("დროის ან კლინიკის შეცვლა")}</Link>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 space-y-6">
         {serverError && (
           <div role="alert" className="rounded-md bg-danger-tint px-3 py-2 text-sm text-danger">
             {serverError}{' '}
-            <Link to={`/doctors/${d.id}`} className="font-medium underline">
-              აირჩიეთ სხვა დრო
-            </Link>
+            <Link to={`/doctors/${d.id}`} className="font-medium underline">{tr("აირჩიეთ სხვა დრო")}</Link>
           </div>
         )}
 
         {services.length > 0 && (
           <fieldset>
-            <legend className="mb-2 text-lg font-semibold">ვიზიტის ტიპი</legend>
+            <legend className="mb-2 text-lg font-semibold">{tr("ვიზიტის ტიპი")}</legend>
             <div className="space-y-2">
               {services.map((s) => (
                 <Choice key={s.id} checked={selected?.id === s.id} onSelect={() => setServiceId(s.id)} title={s.name} aside={formatPrice(s.price)} />
@@ -152,8 +148,8 @@ export default function Book() {
         )}
 
         <TextArea
-          label="ვიზიტის მიზეზი (არასავალდებულო)"
-          placeholder="მაგ: წნევის მატება, ყოველწლიური გასინჯვა"
+          label={tr("ვიზიტის მიზეზი (არასავალდებულო)")}
+          placeholder={tr("მაგ: წნევის მატება, ყოველწლიური გასინჯვა")}
           hint={`${reasonLength} / 300`}
           error={errors.reason?.message}
           {...register('reason')}
@@ -161,30 +157,28 @@ export default function Book() {
 
         {price > 0 && (
           <fieldset>
-            <legend className="mb-2 text-lg font-semibold">გადახდა</legend>
+            <legend className="mb-2 text-lg font-semibold">{tr("გადახდა")}</legend>
             <div className="space-y-2">
-              <Choice checked={method === 'online'} onSelect={() => setMethod('online')} icon={<CreditCard size={20} />} title="გადახდა ონლაინ" text="ბარათით ან Apple Pay-ით, შემდეგ ეტაპზე" />
-              <Choice checked={method === 'cashier'} onSelect={() => setMethod('cashier')} icon={<Banknote size={20} />} title="გადახდა რეგისტრატურაში" text="ვიზიტის დღეს, კლინიკაში" />
+              <Choice checked={method === 'online'} onSelect={() => setMethod('online')} icon={<CreditCard size={20} />} title={tr("გადახდა ონლაინ")} text={tr("ბარათით ან Apple Pay-ით")} />
+              <Choice checked={method === 'cashier'} onSelect={() => setMethod('cashier')} icon={<Banknote size={20} />} title={tr("გადახდა რეგისტრატურაში")} text={tr("ვიზიტის დღეს, კლინიკაში")} />
             </div>
           </fieldset>
         )}
 
         <div className="rounded-lg bg-canvas p-4">
           <div className="flex items-center justify-between">
-            <span className="text-muted">სულ გადასახდელი</span>
+            <span className="text-muted">{tr("სულ გადასახდელი")}</span>
             <span className="text-2xl font-bold">{formatPrice(price)}</span>
           </div>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button type="submit" loading={isSubmitting} className="sm:flex-1">
-            {price > 0 && method === 'online' ? `დაჯავშნა და გადახდა, ${formatPrice(price)}` : 'ვიზიტის დადასტურება'}
+            {price > 0 && method === 'online' ? tr("დაჯავშნა და გადახდა, {0}", [formatPrice(price)]) : tr("ვიზიტის დადასტურება")}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
-            გაუქმება
-          </Button>
+          <Button type="button" variant="secondary" onClick={() => navigate(-1)}>{tr("გაუქმება")}</Button>
         </div>
-        <p className="text-sm text-muted">ვიზიტის გაუქმება შესაძლებელია დაწყებამდე მინიმუმ 2 საათით ადრე. ონლაინ გადახდილი თანხა გაუქმებისას უბრუნდება.</p>
+        <p className="text-sm text-muted">{tr("ვიზიტის გაუქმება შესაძლებელია დაწყებამდე მინიმუმ 2 საათით ადრე. ონლაინ გადახდილი თანხა გაუქმებისას უბრუნდება.")}</p>
       </form>
     </div>
   )

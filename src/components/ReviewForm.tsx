@@ -6,6 +6,7 @@ import { reviewSchema } from '@/utils/validation'
 import { Button } from './ui/Button'
 import { TextArea } from './ui/FormField'
 import { StarInput } from './ui/StarInput'
+import { tr } from '@/i18n'
 
 export function ReviewForm({ appointmentId, onDone }: { appointmentId: number; onDone: () => void }) {
   const { notify } = useToast()
@@ -22,14 +23,14 @@ export function ReviewForm({ appointmentId, onDone }: { appointmentId: number; o
     const parsed = reviewSchema.safeParse({ appointmentId, rating, comment: comment || undefined })
     if (!parsed.success) {
       const issue = parsed.error.issues[0]
-      if (issue.path[0] === 'rating') setRatingError('აირჩიეთ შეფასება 1-დან 5-მდე')
+      if (issue.path[0] === 'rating') setRatingError(tr("აირჩიეთ შეფასება 1-დან 5-მდე"))
       else setError(issue.message)
       return
     }
     setBusy(true)
     try {
       await reviewService.create(parsed.data)
-      notify('გმადლობთ შეფასებისთვის')
+      notify(tr("გმადლობთ შეფასებისთვის"))
       onDone()
     } catch (err) {
       setError(errorMessage(err))
@@ -46,10 +47,8 @@ export function ReviewForm({ appointmentId, onDone }: { appointmentId: number; o
         </div>
       )}
       <StarInput value={rating} onChange={setRating} error={ratingError} />
-      <TextArea label="კომენტარი (არასავალდებულო)" rows={3} value={comment} onChange={(e) => setComment(e.target.value)} hint={`${comment.length} / 500`} />
-      <Button type="submit" loading={busy}>
-        შეფასების გაგზავნა
-      </Button>
+      <TextArea label={tr("კომენტარი (არასავალდებულო)")} rows={3} value={comment} onChange={(e) => setComment(e.target.value)} hint={`${comment.length} / 500`} />
+      <Button type="submit" loading={busy}>{tr("შეფასების გაგზავნა")}</Button>
     </form>
   )
 }

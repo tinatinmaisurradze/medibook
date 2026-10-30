@@ -12,6 +12,7 @@ import { defaultHome } from '@/utils/roles'
 import { DoctorCard } from '@/components/DoctorCard'
 import { DoctorCardSkeleton, ErrorState } from '@/components/ui/States'
 import { DoctorSearchBox } from '@/components/search/DoctorSearchBox'
+import { tr } from '@/i18n'
 
 const firstName = (full: string) => full.trim().split(/\s+/)[0]
 
@@ -58,19 +59,19 @@ export default function Home() {
         <div className="relative w-full max-w-2xl text-center">
           {isPatient && user ? (
             <>
-              <p className="mb-3 text-lg font-medium text-brand-tint">გამარჯობა, {firstName(user.fullName)}</p>
-              <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">კეთილი იყოს თქვენი დაბრუნება</h1>
-              <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">გააგრძელეთ იქიდან, სადაც გაჩერდით, ან იპოვეთ ახალი ექიმი.</p>
+              <p className="mb-3 text-lg font-medium text-brand-tint">{tr("გამარჯობა, {0}", [firstName(user.fullName)])}</p>
+              <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">{tr("როგორ დაგეხმაროთ დღეს?")}</h1>
+              <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">{tr("გააგრძელეთ იქიდან, სადაც გაჩერდით, ან იპოვეთ ახალი ექიმი.")}</p>
             </>
           ) : (
             <>
-              <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">იპოვეთ ექიმი და დაჯავშნეთ ვიზიტი</h1>
-              <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">ჩაწერა რამდენიმე წუთში, ზარებისა და რიგების გარეშე. თავისუფალ დროს რეალურ დროში ხედავთ.</p>
+              <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">{tr("იპოვეთ ექიმი და დაჯავშნეთ ვიზიტი")}</h1>
+              <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">{tr("ჩაწერა რამდენიმე წუთში, ზარებისა და რიგების გარეშე. თავისუფალ დროს რეალურ დროში ხედავთ.")}</p>
             </>
           )}
 
           <div className="mt-10 rounded-2xl bg-surface p-5 text-left text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.65)] sm:p-6">
-            <p className="mb-3 text-sm font-semibold">ვის ეძებთ?</p>
+            <p className="mb-3 text-sm font-semibold">{tr("ვის ეძებთ?")}</p>
             <DoctorSearchBox
               value={q}
               onChange={setQ}
@@ -80,7 +81,7 @@ export default function Home() {
               onSubmit={submit}
             />
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted">ხშირად ეძებენ:</span>
+              <span className="text-sm text-muted">{tr("ხშირად ეძებენ:")}</span>
               {(['therapy', 'cardiology', 'pediatrics', 'dermatology'] as SpecialtyKey[]).map((k) => (
                 <Link key={k} to={`/doctors?specialty=${k}`} className="inline-flex h-8 items-center rounded-full bg-brand-tint px-3 text-sm font-medium text-brand-dark transition-colors hover:bg-brand hover:text-white">
                   {SPECIALTY_LABELS[k]}
@@ -90,34 +91,29 @@ export default function Home() {
 
             {!isPatient && (
               <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-muted" aria-hidden>
-                <span className="h-px flex-1 bg-line" />
-                ან
-                <span className="h-px flex-1 bg-line" />
+                <span className="h-px flex-1 bg-line" />{tr("ან")}<span className="h-px flex-1 bg-line" />
               </div>
             )}
 
             {!user && (
               <div className="grid gap-3 sm:grid-cols-2">
                 <Link to="/login" className={secondaryBtn}>
-                  <LogIn size={18} aria-hidden /> შესვლა ჩემს კაბინეტში
-                </Link>
+                  <LogIn size={18} aria-hidden />{' '}{tr("შესვლა ჩემს კაბინეტში")}</Link>
                 <Link to="/register" className={secondaryBtn}>
-                  <UserPlus size={18} aria-hidden /> რეგისტრაცია
-                </Link>
+                  <UserPlus size={18} aria-hidden />{' '}{tr("რეგისტრაცია")}</Link>
               </div>
             )}
             {user && user.role !== 'patient' && (
               <Link to={defaultHome(user.role)} className={`${secondaryBtn} w-full`}>
-                <LayoutDashboard size={18} aria-hidden /> სამუშაო სივრცეში გადასვლა
-              </Link>
+                <LayoutDashboard size={18} aria-hidden />{' '}{tr("სამუშაო სივრცეში გადასვლა")}</Link>
             )}
           </div>
 
           {isPatient && (
-            <div className="mt-5 grid gap-3 text-left sm:grid-cols-3" aria-label="ჩემი კაბინეტი">
+            <div className="mt-5 grid gap-3 text-left sm:grid-cols-3" aria-label={tr("ჩემი კაბინეტი")}>
               <Link to={nextVisit ? `/my-appointments/${nextVisit.id}` : '/my-appointments'} className={tile}>
                 <CalendarClock size={20} className="text-brand-tint" aria-hidden />
-                <span className="mt-3 block text-xs font-semibold uppercase tracking-wide text-white/60">უახლოესი ვიზიტი</span>
+                <span className="mt-3 block text-xs font-semibold uppercase tracking-wide text-white/60">{tr("უახლოესი ვიზიტი")}</span>
                 {nextVisit ? (
                   <>
                     <span className="mt-1 block font-semibold">
@@ -126,42 +122,36 @@ export default function Home() {
                     <span className="block truncate text-sm text-white/70">{nextVisit.doctorName}</span>
                   </>
                 ) : (
-                  <span className="mt-1 block text-sm text-white/80">{mine.loading ? 'იტვირთება...' : 'დაგეგმილი ვიზიტი არ გაქვთ'}</span>
+                  <span className="mt-1 block text-sm text-white/80">{mine.loading ? tr("იტვირთება...") : tr("დაგეგმილი ვიზიტი არ გაქვთ")}</span>
                 )}
               </Link>
               <Link to="/my-appointments?tab=history" className={tile}>
                 <History size={20} className="text-brand-tint" aria-hidden />
-                <span className="mt-3 block text-xs font-semibold uppercase tracking-wide text-white/60">ვიზიტების ისტორია</span>
-                <span className="mt-1 block font-semibold">{mine.loading ? '...' : `${completed} დასრულებული`}</span>
-                <span className="block text-sm text-white/70">დიაგნოზები და რეცეპტები</span>
+                <span className="mt-3 block text-xs font-semibold uppercase tracking-wide text-white/60">{tr("ვიზიტების ისტორია")}</span>
+                <span className="mt-1 block font-semibold">{mine.loading ? '...' : tr("{0} დასრულებული", [completed])}</span>
+                <span className="block text-sm text-white/70">{tr("დიაგნოზები და რეცეპტები")}</span>
               </Link>
               <Link to="/profile?tab=medical" className={tile}>
                 <HeartPulse size={20} className="text-brand-tint" aria-hidden />
-                <span className="mt-3 block text-xs font-semibold uppercase tracking-wide text-white/60">სამედიცინო ისტორია</span>
-                <span className="mt-1 block font-semibold">ჩემი მონაცემები</span>
-                <span className="block text-sm text-white/70">ალერგიები, მედიკამენტები, ანალიზები</span>
+                <span className="mt-3 block text-xs font-semibold uppercase tracking-wide text-white/60">{tr("სამედიცინო ისტორია")}</span>
+                <span className="mt-1 block font-semibold">{tr("ჩემი მონაცემები")}</span>
+                <span className="block text-sm text-white/70">{tr("ალერგიები, მედიკამენტები, ანალიზები")}</span>
               </Link>
             </div>
           )}
         </div>
 
-        <a href="#doctors-list" className="absolute inset-x-0 bottom-6 mx-auto flex w-fit flex-col items-center gap-1 text-sm text-white/70 transition-colors hover:text-white">
-          ექიმების სია
-          <ChevronDown size={22} className="animate-bounce" aria-hidden />
+        <a href="#doctors-list" className="absolute inset-x-0 bottom-6 mx-auto flex w-fit flex-col items-center gap-1 text-sm text-white/70 transition-colors hover:text-white">{tr("ექიმების სია")}<ChevronDown size={22} className="animate-bounce" aria-hidden />
         </a>
       </section>
 
       <section id="doctors-list" aria-labelledby="doctors-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h2 id="doctors-title" className="text-3xl font-bold">
-              ექიმები
-            </h2>
-            <p className="mt-1 text-muted">ყველაზე მაღალი რეიტინგის სპეციალისტები</p>
+            <h2 id="doctors-title" className="text-3xl font-bold">{tr("ექიმები")}</h2>
+            <p className="mt-1 text-muted">{tr("ყველაზე მაღალი რეიტინგის სპეციალისტები")}</p>
           </div>
-          <Link to="/doctors" className="text-sm font-medium text-brand-dark underline">
-            ყველა ექიმი და ფილტრები
-          </Link>
+          <Link to="/doctors" className="text-sm font-medium text-brand-dark underline">{tr("ყველა ექიმი და ფილტრები")}</Link>
         </div>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {data.loading && Array.from({ length: 6 }).map((_, i) => <DoctorCardSkeleton key={i} />)}

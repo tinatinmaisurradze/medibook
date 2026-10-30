@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { RefreshCw, TriangleAlert } from 'lucide-react'
+import { tr } from '@/i18n'
 
 interface Props {
   children: ReactNode
@@ -36,19 +37,16 @@ export class ErrorBoundary extends Component<Props, State> {
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-danger-tint text-danger" aria-hidden>
           <TriangleAlert size={28} />
         </span>
-        <h1 className="mt-4 text-2xl font-bold">რაღაც არასწორად წარიმართა</h1>
-        <p className="mt-2 text-muted">გვერდის ჩატვირთვისას მოულოდნელი შეცდომა მოხდა. თქვენი მონაცემები არ დაკარგულა.</p>
+        <h1 className="mt-4 text-2xl font-bold">{tr("მოხდა შეცდომა")}</h1>
+        <p className="mt-2 text-muted">{tr("გვერდის ჩატვირთვისას მოულოდნელი შეცდომა მოხდა. თქვენი მონაცემები არ დაკარგულა.")}</p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-brand px-5 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
           >
-            <RefreshCw size={16} aria-hidden /> გვერდის განახლება
-          </button>
-          <a href="/" className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-5 text-sm font-medium transition-colors hover:border-brand hover:text-brand-dark">
-            მთავარ გვერდზე
-          </a>
+            <RefreshCw size={16} aria-hidden />{' '}{tr("გვერდის განახლება")}</button>
+          <a href="/" className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-5 text-sm font-medium transition-colors hover:border-brand hover:text-brand-dark">{tr("მთავარ გვერდზე")}</a>
         </div>
       </div>
     )

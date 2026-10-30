@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Tabs } from '@/components/ui/Tabs'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState, ErrorState } from '@/components/ui/States'
+import { tr } from '@/i18n'
 
 type Tab = 'upcoming' | 'history'
 
@@ -36,7 +37,7 @@ export default function MyAppointments() {
     setBusyId(id)
     try {
       await appointmentService.cancel(id)
-      notify('ვიზიტი გაუქმდა')
+      notify(tr("ვიზიტი გაუქმდა"))
       list.reload()
     } catch (e) {
       notify(errorMessage(e), 'error')
@@ -48,16 +49,16 @@ export default function MyAppointments() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">ჩემი ვიზიტები</h1>
+      <h1 className="text-3xl font-bold">{tr("ჩემი ვიზიტები")}</h1>
 
       <div className="mt-5">
         <Tabs
-          label="ვიზიტების ჩანართები"
+          label={tr("ვიზიტების ჩანართები")}
           value={tab}
           onChange={setTab}
           tabs={[
-            { id: 'upcoming', label: 'მომავალი' },
-            { id: 'history', label: 'ისტორია და რეცეპტები' },
+            { id: 'upcoming', label: tr("მომავალი") },
+            { id: 'history', label: tr("ისტორია და რეცეპტები") },
           ]}
         />
       </div>
@@ -79,9 +80,9 @@ export default function MyAppointments() {
 
         {list.data && sorted.length === 0 && (
           <EmptyState
-            title="მომავალი ვიზიტები არ გაქვთ"
-            text="იპოვეთ ექიმი და დაჯავშნეთ პირველი ვიზიტი."
-            action={<Link to="/doctors" className="inline-flex min-h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-dark">ექიმის პოვნა</Link>}
+            title={tr("მომავალი ვიზიტები არ გაქვთ")}
+            text={tr("იპოვეთ ექიმი და დაჯავშნეთ პირველი ვიზიტი.")}
+            action={<Link to="/doctors" className="inline-flex min-h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-dark">{tr("ექიმის პოვნა")}</Link>}
           />
         )}
 
@@ -100,46 +101,42 @@ export default function MyAppointments() {
                 {formatDate(a.date)}, {a.time} · {a.clinicName}, {a.room}
               </p>
               <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                <span className="text-muted">{a.serviceName ?? 'ვიზიტი'}</span>
+                <span className="text-muted">{a.serviceName ?? tr("ვიზიტი")}</span>
                 <span className="font-medium">{formatPrice(a.price)}</span>
                 <PaymentBadge status={a.paymentStatus} />
               </p>
-              {a.reason && <p className="mt-1 text-sm text-muted">მიზეზი: {a.reason}</p>}
+              {a.reason && <p className="mt-1 text-sm text-muted">{tr("მიზეზი: {0}", [a.reason])}</p>}
 
               {a.status === 'completed' && (a.diagnosis || a.prescription) && (
                 <div className="mt-4 rounded-md bg-canvas p-4 text-sm">
                   {a.diagnosis && (
                     <p className="line-clamp-2 break-words">
-                      <span className="font-medium">დიაგნოზი:</span> {a.diagnosis}
+                      <span className="font-medium">{tr("დიაგნოზი:")}</span> {a.diagnosis}
                     </p>
                   )}
                   {a.prescription && (
                     <p className="mt-1 line-clamp-2 break-words">
-                      <span className="font-medium">დანიშნულება:</span> {a.prescription}
+                      <span className="font-medium">{tr("დანიშნულება:")}</span> {a.prescription}
                     </p>
                   )}
                 </div>
               )}
 
               {a.status !== 'cancelled' && (
-                <Link to={`/my-appointments/${a.id}`} className="mt-4 inline-flex items-center font-medium text-brand-dark underline">
-                  სრული ანკეტის ნახვა
-                </Link>
+                <Link to={`/my-appointments/${a.id}`} className="mt-4 inline-flex items-center font-medium text-brand-dark underline">{tr("ჩანაწერის სრულად ნახვა")}</Link>
               )}
 
               {a.status === 'confirmed' && (
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   {a.price > 0 && (a.paymentStatus === 'pending' || a.paymentStatus === 'at_clinic') && (
                     <Link to={`/checkout/${a.id}`} className="inline-flex min-h-9 items-center rounded-md bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-dark">
-                      {a.paymentStatus === 'pending' ? 'გადახდა ახლავე' : 'გადახდა ონლაინ'}
+                      {a.paymentStatus === 'pending' ? tr("გადახდა ახლავე") : tr("გადახდა ონლაინ")}
                     </Link>
                   )}
                   {tooLate ? (
-                    <p className="text-sm text-muted">გაუქმება შეუძლებელია: ვიზიტამდე 2 საათზე ნაკლებია.</p>
+                    <p className="text-sm text-muted">{tr("გაუქმება შეუძლებელია: ვიზიტამდე 2 საათზე ნაკლებია.")}</p>
                   ) : (
-                    <Button variant="secondary" size="sm" onClick={() => setConfirmId(a.id)}>
-                      ვიზიტის გაუქმება
-                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => setConfirmId(a.id)}>{tr("ვიზიტის გაუქმება")}</Button>
                   )}
                 </div>
               )}
@@ -150,19 +147,19 @@ export default function MyAppointments() {
 
       <ConfirmDialog
         open={confirmTarget !== undefined}
-        title="ვიზიტის გაუქმება"
+        title={tr("ვიზიტის გაუქმება")}
         description={
           confirmTarget && (
             <>
               <p className="font-medium text-ink">
                 {confirmTarget.doctorName} · {formatDate(confirmTarget.date)}, {confirmTarget.time}
               </p>
-              <p className="mt-1">გაუქმების შემდეგ ეს დრო სხვა პაციენტისთვის გაიხსნება.</p>
+              <p className="mt-1">{tr("გაუქმების შემდეგ ეს დრო სხვა პაციენტისთვის გაიხსნება.")}</p>
             </>
           )
         }
-        confirmLabel="ვიზიტის გაუქმება"
-        cancelLabel="არა, ვიზიტი დარჩეს"
+        confirmLabel={tr("ვიზიტის გაუქმება")}
+        cancelLabel={tr("არა, ვიზიტი დარჩეს")}
         busy={busyId !== null}
         onConfirm={() => confirmId !== null && cancel(confirmId)}
         onCancel={() => setConfirmId(null)}

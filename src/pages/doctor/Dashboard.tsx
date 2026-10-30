@@ -2,17 +2,17 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, CalendarClock, ClipboardList, Star, Users } from 'lucide-react'
 import { useAsync } from '@/hooks/useAsync'
 import { doctorPortalService } from '@/services/doctorPortalService'
-import { useAuth } from '@/context/AuthContext'
 import { formatDate, msUntil, weekdayShort, dayOfMonth } from '@/utils/date'
 import { Stars } from '@/components/ui/Badges'
 import { ErrorState } from '@/components/ui/States'
 import type { AppointmentView } from '@/types'
+import { tr } from '@/i18n'
 
 function countdown(a: AppointmentView): string {
   const ms = msUntil(a.date, a.time)
   const min = Math.round(ms / 60000)
-  if (min < 60) return `${Math.max(min, 1)} წუთში`
-  if (min < 24 * 60) return `${Math.floor(min / 60)} საათსა და ${min % 60} წუთში`
+  if (min < 60) return tr("{0} წუთში", [Math.max(min, 1)])
+  if (min < 24 * 60) return tr("{0} საათსა და {1} წუთში", [Math.floor(min / 60), min % 60])
   return formatDate(a.date)
 }
 
@@ -32,13 +32,12 @@ function StatCard({ label, value, icon, note }: { label: string; value: string |
 }
 
 export default function DoctorDashboard() {
-  const { user } = useAuth()
   const data = useAsync(() => doctorPortalService.dashboard(), [])
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">დეშბორდი</h1>
-      <p className="mt-1 text-muted">{user ? `${user.fullName}, ` : ''}აი, როგორია თქვენი დღე.</p>
+      <h1 className="text-3xl font-bold">{tr("მთავარი")}</h1>
+      <p className="mt-1 text-muted">{tr("თქვენი დღე ერთი შეხედვით.")}</p>
 
       {data.loading && (
         <div className="mt-6 space-y-4" aria-hidden>
@@ -59,23 +58,21 @@ export default function DoctorDashboard() {
       {data.data && (
         <div className="mt-6 space-y-6">
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-            <StatCard label="ვიზიტი დღეს" value={data.data.stats.today} icon={<CalendarClock size={22} />} />
-            <StatCard label="ვიზიტი 7 დღეში" value={data.data.stats.next7Days} icon={<ClipboardList size={22} />} />
-            <StatCard label="დასრულებული ამ თვეში" value={data.data.stats.completedThisMonth} icon={<ClipboardList size={22} />} />
-            <StatCard label="პაციენტი" value={data.data.stats.patients} icon={<Users size={22} />} />
+            <StatCard label={tr("ვიზიტი დღეს")} value={data.data.stats.today} icon={<CalendarClock size={22} />} />
+            <StatCard label={tr("ვიზიტი 7 დღეში")} value={data.data.stats.next7Days} icon={<ClipboardList size={22} />} />
+            <StatCard label={tr("დასრულებული ამ თვეში")} value={data.data.stats.completedThisMonth} icon={<ClipboardList size={22} />} />
+            <StatCard label={tr("პაციენტი")} value={data.data.stats.patients} icon={<Users size={22} />} />
             <StatCard
-              label="რეიტინგი"
+              label={tr("რეიტინგი")}
               value={data.data.stats.reviewCount ? data.data.stats.rating.toFixed(1) : '—'}
               icon={<Star size={22} />}
-              note={`${data.data.stats.reviewCount} შეფასება`}
+              note={tr("{0} შეფასება", [data.data.stats.reviewCount])}
             />
           </div>
 
           {data.data.nextAppointment && (
             <section className="rounded-lg bg-ink p-6 text-white" aria-labelledby="next-title">
-              <h2 id="next-title" className="text-sm font-medium text-white/70">
-                შემდეგი ვიზიტი
-              </h2>
+              <h2 id="next-title" className="text-sm font-medium text-white/70">{tr("შემდეგი ვიზიტი")}</h2>
               <p className="mt-1 font-display text-2xl font-bold">
                 {data.data.nextAppointment.time} · {data.data.nextAppointment.patientName}
               </p>
@@ -86,19 +83,15 @@ export default function DoctorDashboard() {
               <Link
                 to={`/doctor/visits/${data.data.nextAppointment.id}`}
                 className="mt-4 inline-flex min-h-10 items-center rounded-md bg-white px-4 text-sm font-medium text-ink hover:bg-brand-tint"
-              >
-                ანკეტის გახსნა
-              </Link>
+              >{tr("ჩანაწერის გახსნა")}</Link>
             </section>
           )}
 
           <div className="grid gap-6 lg:grid-cols-2">
             <section className="rounded-lg border border-line bg-surface p-5 shadow-card" aria-labelledby="today-title">
-              <h2 id="today-title" className="text-lg font-bold">
-                დღევანდელი განრიგი
-              </h2>
+              <h2 id="today-title" className="text-lg font-bold">{tr("დღევანდელი განრიგი")}</h2>
               {data.data.todayAppointments.length === 0 ? (
-                <p className="mt-3 text-sm text-muted">დღეს დაგეგმილი ვიზიტები არ არის.</p>
+                <p className="mt-3 text-sm text-muted">{tr("დღეს დაგეგმილი ვიზიტები არ არის.")}</p>
               ) : (
                 <ul className="mt-3 divide-y divide-line">
                   {data.data.todayAppointments.map((a) => (
@@ -117,11 +110,9 @@ export default function DoctorDashboard() {
 
             <section className="rounded-lg border border-line bg-surface p-5 shadow-card" aria-labelledby="pending-title">
               <h2 id="pending-title" className="flex items-center gap-2 text-lg font-bold">
-                <AlertTriangle size={18} className="text-gold" aria-hidden />
-                ჩანაწერის დასამატებელი
-              </h2>
+                <AlertTriangle size={18} className="text-gold" aria-hidden />{tr("ჩანაწერის მოლოდინში")}</h2>
               {data.data.pendingRecords.length === 0 ? (
-                <p className="mt-3 text-sm text-muted">ყველა გამართული ვიზიტი დაფიქსირებულია.</p>
+                <p className="mt-3 text-sm text-muted">{tr("ყველა ჩატარებული ვიზიტის ჩანაწერი დამატებულია.")}</p>
               ) : (
                 <ul className="mt-3 divide-y divide-line">
                   {data.data.pendingRecords.map((a) => (
@@ -130,7 +121,7 @@ export default function DoctorDashboard() {
                         <span>
                           {formatDate(a.date)}, {a.time} · {a.patientName}
                         </span>
-                        <span className="text-sm font-medium text-brand-dark underline">ჩაწერა</span>
+                        <span className="text-sm font-medium text-brand-dark underline">{tr("ჩანაწერის დამატება")}</span>
                       </Link>
                     </li>
                   ))}
@@ -139,9 +130,7 @@ export default function DoctorDashboard() {
             </section>
 
             <section className="rounded-lg border border-line bg-surface p-5 shadow-card" aria-labelledby="week-title">
-              <h2 id="week-title" className="text-lg font-bold">
-                დატვირთვა 7 დღეში
-              </h2>
+              <h2 id="week-title" className="text-lg font-bold">{tr("დატვირთვა 7 დღეში")}</h2>
               <ul className="mt-4 flex items-end justify-between gap-2" style={{ height: 140 }}>
                 {data.data.weekLoad.map((d) => {
                   const max = Math.max(1, ...data.data!.weekLoad.map((x) => x.count))
@@ -156,17 +145,13 @@ export default function DoctorDashboard() {
                   )
                 })}
               </ul>
-              <Link to="/doctor/calendar" className="mt-4 inline-block text-sm font-medium text-brand-dark underline">
-                კალენდრის გახსნა
-              </Link>
+              <Link to="/doctor/calendar" className="mt-4 inline-block text-sm font-medium text-brand-dark underline">{tr("კალენდრის გახსნა")}</Link>
             </section>
 
             <section className="rounded-lg border border-line bg-surface p-5 shadow-card" aria-labelledby="rev-title">
-              <h2 id="rev-title" className="text-lg font-bold">
-                ბოლო შეფასებები
-              </h2>
+              <h2 id="rev-title" className="text-lg font-bold">{tr("ბოლო შეფასებები")}</h2>
               {data.data.latestReviews.length === 0 ? (
-                <p className="mt-3 text-sm text-muted">შეფასებები ჯერ არ არის.</p>
+                <p className="mt-3 text-sm text-muted">{tr("შეფასებები ჯერ არ არის.")}</p>
               ) : (
                 <ul className="mt-3 space-y-3">
                   {data.data.latestReviews.map((r) => (
@@ -180,9 +165,7 @@ export default function DoctorDashboard() {
                   ))}
                 </ul>
               )}
-              <Link to="/doctor/reviews" className="mt-4 inline-block text-sm font-medium text-brand-dark underline">
-                ყველა შეფასება
-              </Link>
+              <Link to="/doctor/reviews" className="mt-4 inline-block text-sm font-medium text-brand-dark underline">{tr("ყველა შეფასება")}</Link>
             </section>
           </div>
         </div>

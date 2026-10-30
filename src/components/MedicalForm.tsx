@@ -11,6 +11,7 @@ import { TextField, TextArea } from './ui/FormField'
 import { TagInput } from './ui/TagInput'
 import { SelectField } from './ui/SelectField'
 import { Button } from './ui/Button'
+import { tr } from '@/i18n'
 
 const toNumber = (v?: string) => (v && v.trim() ? Number(v.replace(',', '.')) : undefined)
 
@@ -54,7 +55,7 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
         sharedWithDoctors: data.sharedWithDoctors,
       })
       onSaved(saved)
-      notify('სამედიცინო ისტორია შენახულია')
+      notify(tr("სამედიცინო ისტორია შენახულია"))
     } catch (e) {
       setServerError(errorMessage(e))
     }
@@ -64,9 +65,7 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="max-w-2xl space-y-6">
       <div className="flex gap-3 rounded-md bg-brand-tint p-4 text-sm text-brand-dark">
         <ShieldCheck size={20} className="mt-0.5 shrink-0" aria-hidden />
-        <p>
-          ეს ინფორმაცია პირადია. ის მხოლოდ თქვენ ხედავთ და იმ ექიმებს, რომლებთანაც ვიზიტი გაქვთ, თუ ქვემოთ გაზიარებას ჩართავთ. ადმინისტრაციას მასზე წვდომა არ აქვს.
-        </p>
+        <p>{tr("ეს ინფორმაცია პირადია. ის მხოლოდ თქვენ ხედავთ და იმ ექიმებს, რომლებთანაც ვიზიტი გაქვთ, თუ ქვემოთ გაზიარებას ჩართავთ. ადმინისტრაციას მასზე წვდომა არ აქვს.")}</p>
       </div>
 
       {serverError && (
@@ -76,27 +75,27 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <SelectField label="სისხლის ჯგუფი" {...register('bloodType')}>
-          <option value="">არ არის მითითებული</option>
+        <SelectField label={tr("სისხლის ჯგუფი")} {...register('bloodType')}>
+          <option value="">{tr("არ არის მითითებული")}</option>
           {BLOOD_TYPES.map((b) => (
             <option key={b} value={b}>
               {b}
             </option>
           ))}
         </SelectField>
-        <TextField label="სიმაღლე (სმ)" inputMode="decimal" error={errors.heightCm?.message} {...register('heightCm')} />
-        <TextField label="წონა (კგ)" inputMode="decimal" error={errors.weightKg?.message} {...register('weightKg')} />
+        <TextField label={tr("სიმაღლე (სმ)")} inputMode="decimal" error={errors.heightCm?.message} {...register('heightCm')} />
+        <TextField label={tr("წონა (კგ)")} inputMode="decimal" error={errors.weightKg?.message} {...register('weightKg')} />
       </div>
 
-      <TagInput label="ალერგიები" tone="danger" value={allergies} onChange={setAllergies} placeholder="მაგ: პენიცილინი" hint="ექიმი ამას ვიზიტზე პირველ რიგში ხედავს" />
-      <TagInput label="ქრონიკული დაავადებები" value={conditions} onChange={setConditions} placeholder="მაგ: დიაბეტი" />
-      <TagInput label="მიმდინარე მედიკამენტები" value={medications} onChange={setMedications} placeholder="მაგ: ამლოდიპინი 5 მგ" />
-      <TagInput label="ოპერაციები და ტრავმები" value={surgeries} onChange={setSurgeries} placeholder="მაგ: აპენდექტომია, 2015" />
+      <TagInput label={tr("ალერგიები")} tone="danger" value={allergies} onChange={setAllergies} placeholder={tr("მაგ: პენიცილინი")} hint={tr("ექიმი ამას ვიზიტზე პირველ რიგში ხედავს")} />
+      <TagInput label={tr("ქრონიკული დაავადებები")} value={conditions} onChange={setConditions} placeholder={tr("მაგ: დიაბეტი")} />
+      <TagInput label={tr("მიმდინარე მედიკამენტები")} value={medications} onChange={setMedications} placeholder={tr("მაგ: ამლოდიპინი 5 მგ")} />
+      <TagInput label={tr("ოპერაციები და ტრავმები")} value={surgeries} onChange={setSurgeries} placeholder={tr("მაგ: აპენდექტომია, 2015")} />
 
       <TextArea
-        label="ოჯახური ანამნეზი"
+        label={tr("ოჯახური ანამნეზი")}
         rows={3}
-        placeholder="მაგ: დედის მხრიდან ჰიპერტენზია"
+        placeholder={tr("მაგ: დედის მხრიდან ჰიპერტენზია")}
         hint={`${(watch('familyHistory') ?? '').length} / 1000`}
         error={errors.familyHistory?.message}
         {...register('familyHistory')}
@@ -105,16 +104,14 @@ export function MedicalForm({ initial, onSaved }: { initial: MedicalProfile | nu
       <label className="flex items-start gap-3 rounded-md border border-line bg-surface p-4">
         <input type="checkbox" className="mt-1 h-4 w-4 accent-[var(--color-brand)]" {...register('sharedWithDoctors')} />
         <span className="text-sm">
-          <span className="font-medium">ექიმებისთვის ხელმისაწვდომობა</span>
-          <span className="mt-0.5 block text-muted">დაუშვით ამ ინფორმაციის ნახვა ექიმებისთვის, რომლებთანაც ვიზიტი გაქვთ. გამორთვის შემთხვევაში ექიმი ვერ ნახავს.</span>
+          <span className="font-medium">{tr("ექიმებისთვის ხელმისაწვდომობა")}</span>
+          <span className="mt-0.5 block text-muted">{tr("დაუშვით ამ ინფორმაციის ნახვა ექიმებისთვის, რომლებთანაც ვიზიტი გაქვთ. გამორთვის შემთხვევაში ექიმი ვერ ნახავს.")}</span>
         </span>
       </label>
 
       <div className="flex items-center gap-4">
-        <Button type="submit" loading={isSubmitting}>
-          შენახვა
-        </Button>
-        {initial?.updatedAt && <span className="text-sm text-muted">ბოლო განახლება: {new Date(initial.updatedAt).toLocaleDateString('ka-GE')}</span>}
+        <Button type="submit" loading={isSubmitting}>{tr("შენახვა")}</Button>
+        {initial?.updatedAt && <span className="text-sm text-muted">{tr("ბოლო განახლება: {0}", [new Date(initial.updatedAt).toLocaleDateString('ka-GE')])}</span>}
       </div>
     </form>
   )

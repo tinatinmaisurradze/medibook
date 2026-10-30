@@ -6,6 +6,7 @@ import type { AppointmentView } from '@/types'
 import { formatDate } from '@/utils/date'
 import { formatPrice } from '@/utils/payment'
 import { PaymentBadge, StatusBadge } from '@/components/ui/Badges'
+import { tr } from '@/i18n'
 
 export type Perspective = 'patient' | 'doctor' | 'admin'
 
@@ -30,7 +31,7 @@ export const VisitListItem = memo(function VisitListItem({ v, perspective }: { v
           {v.room ? `, ${v.room}` : ''}
         </p>
         <p className="mt-0.5 text-sm">
-          <span className="text-muted">{v.serviceName ?? 'ვიზიტი'}</span> · <span className="font-medium">{formatPrice(v.price)}</span>
+          <span className="text-muted">{v.serviceName ?? tr("ვიზიტი")}</span> · <span className="font-medium">{formatPrice(v.price)}</span>
         </p>
         {excerpt && <p className="mt-1 line-clamp-1 break-words text-sm text-muted">{excerpt}</p>}
       </div>

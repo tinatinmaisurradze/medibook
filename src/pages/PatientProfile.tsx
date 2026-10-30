@@ -8,6 +8,7 @@ import { PasswordForm } from '@/components/PasswordForm'
 import { Tabs } from '@/components/ui/Tabs'
 import { ErrorState } from '@/components/ui/States'
 import type { MedicalProfile } from '@/types'
+import { tr } from '@/i18n'
 
 type Tab = 'general' | 'medical' | 'security'
 
@@ -20,18 +21,18 @@ export default function PatientProfile() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">ჩემი პროფილი</h1>
-      <p className="mt-1 text-muted">პირადი ინფორმაცია, სამედიცინო ისტორია და უსაფრთხოება.</p>
+      <h1 className="text-3xl font-bold">{tr("ჩემი პროფილი")}</h1>
+      <p className="mt-1 text-muted">{tr("პირადი ინფორმაცია, სამედიცინო ისტორია და უსაფრთხოება.")}</p>
 
       <div className="mt-6">
         <Tabs
-          label="პროფილის განყოფილებები"
+          label={tr("პროფილის განყოფილებები")}
           value={tab}
           onChange={setTab}
           tabs={[
-            { id: 'general', label: 'ზოგადი ინფორმაცია' },
-            { id: 'medical', label: 'სამედიცინო ისტორია' },
-            { id: 'security', label: 'უსაფრთხოება' },
+            { id: 'general', label: tr("ზოგადი ინფორმაცია") },
+            { id: 'medical', label: tr("სამედიცინო ისტორია") },
+            { id: 'security', label: tr("უსაფრთხოება") },
           ]}
         />
       </div>
@@ -49,7 +50,7 @@ export default function PatientProfile() {
 
         {tab === 'security' && (
           <>
-            <h2 className="mb-4 text-xl font-bold">პაროლის შეცვლა</h2>
+            <h2 className="mb-4 text-xl font-bold">{tr("პაროლის შეცვლა")}</h2>
             <PasswordForm />
           </>
         )}

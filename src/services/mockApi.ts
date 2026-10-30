@@ -34,6 +34,7 @@ import type {
   User,
 } from '@/types'
 import { addDays, minutesToTime, msUntil, parseISODate, timeToMinutes, toISODate } from '@/utils/date'
+import en from '@/i18n/en'
 import { cardBrand, digitsOnly, isValidCvc, isValidExpiry, luhn, TEST_CARDS } from '@/utils/payment'
 import {
   bookingPayloadSchema,
@@ -272,7 +273,7 @@ function buildSlots(db: Db, doctor: DbDoctor, date: string, clinicId?: number): 
 }
 
 /** the earliest free times (up to 3) at one clinic, on the first day within `days` that has any */
-function nextAvailability(db: Db, doctor: DbDoctor, days = 14): Doctor['nextAvailable'] {
+function nextAvailability(db: Db, doctor: DbDoctor, days = 30): Doctor['nextAvailable'] {
   for (let i = 0; i < days; i++) {
     const date = toISODate(addDays(new Date(), i))
     for (const g of buildSlots(db, doctor, date)) {
@@ -441,15 +442,15 @@ route('GET', '/api/doctors', ({ db, query }) => {
   }
   if (minRating) list = list.filter((d) => d.rating >= minRating)
   if (maxPrice) list = list.filter((d) => d.priceFrom !== null && d.priceFrom <= maxPrice)
-  if (q) list = list.filter((d) => d.fullName.toLowerCase().includes(q) || SPECIALTY_LABELS[d.specialty].toLowerCase().includes(q))
-  if (availability === 'today' || availability === 'tomorrow' || availability === 'week') {
+  if (q) list = list.filter((d) => [d.fullName, en[d.fullName], SPECIALTY_LABELS[d.specialty], en[SPECIALTY_LABELS[d.specialty]]].some((x) => (x ?? '').toLowerCase().includes(q)))
+  if (availability === 'today' || availability === 'tomorrow' || availability === 'week' || availability === 'month') {
     const todayIso = toISODate(new Date())
     const tomorrowIso = toISODate(addDays(new Date(), 1))
     list = list.filter((d) => {
       const doctor = db.doctors.find((x) => x.id === d.id)!
       if (availability === 'today') return hasFreeSlotOn(db, doctor, todayIso)
       if (availability === 'tomorrow') return hasFreeSlotOn(db, doctor, tomorrowIso)
-      return nextAvailability(db, doctor, 7) !== null
+      return nextAvailability(db, doctor, availability === 'month' ? 30 : 7) !== null
     })
   }
   const soonest = (d: (typeof list)[number]) => (d.nextAvailable ? `${d.nextAvailable.date}${d.nextAvailable.times[0]}` : '9999')
@@ -613,7 +614,11 @@ function searchAppointments(db: Db, base: Appointment[], query: URLSearchParams,
   let views = base.map((a) => (adminView ? toAdminView(db, a) : toView(db, a)))
   if (q) {
     views = views.filter((v) =>
-      [v.doctorName, v.patientName, v.reason, v.diagnosis, v.prescription, v.serviceName, v.clinicName].filter(Boolean).join(' ').toLowerCase().includes(q),
+      [v.doctorName, v.patientName, v.reason, v.diagnosis, v.prescription, v.serviceName, v.clinicName]
+        .flatMap((x) => (x ? [x, en[x] ?? ''] : []))
+        .join(' ')
+        .toLowerCase()
+        .includes(q),
     )
   }
   if (from) views = views.filter((v) => v.date >= from)

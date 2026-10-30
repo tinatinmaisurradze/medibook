@@ -21,6 +21,7 @@ import { TextArea, TextField } from '@/components/ui/FormField'
 import { TagInput } from '@/components/ui/TagInput'
 import { Tabs } from '@/components/ui/Tabs'
 import { ErrorState } from '@/components/ui/States'
+import { tr } from '@/i18n'
 
 type Tab = 'personal' | 'professional' | 'schedule' | 'security'
 
@@ -43,7 +44,7 @@ function ProfessionalForm({ doctor, onSaved }: { doctor: Doctor; onSaved: () => 
     setServerError(null)
     try {
       await profileService.updateDoctor({ ...data, languages })
-      notify('პროფესიული ინფორმაცია განახლდა')
+      notify(tr("პროფესიული ინფორმაცია განახლდა"))
       onSaved()
     } catch (e) {
       setServerError(errorMessage(e))
@@ -58,32 +59,26 @@ function ProfessionalForm({ doctor, onSaved }: { doctor: Doctor; onSaved: () => 
             {serverError}
           </div>
         )}
-        <TextArea label="ჩემს შესახებ (ჩანს პაციენტებისთვის)" rows={5} hint={`${(watch('bio') ?? '').length} / 600`} error={errors.bio?.message} {...register('bio')} />
-        <TextField label="განათლება" error={errors.education?.message} {...register('education')} />
-        <TagInput label="ენები" value={languages} onChange={setLanguages} maxItems={8} maxLength={30} placeholder="მაგ: ინგლისური" />
-        <Button type="submit" loading={isSubmitting}>
-          შენახვა
-        </Button>
+        <TextArea label={tr("ჩემს შესახებ (ჩანს პაციენტებისთვის)")} rows={5} hint={`${(watch('bio') ?? '').length} / 600`} error={errors.bio?.message} {...register('bio')} />
+        <TextField label={tr("განათლება")} error={errors.education?.message} {...register('education')} />
+        <TagInput label={tr("ენები")} value={languages} onChange={setLanguages} maxItems={8} maxLength={30} placeholder={tr("მაგ: ინგლისური")} />
+        <Button type="submit" loading={isSubmitting}>{tr("შენახვა")}</Button>
       </form>
 
       <section aria-labelledby="work-title">
-        <h3 id="work-title" className="text-lg font-bold">
-          მუშაობის პარამეტრები
-        </h3>
-        <p className="text-sm text-muted">სად, როდის და რა ფასად იღებთ, იმართება ჩანართში „გრაფიკი და ფასები“.</p>
+        <h3 id="work-title" className="text-lg font-bold">{tr("მუშაობის პარამეტრები")}</h3>
+        <p className="text-sm text-muted">{tr("კლინიკები, სამუშაო საათები და ფასები იმართება ჩანართში „გრაფიკი და ფასები“.")}</p>
         <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-muted">სპეციალობა</dt>
+            <dt className="text-muted">{tr("სპეციალობა")}</dt>
             <dd className="mt-0.5 font-medium">{SPECIALTY_LABELS[doctor.specialty]}</dd>
           </div>
           <div>
-            <dt className="text-muted">გამოცდილება</dt>
-            <dd className="mt-0.5 font-medium">{doctor.experienceYears} წელი</dd>
+            <dt className="text-muted">{tr("გამოცდილება")}</dt>
+            <dd className="mt-0.5 font-medium">{tr("{0} წელი", [doctor.experienceYears])}</dd>
           </div>
         </dl>
-        <Link to={`/doctors/${doctor.id}`} className="mt-4 inline-block text-sm font-medium text-brand-dark underline">
-          როგორ ჩანს ჩემი გვერდი პაციენტებისთვის
-        </Link>
+        <Link to={`/doctors/${doctor.id}`} className="mt-4 inline-block text-sm font-medium text-brand-dark underline">{tr("როგორ ჩანს ჩემი გვერდი პაციენტებისთვის")}</Link>
       </section>
     </div>
   )
@@ -101,7 +96,7 @@ function ScheduleTab({ doctor, clinics, onSaved }: { doctor: Doctor; clinics: Cl
     setErrL(null)
     try {
       await scheduleService.saveLocations(data)
-      notify('გრაფიკი განახლდა')
+      notify(tr("გრაფიკი განახლდა"))
       onSaved()
     } catch (e) {
       setErrL(errorMessage(e))
@@ -114,7 +109,7 @@ function ScheduleTab({ doctor, clinics, onSaved }: { doctor: Doctor; clinics: Cl
     setErrS(null)
     try {
       await scheduleService.saveServices(data)
-      notify('ფასები განახლდა')
+      notify(tr("ფასები განახლდა"))
       onSaved()
     } catch (e) {
       setErrS(errorMessage(e))
@@ -127,17 +122,13 @@ function ScheduleTab({ doctor, clinics, onSaved }: { doctor: Doctor; clinics: Cl
   return (
     <div className="space-y-10">
       <section aria-labelledby="loc-title">
-        <h2 id="loc-title" className="text-xl font-bold">
-          სად და როდის ვიღებ
-        </h2>
-        <p className="mb-4 mt-1 text-sm text-muted">პაციენტები ამ გრაფიკის მიხედვით ირჩევენ დროს. შეგიძლიათ იმუშაოთ რამდენიმე კლინიკაში სხვადასხვა დღეებში.</p>
+        <h2 id="loc-title" className="text-xl font-bold">{tr("ჩემი სამუშაო გრაფიკი")}</h2>
+        <p className="mb-4 mt-1 text-sm text-muted">{tr("პაციენტები დროს ამ გრაფიკის მიხედვით ირჩევენ. ერთი ქალაქის რამდენიმე კლინიკაში შეგიძლიათ იმუშაოთ სხვადასხვა დღეებში.")}</p>
         <LocationsEditor key={JSON.stringify(doctor.locations)} clinics={clinics} value={doctor.locations} saving={savingL} error={errL} onSave={saveLocations} />
       </section>
       <section aria-labelledby="svc-title">
-        <h2 id="svc-title" className="text-xl font-bold">
-          ვიზიტის ტიპები და ფასები
-        </h2>
-        <p className="mb-4 mt-1 text-sm text-muted">ფასი ყოველ კლინიკაში შეიძლება განსხვავებული იყოს. უკვე დაჯავშნილი ვიზიტები ძველ ფასს ინარჩუნებს.</p>
+        <h2 id="svc-title" className="text-xl font-bold">{tr("ვიზიტის ტიპები და ფასები")}</h2>
+        <p className="mb-4 mt-1 text-sm text-muted">{tr("ფასი ყოველ კლინიკაში შეიძლება განსხვავებული იყოს. უკვე დაჯავშნილი ვიზიტები ძველ ფასს ინარჩუნებს.")}</p>
         <ServicesEditor key={JSON.stringify(doctor.services)} clinics={clinics} clinicIds={clinicIds} value={doctor.services} saving={savingS} error={errS} onSave={saveServices} />
       </section>
     </div>
@@ -153,19 +144,19 @@ export default function DoctorProfile() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">ჩემი პროფილი</h1>
+      <h1 className="text-3xl font-bold">{tr("ჩემი პროფილი")}</h1>
       {clinicNames && <p className="mt-1 text-muted">{clinicNames}</p>}
 
       <div className="mt-6">
         <Tabs
-          label="პროფილის განყოფილებები"
+          label={tr("პროფილის განყოფილებები")}
           value={tab}
           onChange={setTab}
           tabs={[
-            { id: 'personal', label: 'პირადი ინფორმაცია' },
-            { id: 'professional', label: 'პროფესიული ინფორმაცია' },
-            { id: 'schedule', label: 'გრაფიკი და ფასები' },
-            { id: 'security', label: 'უსაფრთხოება' },
+            { id: 'personal', label: tr("პირადი ინფორმაცია") },
+            { id: 'professional', label: tr("პროფესიული ინფორმაცია") },
+            { id: 'schedule', label: tr("გრაფიკი და ფასები") },
+            { id: 'security', label: tr("უსაფრთხოება") },
           ]}
         />
       </div>
@@ -191,7 +182,7 @@ export default function DoctorProfile() {
 
         {tab === 'security' && (
           <>
-            <h2 className="mb-4 text-xl font-bold">პაროლის შეცვლა</h2>
+            <h2 className="mb-4 text-xl font-bold">{tr("პაროლის შეცვლა")}</h2>
             <PasswordForm />
           </>
         )}

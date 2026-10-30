@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { afterLoginPath } from '@/utils/roles'
 import { DEMO_ACCOUNTS } from '@/data/seed'
 import { UserRound, Stethoscope, ShieldCheck } from 'lucide-react'
+import { tr } from '@/i18n'
 
 export default function Login() {
   const { user, login } = useAuth()
@@ -34,7 +35,7 @@ export default function Login() {
     setQuickBusy(email)
     try {
       const u = await login(email, 'Demo1234!')
-      notify(`მოგესალმებით, ${u.fullName}`)
+      notify(tr("მოგესალმებით, {0}", [u.fullName]))
       navigate(afterLoginPath(u.role, from), { replace: true })
     } catch (e) {
       setServerError(errorMessage(e))
@@ -46,7 +47,7 @@ export default function Login() {
     setServerError(null)
     try {
       const u = await login(data.email, data.password)
-      notify(`მოგესალმებით, ${u.fullName}`)
+      notify(tr("მოგესალმებით, {0}", [u.fullName]))
       navigate(afterLoginPath(u.role, from), { replace: true })
     } catch (e) {
       setServerError(errorMessage(e))
@@ -55,15 +56,11 @@ export default function Login() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <h1 className="text-3xl font-bold">შესვლა</h1>
+      <h1 className="text-3xl font-bold">{tr("შესვლა")}</h1>
       {from && (from.startsWith('/book') || from.includes('#slots')) && (
-        <p className="mt-3 rounded-md bg-brand-tint px-4 py-3 text-sm text-brand-dark">ვიზიტის დასაჯავშნად ჯერ შედით ანგარიშში. შესვლის შემდეგ პირდაპირ დაბრუნდებით არჩეულ ექიმთან.</p>
+        <p className="mt-3 rounded-md bg-brand-tint px-4 py-3 text-sm text-brand-dark">{tr("ვიზიტის დასაჯავშნად ჯერ შედით ანგარიშში. შესვლის შემდეგ პირდაპირ დაბრუნდებით არჩეულ ექიმთან.")}</p>
       )}
-      <p className="mt-1 text-muted">
-        არ გაქვთ ანგარიში?{' '}
-        <Link to="/register" className="font-medium text-brand-dark underline">
-          დარეგისტრირდით
-        </Link>
+      <p className="mt-1 text-muted">{tr("არ გაქვთ ანგარიში?")}{' '}<Link to="/register" className="font-medium text-brand-dark underline">{tr("დარეგისტრირდით")}</Link>
       </p>
 
       <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-8">
@@ -73,24 +70,20 @@ export default function Login() {
             {serverError}
           </div>
         )}
-        <TextField label="ელ-ფოსტა" type="email" autoComplete="email" error={errors.email?.message} {...register('email')} />
-        <TextField label="პაროლი" type="password" autoComplete="current-password" error={errors.password?.message} {...register('password')} />
-        <Button type="submit" className="w-full" loading={isSubmitting}>
-          შესვლა
-        </Button>
+        <TextField label={tr("ელ-ფოსტა")} type="email" autoComplete="email" error={errors.email?.message} {...register('email')} />
+        <TextField label={tr("პაროლი")} type="password" autoComplete="current-password" error={errors.password?.message} {...register('password')} />
+        <Button type="submit" className="w-full" loading={isSubmitting}>{tr("შესვლა")}</Button>
       </form>
 
       <section aria-labelledby="demo-title" className="order-1 lg:order-2">
-        <h2 id="demo-title" className="text-sm font-bold uppercase tracking-wide text-muted">
-          დემო ანგარიშები
-        </h2>
-        <p className="mt-1 text-sm text-muted">დააჭირეთ ანგარიშს და შეხვალთ. პაროლი ყველასთვის: Demo1234!</p>
+        <h2 id="demo-title" className="text-sm font-bold uppercase tracking-wide text-muted">{tr("დემო ანგარიშები")}</h2>
+        <p className="mt-1 text-sm text-muted">{tr("დააჭირეთ ანგარიშს და შეხვალთ. პაროლი ყველასთვის: Demo1234!")}</p>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {[
-            { title: 'პაციენტები', icon: <UserRound size={16} aria-hidden />, list: DEMO_ACCOUNTS.patients.map((a) => ({ ...a, sub: a.email.split('@')[0] })) },
-            { title: 'ექიმები', icon: <Stethoscope size={16} aria-hidden />, list: DEMO_ACCOUNTS.doctors.map((a) => ({ ...a, sub: a.specialty })) },
-            { title: 'ადმინისტრატორი', icon: <ShieldCheck size={16} aria-hidden />, list: [{ ...DEMO_ACCOUNTS.admin, sub: 'admin' }] },
+            { title: tr("პაციენტები"), icon: <UserRound size={16} aria-hidden />, list: DEMO_ACCOUNTS.patients.map((a) => ({ ...a, sub: a.email.split('@')[0] })) },
+            { title: tr("ექიმები"), icon: <Stethoscope size={16} aria-hidden />, list: DEMO_ACCOUNTS.doctors.map((a) => ({ ...a, sub: a.specialty })) },
+            { title: tr("ადმინისტრატორი"), icon: <ShieldCheck size={16} aria-hidden />, list: [{ ...DEMO_ACCOUNTS.admin, sub: 'admin' }] },
           ].map((g) => (
             <div key={g.title} className="rounded-xl border border-line bg-surface p-2.5">
               <p className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold text-brand-dark">
@@ -107,7 +100,7 @@ export default function Login() {
                       className="w-full rounded-lg border border-transparent bg-canvas px-3 py-2 text-left transition-colors hover:border-brand hover:bg-brand-tint disabled:opacity-60"
                     >
                       <span className="block truncate text-sm font-medium">{a.name}</span>
-                      <span className="block truncate text-xs text-muted">{quickBusy === a.email ? 'შესვლა...' : a.sub}</span>
+                      <span className="block truncate text-xs text-muted">{quickBusy === a.email ? tr("შესვლა...") : a.sub}</span>
                     </button>
                   </li>
                 ))}

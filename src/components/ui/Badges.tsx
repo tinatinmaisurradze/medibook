@@ -1,11 +1,12 @@
 import { memo } from 'react'
 import { Star } from 'lucide-react'
 import type { AppointmentStatus, PaymentStatus } from '@/types'
+import { tr } from '@/i18n'
 
 const STATUS: Record<AppointmentStatus, { label: string; cls: string }> = {
-  confirmed: { label: 'დადასტურებული', cls: 'bg-brand-tint text-brand-dark' },
-  completed: { label: 'დასრულებული', cls: 'bg-ok-tint text-ok' },
-  cancelled: { label: 'გაუქმებული', cls: 'bg-danger-tint text-danger' },
+  confirmed: { label: tr("დადასტურებული"), cls: 'bg-brand-tint text-brand-dark' },
+  completed: { label: tr("დასრულებული"), cls: 'bg-ok-tint text-ok' },
+  cancelled: { label: tr("გაუქმებული"), cls: 'bg-danger-tint text-danger' },
 }
 
 export const StatusBadge = memo(function StatusBadge({ status }: { status: AppointmentStatus }) {
@@ -15,7 +16,7 @@ export const StatusBadge = memo(function StatusBadge({ status }: { status: Appoi
 
 export const Rating = memo(function Rating({ value, count }: { value: number; count?: number }) {
   return (
-    <span className="inline-flex items-center gap-1 text-sm font-medium" aria-label={`რეიტინგი ${value} 5-დან${count !== undefined ? `, ${count} შეფასება` : ''}`}>
+    <span className="inline-flex items-center gap-1 text-sm font-medium" aria-label={tr("რეიტინგი {0} 5-დან{1}", [value, count !== undefined ? tr(", {0} შეფასება", [count]) : ''])}>
       <Star size={14} className="fill-gold text-gold" aria-hidden />
       {value.toFixed(1)}
       {count !== undefined && count > 0 && <span className="font-normal text-muted">({count})</span>}
@@ -26,7 +27,7 @@ export const Rating = memo(function Rating({ value, count }: { value: number; co
 /** Five stars, filled up to the rounded value (display only) */
 export const Stars = memo(function Stars({ value, size = 16 }: { value: number; size?: number }) {
   return (
-    <span className="inline-flex" role="img" aria-label={`${value} 5-დან`}>
+    <span className="inline-flex" role="img" aria-label={tr("{0} 5-დან", [value])}>
       {[1, 2, 3, 4, 5].map((n) => (
         <Star key={n} size={size} className={n <= Math.round(value) ? 'fill-gold text-gold' : 'text-line'} aria-hidden />
       ))}
@@ -47,10 +48,10 @@ export const Avatar = memo(function Avatar({ name, size = 56 }: { name: string; 
 })
 
 const PAYMENT: Record<Exclude<PaymentStatus, 'none'>, { label: string; cls: string }> = {
-  pending: { label: 'ელოდება გადახდას', cls: 'bg-[#fdf3d8] text-[#8a5a00]' },
-  at_clinic: { label: 'გადახდა რეგისტრატურაში', cls: 'bg-[#e8edef] text-ink' },
-  paid: { label: 'გადახდილია', cls: 'bg-ok-tint text-ok' },
-  refund_pending: { label: 'თანხა უბრუნდება', cls: 'bg-brand-tint text-brand-dark' },
+  pending: { label: tr("ელოდება გადახდას"), cls: 'bg-[#fdf3d8] text-[#8a5a00]' },
+  at_clinic: { label: tr("გადახდა რეგისტრატურაში"), cls: 'bg-[#e8edef] text-ink' },
+  paid: { label: tr("გადახდილია"), cls: 'bg-ok-tint text-ok' },
+  refund_pending: { label: tr("თანხა უბრუნდება"), cls: 'bg-brand-tint text-brand-dark' },
 }
 
 export const PaymentBadge = memo(function PaymentBadge({ status }: { status: PaymentStatus }) {

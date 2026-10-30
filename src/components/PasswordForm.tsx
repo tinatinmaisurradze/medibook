@@ -7,6 +7,7 @@ import { useToast } from '@/context/ToastContext'
 import { passwordChangeSchema, type PasswordChangeForm } from '@/utils/validation'
 import { TextField } from './ui/FormField'
 import { Button } from './ui/Button'
+import { tr } from '@/i18n'
 
 export function PasswordForm() {
   const { notify } = useToast()
@@ -22,7 +23,7 @@ export function PasswordForm() {
     setServerError(null)
     try {
       await profileService.changePassword(data)
-      notify('პაროლი შეიცვალა')
+      notify(tr("პაროლი შეიცვალა"))
       reset()
     } catch (e) {
       setServerError(errorMessage(e))
@@ -36,19 +37,17 @@ export function PasswordForm() {
           {serverError}
         </div>
       )}
-      <TextField label="მიმდინარე პაროლი" type="password" autoComplete="current-password" error={errors.currentPassword?.message} {...register('currentPassword')} />
+      <TextField label={tr("მიმდინარე პაროლი")} type="password" autoComplete="current-password" error={errors.currentPassword?.message} {...register('currentPassword')} />
       <TextField
-        label="ახალი პაროლი"
+        label={tr("ახალი პაროლი")}
         type="password"
         autoComplete="new-password"
-        hint="მინიმუმ 8 სიმბოლო, ერთი ციფრი და ერთი სპეციალური სიმბოლო"
+        hint={tr("მინიმუმ 8 სიმბოლო, ერთი ციფრი და ერთი სპეციალური სიმბოლო")}
         error={errors.newPassword?.message}
         {...register('newPassword')}
       />
-      <TextField label="გაიმეორეთ ახალი პაროლი" type="password" autoComplete="new-password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
-      <Button type="submit" loading={isSubmitting}>
-        პაროლის შეცვლა
-      </Button>
+      <TextField label={tr("გაიმეორეთ ახალი პაროლი")} type="password" autoComplete="new-password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
+      <Button type="submit" loading={isSubmitting}>{tr("პაროლის შეცვლა")}</Button>
     </form>
   )
 }

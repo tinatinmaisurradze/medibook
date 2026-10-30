@@ -8,12 +8,13 @@ import { addDays, formatDate, toISODate } from '@/utils/date'
 import { formatPrice } from '@/utils/payment'
 import { daysLabel } from '@/utils/weekdays'
 import { Avatar, Rating } from './ui/Badges'
+import { tr } from '@/i18n'
 
 /** "დღეს", "ხვალ" or the date */
 function relativeDay(date: string): string {
   const today = toISODate(new Date())
-  if (date === today) return 'დღეს'
-  if (date === toISODate(addDays(new Date(), 1))) return 'ხვალ'
+  if (date === today) return tr("დღეს")
+  if (date === toISODate(addDays(new Date(), 1))) return tr("ხვალ")
   return formatDate(date)
 }
 
@@ -34,9 +35,7 @@ export const DoctorCard = memo(function DoctorCard({ doctor, clinics = [] }: { d
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
             <Rating value={doctor.rating} count={doctor.reviewCount} />
             <span className="inline-flex items-center gap-1">
-              <Clock size={14} aria-hidden />
-              {doctor.experienceYears} წლის გამოცდილება
-            </span>
+              <Clock size={14} aria-hidden />{tr("{0} წლის გამოცდილება", [doctor.experienceYears])}</span>
           </div>
         </div>
       </div>
@@ -57,19 +56,17 @@ export const DoctorCard = memo(function DoctorCard({ doctor, clinics = [] }: { d
 
       {doctor.priceFrom !== null && (
         <p className="mt-3 text-sm">
-          <span className="text-muted">ვიზიტი</span> <span className="font-semibold">{formatPrice(doctor.priceFrom)}-დან</span>
+          <span className="text-muted">{tr("ვიზიტი")}</span> <span className="font-semibold">{tr("{0}-დან", [formatPrice(doctor.priceFrom)])}</span>
         </p>
       )}
 
       {next ? (
         <div className="mt-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            უახლოესი თავისუფალი დრო: {relativeDay(next.date)} · {next.clinicName}
-          </p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">{tr("უახლოესი თავისუფალი დრო: {0} · {1}", [relativeDay(next.date), next.clinicName])}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {next.times.map((t) =>
               canBook ? (
-                <Link key={t} to={`/book/${doctor.id}?date=${next.date}&time=${t}&clinicId=${next.clinicId}`} className={`${chip} hover:bg-brand hover:text-white`} aria-label={`დაჯავშნა ${relativeDay(next.date)}, ${t}`}>
+                <Link key={t} to={`/book/${doctor.id}?date=${next.date}&time=${t}&clinicId=${next.clinicId}`} className={`${chip} hover:bg-brand hover:text-white`} aria-label={tr("დაჯავშნა {0}, {1}", [relativeDay(next.date), t])}>
                   {t}
                 </Link>
               ) : (
@@ -81,7 +78,7 @@ export const DoctorCard = memo(function DoctorCard({ doctor, clinics = [] }: { d
           </div>
         </div>
       ) : (
-        <p className="mt-4 text-sm text-muted">უახლოეს 14 დღეში თავისუფალი დრო არ არის</p>
+        <p className="mt-4 text-sm text-muted">{tr("უახლოეს 30 დღეში თავისუფალი დრო არ არის")}</p>
       )}
 
       {/* the button always sits at the bottom of the card, so buttons line up across a row of cards */}
@@ -89,9 +86,7 @@ export const DoctorCard = memo(function DoctorCard({ doctor, clinics = [] }: { d
         <Link
           to={`/doctors/${doctor.id}`}
           className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-brand px-5 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
-        >
-          დროის არჩევა
-        </Link>
+        >{tr("დროის არჩევა")}</Link>
       </div>
     </article>
   )

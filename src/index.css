@@ -76,17 +76,25 @@ h1, h2, h3 { font-family: 'Noto Serif Georgian', Georgia, serif; line-height: 1.
   .app-header { background: #ffffff; }
 }
 
-/* iOS Safari draws date inputs as a small pill: make them behave like the other fields */
-input[type='date'] {
+/* date and time inputs: the same height as the other fields, text centred vertically (also in Safari) */
+input[type='date'],
+input[type='time'] {
   -webkit-appearance: none;
   appearance: none;
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  min-height: 2.75rem;
+  min-height: 3rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1.2;
   text-align: left;
 }
-input[type='date']::-webkit-date-and-time-value {
+input[type='date']::-webkit-date-and-time-value,
+input[type='time']::-webkit-date-and-time-value {
   text-align: left;
+  margin: 0;
+  min-height: 1.2em;
 }
 
 /* confirmation dialog */

@@ -1,6 +1,7 @@
-const MONTHS = ['იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი', 'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი']
-const WEEKDAYS = ['კვირა', 'ორშაბათი', 'სამშაბათი', 'ოთხშაბათი', 'ხუთშაბათი', 'პარასკევი', 'შაბათი']
-const WEEKDAYS_SHORT = ['კვი', 'ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ']
+import { getLang, tr } from '@/i18n'
+const MONTHS = [tr("იანვარი"), tr("თებერვალი"), tr("მარტი"), tr("აპრილი"), tr("მაისი"), tr("ივნისი"), tr("ივლისი"), tr("აგვისტო"), tr("სექტემბერი"), tr("ოქტომბერი"), tr("ნოემბერი"), tr("დეკემბერი")]
+const WEEKDAYS = [tr("კვირა"), tr("ორშაბათი"), tr("სამშაბათი"), tr("ოთხშაბათი"), tr("ხუთშაბათი"), tr("პარასკევი"), tr("შაბათი")]
+const WEEKDAYS_SHORT = [tr("კვი"), tr("ორშ"), tr("სამ"), tr("ოთხ"), tr("ხუთ"), tr("პარ"), tr("შაბ")]
 
 export function toISODate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -19,7 +20,8 @@ export function addDays(d: Date, n: number): Date {
 
 export function formatDate(iso: string): string {
   const d = parseISODate(iso)
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}, ${WEEKDAYS[d.getDay()]}`
+  // Georgian: "29 ოქტომბერი, ხუთშაბათი"; English: "Thursday, 29 October"
+  return getLang() === 'en' ? `${WEEKDAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}` : `${d.getDate()} ${MONTHS[d.getMonth()]}, ${WEEKDAYS[d.getDay()]}`
 }
 
 export function weekdayShort(iso: string): string {

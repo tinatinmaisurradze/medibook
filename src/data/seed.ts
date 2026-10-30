@@ -1,3 +1,4 @@
+import { tr } from '@/i18n'
 import type {
   Appointment,
   AppointmentStatus,
@@ -13,13 +14,13 @@ import type {
 } from '@/types'
 
 export const SPECIALTY_LABELS: Record<SpecialtyKey, string> = {
-  therapy: 'თერაპევტი',
-  cardiology: 'კარდიოლოგი',
-  pediatrics: 'პედიატრი',
-  dermatology: 'დერმატოლოგი',
-  neurology: 'ნევროლოგი',
-  orthopedics: 'ორთოპედი',
-  ophthalmology: 'ოკულისტი',
+  therapy: tr('თერაპევტი'),
+  cardiology: tr('კარდიოლოგი'),
+  pediatrics: tr('პედიატრი'),
+  dermatology: tr('დერმატოლოგი'),
+  neurology: tr('ნევროლოგი'),
+  orthopedics: tr('ორთოპედი'),
+  ophthalmology: tr('ოკულისტი'),
 }
 
 /** How a doctor is stored: the API adds the derived summary fields and the services */
@@ -44,16 +45,16 @@ export interface Db {
 /** Demo accounts shown on the login page. Password for all of them: Demo1234! */
 export const DEMO_ACCOUNTS = {
   patients: [
-    { email: 'patient1@medibook.ge', name: 'ნინო გელაშვილი' },
-    { email: 'patient2@medibook.ge', name: 'ლევან მაისურაძე' },
-    { email: 'patient3@medibook.ge', name: 'თამარ ბაქრაძე' },
+    { email: 'patient1@medibook.ge', name: tr('ნინო გელაშვილი') },
+    { email: 'patient2@medibook.ge', name: tr('ლევან მაისურაძე') },
+    { email: 'patient3@medibook.ge', name: tr('თამარ ბაქრაძე') },
   ],
   doctors: [
-    { email: 'doctor1@medibook.ge', name: 'გიორგი ბერიძე', specialty: 'კარდიოლოგი' },
-    { email: 'doctor2@medibook.ge', name: 'ნათია ხარაიშვილი', specialty: 'პედიატრი' },
-    { email: 'doctor3@medibook.ge', name: 'დავით მამულაშვილი', specialty: 'ნევროლოგი' },
+    { email: 'doctor1@medibook.ge', name: tr('გიორგი ბერიძე'), specialty: tr('კარდიოლოგი') },
+    { email: 'doctor2@medibook.ge', name: tr('ნათია ხარაიშვილი'), specialty: tr('პედიატრი') },
+    { email: 'doctor3@medibook.ge', name: tr('დავით მამულაშვილი'), specialty: tr('ნევროლოგი') },
   ],
-  admin: { email: 'admin@medibook.ge', name: 'ადმინისტრატორი' },
+  admin: { email: 'admin@medibook.ge', name: tr('ადმინისტრატორი') },
 }
 
 /**

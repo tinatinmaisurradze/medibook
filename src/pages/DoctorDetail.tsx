@@ -7,12 +7,14 @@ import { doctorService } from '@/services/doctorService'
 import { useAuth } from '@/context/AuthContext'
 import { Avatar, Rating } from '@/components/ui/Badges'
 import { EmptyState, ErrorState } from '@/components/ui/States'
-import { addDays, dayOfMonth, formatDate, monthName, parseISODate, toISODate, weekdayShort } from '@/utils/date'
+import { addDays, formatDate, parseISODate, toISODate } from '@/utils/date'
+import { MonthPicker } from '@/components/MonthPicker'
 import { Button } from '@/components/ui/Button'
 import { reviewService } from '@/services/doctorPortalService'
 import { RatingSummary, ReviewItem } from '@/components/ReviewList'
 import { DAY_SHORT, WEEK_ORDER } from '@/utils/weekdays'
 import { formatPrice } from '@/utils/payment'
+import { tr } from '@/i18n'
 
 export default function DoctorDetail() {
   const { id } = useParams()
@@ -24,10 +26,35 @@ export default function DoctorDetail() {
   const doctor = useAsync(() => doctorService.get(doctorId), [doctorId])
   const clinics = useAsync(() => doctorService.clinics(), [])
 
-  const days = useMemo(() => Array.from({ length: 14 }, (_, i) => toISODate(addDays(new Date(), i))), [])
-  const [date, setDate] = useState(days[0])
+  // the next month can be booked: start with the first day on which the doctor receives patients
+  const [picked, setPicked] = useState<string | null>(null)
+  const [userChose, setUserChose] = useState(false)
+  const firstOpen = useMemo(() => {
+    const open = doctor.data?.workDays
+    if (!open) return null
+    for (let i = 0; i < 31; i++) {
+      const d = addDays(new Date(), i)
+      if (open.includes(d.getDay())) return toISODate(d)
+    }
+    return null
+  }, [doctor.data])
+  const date = picked ?? firstOpen ?? toISODate(new Date())
   const slots = useAsync(() => doctorService.slots(doctorId, date), [doctorId, date])
   const reviews = useAsync(() => reviewService.forDoctor(doctorId), [doctorId])
+
+  // until the visitor picks a day, move on to the next day that still has a free time (the first day may be full or already over)
+  useEffect(() => {
+    if (userChose || !slots.data || !doctor.data) return
+    if (slots.data.groups.some((g) => g.slots.some((s) => s.available))) return
+    for (let i = 1; i <= 30; i++) {
+      const next = addDays(parseISODate(date), i)
+      if (next > addDays(new Date(), 30)) return
+      if (doctor.data.workDays.includes(next.getDay())) {
+        setPicked(toISODate(next))
+        return
+      }
+    }
+  }, [slots.data]) // eslint-disable-line react-hooks/exhaustive-deps
   const [showAll, setShowAll] = useState(false)
 
   // coming back from the login page with #slots: bring the time picker into view
@@ -46,7 +73,7 @@ export default function DoctorDetail() {
   if (doctor.error || !doctor.data) {
     return (
       <div className="mx-auto max-w-lg">
-        <EmptyState title="ექიმი ვერ მოიძებნა" text={doctor.error ?? undefined} action={<Link to="/doctors" className="font-medium text-brand-dark underline">ექიმების სიაზე დაბრუნება</Link>} />
+        <EmptyState title={tr("ექიმი ვერ მოიძებნა")} text={doctor.error ?? undefined} action={<Link to="/doctors" className="font-medium text-brand-dark underline">{tr("ექიმების სიაზე დაბრუნება")}</Link>} />
       </div>
     )
   }
@@ -69,8 +96,8 @@ export default function DoctorDetail() {
             <p className="text-brand-dark">{SPECIALTY_LABELS[d.specialty]}</p>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted">
               <Rating value={d.rating} count={d.reviewCount} />
-              <span>{d.experienceYears} წლის გამოცდილება</span>
-              {d.priceFrom !== null && <span className="font-medium text-ink">ვიზიტი {formatPrice(d.priceFrom)}-დან</span>}
+              <span>{tr("{0} წლის გამოცდილება", [d.experienceYears])}</span>
+              {d.priceFrom !== null && <span className="font-medium text-ink">{tr("ვიზიტი {0}-დან", [formatPrice(d.priceFrom)])}</span>}
             </div>
           </div>
         </div>
@@ -78,19 +105,15 @@ export default function DoctorDetail() {
         {(!user || user.role === 'patient') && (
           <div className="mt-6 flex flex-wrap items-center gap-3">
             {user ? (
-              <a href="#slots" className="inline-flex min-h-11 items-center rounded-md bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-dark">
-                ვიზიტის დაჯავშნა
-              </a>
+              <a href="#slots" className="inline-flex min-h-11 items-center rounded-md bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-dark">{tr("ვიზიტის დაჯავშნა")}</a>
             ) : (
               <>
                 <Link
                   to="/login"
                   state={{ from: `/doctors/${d.id}#slots` }}
                   className="inline-flex min-h-11 items-center rounded-md bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
-                >
-                  ვიზიტის დაჯავშნა
-                </Link>
-                <span className="text-sm text-muted">ჯავშნისთვის საჭიროა შესვლა</span>
+                >{tr("ვიზიტის დაჯავშნა")}</Link>
+                <span className="text-sm text-muted">{tr("ჯავშნისთვის საჭიროა შესვლა")}</span>
               </>
             )}
           </div>
@@ -99,15 +122,13 @@ export default function DoctorDetail() {
         <p className="mt-6 max-w-prose">{d.bio}</p>
         {(d.education || d.languages.length > 0) && (
           <ul className="mt-4 space-y-1 text-sm text-muted">
-            {d.education && <li>განათლება: {d.education}</li>}
-            {d.languages.length > 0 && <li>ენები: {d.languages.join(', ')}</li>}
+            {d.education && <li>{tr("განათლება: {0}", [d.education])}</li>}
+            {d.languages.length > 0 && <li>{tr("ენები: {0}", [d.languages.join(', ')])}</li>}
           </ul>
         )}
 
         <section className="mt-8" aria-labelledby="where-title">
-          <h2 id="where-title" className="text-2xl font-bold">
-            სად იღებს
-          </h2>
+          <h2 id="where-title" className="text-2xl font-bold">{tr("მიღების ადგილები")}</h2>
           <ul className="mt-4 space-y-3">
             {d.locations.map((l) => {
               const c = clinics.data?.find((x) => x.id === l.clinicId)
@@ -120,7 +141,7 @@ export default function DoctorDetail() {
                   <p className="mt-0.5 text-sm text-muted">
                     {c?.address}, {l.room}
                   </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-1.5" role="group" aria-label="მიღების დღეები">
+                  <div className="mt-3 flex flex-wrap items-center gap-1.5" role="group" aria-label={tr("მიღების დღეები")}>
                     {WEEK_ORDER.map((day) => (
                       <span key={day} className={`inline-flex h-8 min-w-[2.75rem] items-center justify-center rounded-md px-2 text-xs font-medium ${l.days.includes(day) ? 'bg-brand text-white' : 'bg-canvas text-muted'}`}>
                         {DAY_SHORT[day]}
@@ -147,16 +168,14 @@ export default function DoctorDetail() {
         </section>
 
         <section className="mt-10" aria-labelledby="reviews-title">
-          <h2 id="reviews-title" className="text-2xl font-bold">
-            პაციენტების შეფასებები
-          </h2>
+          <h2 id="reviews-title" className="text-2xl font-bold">{tr("პაციენტების შეფასებები")}</h2>
           {reviews.loading && <div className="skeleton mt-4 h-32 w-full" aria-hidden />}
           {reviews.error && (
             <div className="mt-4">
               <ErrorState message={reviews.error} onRetry={reviews.reload} />
             </div>
           )}
-          {reviews.data && reviews.data.count === 0 && <p className="mt-3 rounded-md bg-canvas p-4 text-sm text-muted">ამ ექიმს ჯერ შეფასებები არ აქვს.</p>}
+          {reviews.data && reviews.data.count === 0 && <p className="mt-3 rounded-md bg-canvas p-4 text-sm text-muted">{tr("ამ ექიმს ჯერ შეფასებები არ აქვს.")}</p>}
           {reviews.data && reviews.data.count > 0 && (
             <>
               <div className="mt-4 rounded-lg border border-line bg-surface p-5">
@@ -169,7 +188,7 @@ export default function DoctorDetail() {
               </div>
               {reviews.data.reviews.length > 3 && (
                 <Button variant="secondary" size="sm" className="mt-3" onClick={() => setShowAll((v) => !v)}>
-                  {showAll ? 'ნაკლების ჩვენება' : `ყველა შეფასება (${reviews.data.reviews.length})`}
+                  {showAll ? tr("ნაკლების ჩვენება") : tr("ყველა შეფასება ({0})", [reviews.data.reviews.length])}
                 </Button>
               )}
             </>
@@ -178,30 +197,16 @@ export default function DoctorDetail() {
       </section>
 
       <section id="slots" aria-labelledby="slots-title" className="h-fit min-w-0 scroll-mt-24 rounded-lg border border-line bg-surface p-5 shadow-card">
-        <h2 id="slots-title" className="text-xl font-bold">
-          ვიზიტის დრო
-        </h2>
+        <h2 id="slots-title" className="text-xl font-bold">{tr("ვიზიტის დრო")}</h2>
 
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-2" role="group" aria-label="თარიღის არჩევა">
-          {days.map((iso) => {
-            const active = iso === date
-            const off = !d.workDays.includes(parseISODate(iso).getDay())
-            return (
-              <button
-                key={iso}
-                type="button"
-                onClick={() => setDate(iso)}
-                aria-pressed={active}
-                className={`flex w-14 shrink-0 flex-col items-center rounded-md border px-1 py-2 text-sm transition-colors ${
-                  active ? 'border-brand bg-brand text-white' : off ? 'border-line bg-canvas text-muted' : 'border-line hover:border-brand'
-                }`}
-              >
-                <span className="text-xs">{weekdayShort(iso)}</span>
-                <span className="text-lg font-semibold">{dayOfMonth(iso)}</span>
-                <span className="text-[11px]">{monthName(iso).slice(0, 3)}</span>
-              </button>
-            )
-          })}
+        <div className="mt-4">
+          <MonthPicker
+            value={date}
+            onChange={(iso) => {
+              setUserChose(true)
+              setPicked(iso)
+            }} isOpenOn={(wd) => d.workDays.includes(wd)}
+          />
         </div>
 
         <p className="mt-4 text-sm font-medium">{formatDate(date)}</p>
@@ -215,9 +220,9 @@ export default function DoctorDetail() {
             </div>
           )}
           {slots.error && <ErrorState message={slots.error} onRetry={slots.reload} />}
-          {slots.data && slots.data.groups.length === 0 && <p className="rounded-md bg-canvas p-4 text-sm text-muted">ამ დღეს ექიმი არ იღებს. აირჩიეთ სხვა თარიღი.</p>}
+          {slots.data && slots.data.groups.length === 0 && <p className="rounded-md bg-canvas p-4 text-sm text-muted">{tr("ამ დღეს ექიმი არ იღებს. აირჩიეთ სხვა თარიღი.")}</p>}
           {slots.data && slots.data.groups.length > 0 && slots.data.groups.every((g) => g.slots.every((s) => !s.available)) && (
-            <p className="rounded-md bg-canvas p-4 text-sm text-muted">ამ დღეს თავისუფალი დრო აღარ არის. სცადეთ სხვა თარიღი.</p>
+            <p className="rounded-md bg-canvas p-4 text-sm text-muted">{tr("ამ დღეს თავისუფალი დრო აღარ არის. სცადეთ სხვა თარიღი.")}</p>
           )}
           {slots.data &&
             slots.data.groups.some((g) => g.slots.some((s) => s.available)) &&
@@ -226,9 +231,7 @@ export default function DoctorDetail() {
                 <p className="flex items-center gap-1.5 text-sm font-semibold">
                   <MapPin size={15} className="text-brand" aria-hidden /> {g.clinicName}
                 </p>
-                <p className="mb-2 text-xs text-muted">
-                  {g.address}, {g.room} · ვიზიტი {g.slotMinutes} წთ
-                </p>
+                <p className="mb-2 text-xs text-muted">{tr("{0}, {1} · ვიზიტი {2} წთ", [g.address, g.room, g.slotMinutes])}</p>
                 <div className="grid grid-cols-3 gap-2">
                   {g.slots.map((s) => (
                     <button
@@ -240,7 +243,7 @@ export default function DoctorDetail() {
                       className={`min-h-10 rounded-md border text-sm font-medium transition-colors ${
                         s.available ? 'border-[#0d7a83]/50 text-brand-dark hover:bg-brand hover:text-white' : 'cursor-not-allowed border-line bg-canvas text-muted line-through'
                       }`}
-                      aria-label={s.available ? `${s.time} თავისუფალია` : `${s.time} დაკავებულია`}
+                      aria-label={s.available ? tr("{0} თავისუფალია", [s.time]) : tr("{0} დაკავებულია", [s.time])}
                     >
                       {s.time}
                     </button>
@@ -251,16 +254,12 @@ export default function DoctorDetail() {
         </div>
 
         {user && user.role !== 'patient' && (
-          <p className="mt-4 rounded-md bg-canvas p-3 text-sm text-muted">ჯავშანი მხოლოდ პაციენტის ანგარიშითაა შესაძლებელი.</p>
+          <p className="mt-4 rounded-md bg-canvas p-3 text-sm text-muted">{tr("ჯავშანი მხოლოდ პაციენტის ანგარიშითაა შესაძლებელი.")}</p>
         )}
         {!user && (
-          <div className="mt-4 text-sm text-muted">
-            დაჯავშნისთვის დაგჭირდებათ <Link to="/login" className="font-medium text-brand-dark underline">შესვლა</Link>. დროის არჩევის შემდეგ ავტომატურად დაბრუნდებით.
-          </div>
+          <div className="mt-4 text-sm text-muted">{tr("დაჯავშნისთვის დაგჭირდებათ")}{' '}<Link to="/login" className="font-medium text-brand-dark underline">{tr("შესვლა")}</Link>{tr(". დროის არჩევის შემდეგ ავტომატურად დაბრუნდებით.")}</div>
         )}
-        <Button variant="ghost" size="sm" className="mt-3" onClick={slots.reload}>
-          დროების განახლება
-        </Button>
+        <Button variant="ghost" size="sm" className="mt-3" onClick={slots.reload}>{tr("განახლება")}</Button>
       </section>
     </div>
   )

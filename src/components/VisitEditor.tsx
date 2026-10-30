@@ -6,6 +6,7 @@ import { useToast } from '@/context/ToastContext'
 import { visitSchema, type VisitForm } from '@/utils/validation'
 import { Button } from '@/components/ui/Button'
 import { TextArea } from '@/components/ui/FormField'
+import { tr } from '@/i18n'
 
 interface Props {
   appointmentId: number
@@ -31,7 +32,7 @@ export function VisitEditor({ appointmentId, initialDiagnosis, initialPrescripti
   const onSubmit = async (data: VisitForm) => {
     try {
       await appointmentService.recordVisit(appointmentId, data)
-      notify('ჩანაწერი შენახულია')
+      notify(tr("ჩანაწერი შენახულია"))
       onDone()
     } catch (e) {
       notify(errorMessage(e), 'error')
@@ -40,15 +41,11 @@ export function VisitEditor({ appointmentId, initialDiagnosis, initialPrescripti
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3 rounded-md bg-canvas p-4">
-      <TextArea label="დიაგნოზი" rows={3} hint={`${(watch('diagnosis') ?? '').length} / 2000`} error={errors.diagnosis?.message} {...register('diagnosis')} />
-      <TextArea label="დანიშნულება" rows={4} hint={`${(watch('prescription') ?? '').length} / 2000`} error={errors.prescription?.message} {...register('prescription')} />
+      <TextArea label={tr("დიაგნოზი")} rows={3} hint={`${(watch('diagnosis') ?? '').length} / 2000`} error={errors.diagnosis?.message} {...register('diagnosis')} />
+      <TextArea label={tr("დანიშნულება")} rows={4} hint={`${(watch('prescription') ?? '').length} / 2000`} error={errors.prescription?.message} {...register('prescription')} />
       <div className="flex gap-2">
-        <Button type="submit" size="sm" loading={isSubmitting}>
-          შენახვა და ვიზიტის დასრულება
-        </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
-          გაუქმება
-        </Button>
+        <Button type="submit" size="sm" loading={isSubmitting}>{tr("შენახვა და ვიზიტის დასრულება")}</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onDone}>{tr("გაუქმება")}</Button>
       </div>
     </form>
   )

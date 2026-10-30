@@ -11,6 +11,7 @@ import { DoctorCardSkeleton, EmptyState, ErrorState } from '@/components/ui/Stat
 import { Button } from '@/components/ui/Button'
 import { SelectField } from '@/components/ui/SelectField'
 import { groupByCity, municipalitiesOf, regionsOf } from '@/utils/geo'
+import { tr } from '@/i18n'
 
 const selectCls =
   'w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-[#0d7a83]/30'
@@ -66,50 +67,49 @@ export default function Doctors() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">ექიმები</h1>
-      <p className="mt-1 text-muted">გაფილტრეთ სპეციალობით, კლინიკით ან რეიტინგით და აირჩიეთ ექიმი.</p>
+      <h1 className="text-3xl font-bold">{tr("ექიმები")}</h1>
+      <p className="mt-1 text-muted">{tr("იპოვეთ ექიმი სპეციალობით, ადგილმდებარეობით, ფასით ან თავისუფალი დროით.")}</p>
 
       <div className="mt-6 grid gap-3 rounded-lg border border-line bg-surface p-4 shadow-card sm:grid-cols-2 lg:grid-cols-4">
         <div className="relative sm:col-span-2">
-          <label htmlFor="f-q" className="sr-only">
-            ექიმის სახელი
-          </label>
+          <label htmlFor="f-q" className="sr-only">{tr("ექიმის სახელი")}</label>
           <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
-          <input id="f-q" value={qInput} onChange={(e) => setQInput(e.target.value)} placeholder="ექიმის სახელი" className={`${selectCls} h-12 pl-9`} />
+          <input id="f-q" value={qInput} onChange={(e) => setQInput(e.target.value)} placeholder={tr("ექიმის სახელი")} className={`${selectCls} h-12 pl-9`} />
         </div>
-        <SelectField label="სპეციალობა" hideLabel value={specialty} onChange={(e) => setParam('specialty', e.target.value)}>
-          <option value="">ყველა სპეციალობა</option>
+        <SelectField label={tr("სპეციალობა")} hideLabel value={specialty} onChange={(e) => setParam('specialty', e.target.value)}>
+          <option value="">{tr("ყველა სპეციალობა")}</option>
           {Object.entries(SPECIALTY_LABELS).map(([k, label]) => (
             <option key={k} value={k}>
               {label}
             </option>
           ))}
         </SelectField>
-        <SelectField label="თავისუფალი დრო" hideLabel value={availability} onChange={(e) => setParam('availability', e.target.value)}>
-          <option value="">ნებისმიერ დროს</option>
-          <option value="today">დღეს</option>
-          <option value="tomorrow">ხვალ</option>
-          <option value="week">7 დღეში</option>
+        <SelectField label={tr("თავისუფალი დრო")} hideLabel value={availability} onChange={(e) => setParam('availability', e.target.value)}>
+          <option value="">{tr("ნებისმიერ დროს")}</option>
+          <option value="today">{tr("დღეს")}</option>
+          <option value="tomorrow">{tr("ხვალ")}</option>
+          <option value="week">{tr("7 დღეში")}</option>
+          <option value="month">{tr("30 დღეში")}</option>
         </SelectField>
 
-        <SelectField label="რეგიონი" hideLabel value={region} onChange={(e) => setMany({ region: e.target.value, municipality: '', clinicId: '' })}>
-          <option value="">ყველა რეგიონი</option>
+        <SelectField label={tr("რეგიონი")} hideLabel value={region} onChange={(e) => setMany({ region: e.target.value, municipality: '', clinicId: '' })}>
+          <option value="">{tr("ყველა რეგიონი")}</option>
           {regionsOf(allClinics).map((r) => (
             <option key={r} value={r}>
               {r}
             </option>
           ))}
         </SelectField>
-        <SelectField label="მუნიციპალიტეტი" hideLabel value={municipality} onChange={(e) => setMany({ municipality: e.target.value, clinicId: '' })}>
-          <option value="">ყველა მუნიციპალიტეტი</option>
+        <SelectField label={tr("მუნიციპალიტეტი")} hideLabel value={municipality} onChange={(e) => setMany({ municipality: e.target.value, clinicId: '' })}>
+          <option value="">{tr("ყველა მუნიციპალიტეტი")}</option>
           {municipalitiesOf(allClinics, region).map((m) => (
             <option key={m} value={m}>
               {m}
             </option>
           ))}
         </SelectField>
-        <SelectField label="კლინიკა" hideLabel value={clinicId} onChange={(e) => setParam('clinicId', e.target.value)}>
-          <option value="">ყველა კლინიკა</option>
+        <SelectField label={tr("კლინიკა")} hideLabel value={clinicId} onChange={(e) => setParam('clinicId', e.target.value)}>
+          <option value="">{tr("ყველა კლინიკა")}</option>
           {groupByCity(clinicOptions).map((g) => (
             <optgroup key={g.city} label={g.city}>
               {g.clinics.map((c) => (
@@ -120,25 +120,25 @@ export default function Doctors() {
             </optgroup>
           ))}
         </SelectField>
-        <SelectField label="ფასი" hideLabel value={maxPrice} onChange={(e) => setParam('maxPrice', e.target.value)}>
-          <option value="">ნებისმიერი ფასი</option>
-          <option value="50">50 ₾-მდე</option>
-          <option value="70">70 ₾-მდე</option>
-          <option value="100">100 ₾-მდე</option>
+        <SelectField label={tr("ფასი")} hideLabel value={maxPrice} onChange={(e) => setParam('maxPrice', e.target.value)}>
+          <option value="">{tr("ნებისმიერი ფასი")}</option>
+          <option value="50">{tr("50 ₾-მდე")}</option>
+          <option value="70">{tr("70 ₾-მდე")}</option>
+          <option value="100">{tr("100 ₾-მდე")}</option>
         </SelectField>
 
-        <SelectField label="მინიმალური რეიტინგი" hideLabel value={minRating} onChange={(e) => setParam('minRating', e.target.value)}>
-          <option value="">ნებისმიერი რეიტინგი</option>
-          <option value="4.5">4.5 და მეტი</option>
-          <option value="4.7">4.7 და მეტი</option>
-          <option value="4.9">4.9 და მეტი</option>
+        <SelectField label={tr("მინიმალური რეიტინგი")} hideLabel value={minRating} onChange={(e) => setParam('minRating', e.target.value)}>
+          <option value="">{tr("ნებისმიერი რეიტინგი")}</option>
+          <option value="4.5">{tr("4.5 და მეტი")}</option>
+          <option value="4.7">{tr("4.7 და მეტი")}</option>
+          <option value="4.9">{tr("4.9 და მეტი")}</option>
         </SelectField>
-        <SelectField label="დახარისხება" hideLabel value={sort} onChange={(e) => setParam('sort', e.target.value)}>
-          <option value="rating">რეიტინგის მიხედვით</option>
-          <option value="soonest">უახლოესი თავისუფალი დრო</option>
-          <option value="price">ფასის მიხედვით</option>
-          <option value="experience">გამოცდილების მიხედვით</option>
-          <option value="name">სახელის მიხედვით</option>
+        <SelectField label={tr("დახარისხება")} hideLabel value={sort} onChange={(e) => setParam('sort', e.target.value)}>
+          <option value="rating">{tr("რეიტინგის მიხედვით")}</option>
+          <option value="soonest">{tr("უახლოესი თავისუფალი დრო")}</option>
+          <option value="price">{tr("ფასის მიხედვით")}</option>
+          <option value="experience">{tr("გამოცდილების მიხედვით")}</option>
+          <option value="name">{tr("სახელის მიხედვით")}</option>
         </SelectField>
         <button
           type="button"
@@ -148,9 +148,7 @@ export default function Doctors() {
             setParams({})
           }}
           className="inline-flex h-12 items-center justify-center rounded-lg border border-line text-sm font-medium transition-colors hover:border-brand hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink sm:col-span-2"
-        >
-          ფილტრების გასუფთავება
-        </button>
+        >{tr("ფილტრების გასუფთავება")}</button>
       </div>
 
       <div className="mt-6" aria-live="polite">
@@ -166,8 +164,8 @@ export default function Doctors() {
 
         {result.data && result.data.data.length === 0 && (
           <EmptyState
-            title="ექიმი ვერ მოიძებნა"
-            text="შეცვალეთ ფილტრები ან სცადეთ სხვა სპეციალობა."
+            title={tr("ექიმი ვერ მოიძებნა")}
+            text={tr("შეცვალეთ ფილტრები ან სცადეთ სხვა სპეციალობა.")}
             action={
               hasFilters && (
                 <Button
@@ -176,9 +174,7 @@ export default function Doctors() {
                     setQInput('')
                     setParams({})
                   }}
-                >
-                  ფილტრების გასუფთავება
-                </Button>
+                >{tr("ფილტრების გასუფთავება")}</Button>
               )
             }
           />
@@ -186,7 +182,7 @@ export default function Doctors() {
 
         {result.data && result.data.data.length > 0 && (
           <>
-            <p className="mb-3 text-sm text-muted">ნაპოვნია {result.data.total} ექიმი</p>
+            <p className="mb-3 text-sm text-muted">{tr("ნაპოვნია {0} ექიმი", [result.data.total])}</p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {result.data.data.map((d) => (
                 <DoctorCard key={d.id} doctor={d} clinics={clinics.data ?? []} />
@@ -194,16 +190,10 @@ export default function Doctors() {
             </div>
 
             {result.data.totalPages > 1 && (
-              <nav className="mt-8 flex items-center justify-center gap-3" aria-label="გვერდები">
-                <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setParam('page', String(page - 1))}>
-                  წინა
-                </Button>
-                <span className="text-sm text-muted">
-                  გვერდი {result.data.page} / {result.data.totalPages}
-                </span>
-                <Button variant="secondary" size="sm" disabled={page >= result.data.totalPages} onClick={() => setParam('page', String(page + 1))}>
-                  შემდეგი
-                </Button>
+              <nav className="mt-8 flex items-center justify-center gap-3" aria-label={tr("გვერდები")}>
+                <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setParam('page', String(page - 1))}>{tr("წინა")}</Button>
+                <span className="text-sm text-muted">{tr("გვერდი {0} / {1}", [result.data.page, result.data.totalPages])}</span>
+                <Button variant="secondary" size="sm" disabled={page >= result.data.totalPages} onClick={() => setParam('page', String(page + 1))}>{tr("შემდეგი")}</Button>
               </nav>
             )}
           </>

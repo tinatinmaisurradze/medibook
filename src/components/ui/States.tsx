@@ -1,6 +1,7 @@
 import { CircleAlert, SearchX } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from './Button'
+import { tr } from '@/i18n'
 
 export function EmptyState({ title, text, action }: { title: string; text?: string; action?: ReactNode }) {
   return (
@@ -19,9 +20,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       <CircleAlert className="mx-auto mb-2 text-danger" size={28} aria-hidden />
       <p className="text-sm text-danger">{message}</p>
       {onRetry && (
-        <Button variant="secondary" size="sm" className="mt-4" onClick={onRetry}>
-          თავიდან ცდა
-        </Button>
+        <Button variant="secondary" size="sm" className="mt-4" onClick={onRetry}>{tr("თავიდან ცდა")}</Button>
       )}
     </div>
   )
@@ -43,7 +42,7 @@ export function DoctorCardSkeleton() {
   )
 }
 
-export function PageSpinner({ label = 'იტვირთება...' }: { label?: string }) {
+export function PageSpinner({ label = tr("იტვირთება...") }: { label?: string }) {
   return (
     <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted" role="status">
       {label}

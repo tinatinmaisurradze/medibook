@@ -1,6 +1,7 @@
 import { useId, useState, type KeyboardEvent } from 'react'
 import { X } from 'lucide-react'
 import { Button } from './Button'
+import { tr } from '@/i18n'
 
 interface Props {
   label: string
@@ -22,9 +23,9 @@ export function TagInput({ label, value, onChange, placeholder, hint, maxItems =
   const add = () => {
     const text = draft.trim()
     if (!text) return
-    if (text.length > maxLength) return setError(`მაქსიმუმ ${maxLength} სიმბოლო`)
-    if (value.some((v) => v.toLowerCase() === text.toLowerCase())) return setError('ეს ჩანაწერი უკვე დამატებულია')
-    if (value.length >= maxItems) return setError(`მაქსიმუმ ${maxItems} ჩანაწერი`)
+    if (text.length > maxLength) return setError(tr("მაქსიმუმ {0} სიმბოლო", [maxLength]))
+    if (value.some((v) => v.toLowerCase() === text.toLowerCase())) return setError(tr("ეს ჩანაწერი უკვე დამატებულია"))
+    if (value.length >= maxItems) return setError(tr("მაქსიმუმ {0} ჩანაწერი", [maxItems]))
     onChange([...value, text])
     setDraft('')
     setError(null)
@@ -55,9 +56,7 @@ export function TagInput({ label, value, onChange, placeholder, hint, maxItems =
           aria-invalid={!!error}
           className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm placeholder:text-muted/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-[#0d7a83]/30"
         />
-        <Button type="button" variant="secondary" onClick={add}>
-          დამატება
-        </Button>
+        <Button type="button" variant="secondary" onClick={add}>{tr("დამატება")}</Button>
       </div>
       {error ? (
         <p className="mt-1.5 text-sm text-danger" role="alert">
@@ -79,7 +78,7 @@ export function TagInput({ label, value, onChange, placeholder, hint, maxItems =
               <button
                 type="button"
                 onClick={() => onChange(value.filter((v) => v !== item))}
-                aria-label={`წაშლა: ${item}`}
+                aria-label={tr("წაშლა: {0}", [item])}
                 className="rounded-full p-1 hover:bg-white/60"
               >
                 <X size={14} aria-hidden />

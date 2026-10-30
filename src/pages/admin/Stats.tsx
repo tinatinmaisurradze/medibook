@@ -2,6 +2,7 @@ import { formatPrice } from '@/utils/payment'
 import { useAsync } from '@/hooks/useAsync'
 import { adminService } from '@/services/appointmentService'
 import { ErrorState } from '@/components/ui/States'
+import { tr } from '@/i18n'
 
 export default function AdminStats() {
   const stats = useAsync(() => adminService.stats(), [])
@@ -10,7 +11,7 @@ export default function AdminStats() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">სტატისტიკა</h1>
+      <h1 className="text-3xl font-bold">{tr("სტატისტიკა")}</h1>
 
       {stats.loading && (
         <div className="mt-5 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]" aria-hidden>
@@ -29,10 +30,10 @@ export default function AdminStats() {
         <>
           <div className="mt-5 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
             {[
-              { label: 'ყველა ვიზიტი', value: stats.data.totalAppointments },
-              { label: 'დადასტურებული', value: stats.data.confirmed },
-              { label: 'დასრულებული', value: stats.data.completed },
-              { label: 'გაუქმების მაჩვენებელი', value: `${stats.data.cancellationRate}%`, note: `${stats.data.cancelled} გაუქმებული ვიზიტი` },
+              { label: tr("ყველა ვიზიტი"), value: stats.data.totalAppointments },
+              { label: tr("დადასტურებული"), value: stats.data.confirmed },
+              { label: tr("დასრულებული"), value: stats.data.completed },
+              { label: tr("გაუქმების მაჩვენებელი"), value: `${stats.data.cancellationRate}%`, note: tr("{0} გაუქმებული ვიზიტი", [stats.data.cancelled]) },
             ].map((c) => (
               <div key={c.label} className="rounded-lg border border-line bg-surface p-5 shadow-card">
                 <p className="text-3xl font-bold">{c.value}</p>
@@ -44,16 +45,14 @@ export default function AdminStats() {
 
           {stats.data.revenue && (
             <section className="mt-8 rounded-lg border border-line bg-surface p-5 shadow-card" aria-labelledby="revenue-title">
-              <h2 id="revenue-title" className="text-xl font-bold">
-                გადახდები
-              </h2>
-              <p className="text-sm text-muted">სატესტო მონაცემები, ლარებში</p>
+              <h2 id="revenue-title" className="text-xl font-bold">{tr("გადახდები")}</h2>
+              <p className="text-sm text-muted">{tr("სატესტო მონაცემები, ლარებში")}</p>
               <div className="mt-4 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
                 {[
-                  { label: 'გადახდილი', value: stats.data.revenue.paid },
-                  { label: 'ელოდება ონლაინ გადახდას', value: stats.data.revenue.pending },
-                  { label: 'გადახდა რეგისტრატურაში', value: stats.data.revenue.atClinic },
-                  { label: 'დასაბრუნებელი', value: stats.data.revenue.refundPending },
+                  { label: tr("გადახდილი"), value: stats.data.revenue.paid },
+                  { label: tr("ელოდება ონლაინ გადახდას"), value: stats.data.revenue.pending },
+                  { label: tr("გადახდა რეგისტრატურაში"), value: stats.data.revenue.atClinic },
+                  { label: tr("დასაბრუნებელი"), value: stats.data.revenue.refundPending },
                 ].map((c) => (
                   <div key={c.label} className="rounded-lg bg-canvas p-4">
                     <p className="text-2xl font-bold">{formatPrice(c.value)}</p>
@@ -73,8 +72,8 @@ export default function AdminStats() {
           )}
 
           <section className="mt-8 rounded-lg border border-line bg-surface p-5 shadow-card">
-            <h2 className="text-xl font-bold">ექიმების დატვირთვა</h2>
-            <p className="text-sm text-muted">აქტიური და დასრულებული ვიზიტები ექიმის მიხედვით</p>
+            <h2 className="text-xl font-bold">{tr("ექიმების დატვირთვა")}</h2>
+            <p className="text-sm text-muted">{tr("აქტიური და დასრულებული ვიზიტები ექიმის მიხედვით")}</p>
             <ul className="mt-4 space-y-3">
               {stats.data.byDoctor.map((d) => (
                 <li key={d.doctorId} className="grid grid-cols-[minmax(0,160px)_1fr_32px] items-center gap-3 text-sm">

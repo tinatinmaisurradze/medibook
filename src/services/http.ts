@@ -1,4 +1,6 @@
 import { ApiError, handleRequest } from './mockApi'
+import { translateData, trMessage } from '@/i18n'
+import { tr } from '@/i18n'
 
 /** The session token lives in sessionStorage: every browser tab has its own login,
  * so two accounts can be used side by side (the data itself is shared through localStorage). */
@@ -40,7 +42,7 @@ export const REMOTE_API = API_URL !== ''
 
 /** Single place that talks to the backend: the real server when configured, otherwise the mock. */
 async function request<T>(method: string, url: string, body?: unknown): Promise<T> {
-  if (!REMOTE_API) return handleRequest<T>(method, url, body, tokenStore.get())
+  if (!REMOTE_API) return translateData(await handleRequest<T>(method, url, body, tokenStore.get()))
 
   const token = tokenStore.get()
   let res: Response
@@ -51,7 +53,7 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
-    throw new ApiError(0, 'NETWORK', 'სერვერთან კავშირი ვერ დამყარდა. შეამოწმეთ ინტერნეტი და სცადეთ თავიდან')
+    throw new ApiError(0, 'NETWORK', tr("სერვერთან კავშირი ვერ დამყარდა. შეამოწმეთ ინტერნეტი და სცადეთ თავიდან"))
   }
   let data: unknown = null
   try {
@@ -61,9 +63,9 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
   }
   if (!res.ok) {
     const e = (data ?? {}) as { code?: string; message?: string }
-    throw new ApiError(res.status, e.code ?? 'SERVER_ERROR', e.message ?? 'დაფიქსირდა შეცდომა. სცადეთ თავიდან')
+    throw new ApiError(res.status, e.code ?? 'SERVER_ERROR', e.message ?? tr("დაფიქსირდა შეცდომა. სცადეთ თავიდან"))
   }
-  return data as T
+  return translateData(data as T)
 }
 
 export const http = {
@@ -74,5 +76,5 @@ export const http = {
 }
 
 export function errorMessage(e: unknown): string {
-  return e instanceof ApiError ? e.message : 'დაფიქსირდა შეცდომა. სცადეთ თავიდან'
+  return e instanceof ApiError ? trMessage(e.message) : tr("დაფიქსირდა შეცდომა. სცადეთ თავიდან")
 }

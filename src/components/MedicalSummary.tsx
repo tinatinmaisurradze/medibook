@@ -1,7 +1,8 @@
 import type { MedicalProfile } from '@/types'
+import { tr } from '@/i18n'
 
 function List({ items, tone }: { items: string[]; tone?: 'danger' }) {
-  if (items.length === 0) return <span className="text-muted">არ არის მითითებული</span>
+  if (items.length === 0) return <span className="text-muted">{tr("არ არის მითითებული")}</span>
   return (
     <ul className="flex flex-wrap gap-2">
       {items.map((i) => (
@@ -18,41 +19,41 @@ export function MedicalSummary({ profile }: { profile: MedicalProfile }) {
   return (
     <dl className="grid gap-4 text-sm sm:grid-cols-2">
       <div>
-        <dt className="text-muted">სისხლის ჯგუფი</dt>
+        <dt className="text-muted">{tr("სისხლის ჯგუფი")}</dt>
         <dd className="mt-1 font-medium">{profile.bloodType || '—'}</dd>
       </div>
       <div>
-        <dt className="text-muted">სიმაღლე / წონა</dt>
+        <dt className="text-muted">{tr("სიმაღლე / წონა")}</dt>
         <dd className="mt-1 font-medium">
-          {profile.heightCm ? `${profile.heightCm} სმ` : '—'} / {profile.weightKg ? `${profile.weightKg} კგ` : '—'}
+          {profile.heightCm ? tr("{0} სმ", [profile.heightCm]) : '—'} / {profile.weightKg ? tr("{0} კგ", [profile.weightKg]) : '—'}
         </dd>
       </div>
       <div className="sm:col-span-2">
-        <dt className="mb-1 text-muted">ალერგიები</dt>
+        <dt className="mb-1 text-muted">{tr("ალერგიები")}</dt>
         <dd>
           <List items={profile.allergies} tone="danger" />
         </dd>
       </div>
       <div className="sm:col-span-2">
-        <dt className="mb-1 text-muted">ქრონიკული დაავადებები</dt>
+        <dt className="mb-1 text-muted">{tr("ქრონიკული დაავადებები")}</dt>
         <dd>
           <List items={profile.chronicConditions} />
         </dd>
       </div>
       <div className="sm:col-span-2">
-        <dt className="mb-1 text-muted">მიმდინარე მედიკამენტები</dt>
+        <dt className="mb-1 text-muted">{tr("მიმდინარე მედიკამენტები")}</dt>
         <dd>
           <List items={profile.medications} />
         </dd>
       </div>
       <div className="sm:col-span-2">
-        <dt className="mb-1 text-muted">ოპერაციები და ტრავმები</dt>
+        <dt className="mb-1 text-muted">{tr("ოპერაციები და ტრავმები")}</dt>
         <dd>
           <List items={profile.surgeries} />
         </dd>
       </div>
       <div className="sm:col-span-2">
-        <dt className="text-muted">ოჯახური ანამნეზი</dt>
+        <dt className="text-muted">{tr("ოჯახური ანამნეზი")}</dt>
         <dd className="mt-1 whitespace-pre-wrap break-words">{profile.familyHistory || '—'}</dd>
       </div>
     </dl>

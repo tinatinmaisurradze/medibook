@@ -6,6 +6,7 @@ import { citiesOf } from '@/utils/geo'
 import type { LocationsPayload } from '@/utils/validation'
 import { Button } from '@/components/ui/Button'
 import { SelectField } from '@/components/ui/SelectField'
+import { tr } from '@/i18n'
 
 interface Row {
   key: number
@@ -52,9 +53,9 @@ export function LocationsEditor({ clinics, value, saving, error, onSave }: Props
   const problems = useMemo(() => {
     const out: Record<number, string> = {}
     rows.forEach((r) => {
-      if (!r.room.trim()) out[r.key] = 'მიუთითეთ კაბინეტი'
-      else if (r.days.length === 0) out[r.key] = 'აირჩიეთ მინიმუმ ერთი დღე'
-      else if (r.start >= r.end) out[r.key] = 'დასასრული დასაწყისზე გვიან უნდა იყოს'
+      if (!r.room.trim()) out[r.key] = tr("მიუთითეთ კაბინეტი")
+      else if (r.days.length === 0) out[r.key] = tr("აირჩიეთ მინიმუმ ერთი დღე")
+      else if (r.start >= r.end) out[r.key] = tr("დასასრული დასაწყისზე გვიან უნდა იყოს")
     })
     let overlap = false
     for (let day = 0; day < 7 && !overlap; day++) {
@@ -70,21 +71,21 @@ export function LocationsEditor({ clinics, value, saving, error, onSave }: Props
   return (
     <div>
       <div className="mb-4 max-w-sm">
-        <SelectField label="ქალაქი" value={city} onChange={(e) => changeCity(e.target.value)}>
+        <SelectField label={tr("ქალაქი")} value={city} onChange={(e) => changeCity(e.target.value)}>
           {cities.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
         </SelectField>
-        <p className="mt-1.5 text-xs text-muted">ექიმი მუშაობს ერთ ქალაქში. ამ ქალაქის რამდენიმე კლინიკა ან ფილიალი შეგიძლიათ დაამატოთ.</p>
+        <p className="mt-1.5 text-xs text-muted">{tr("ექიმი მუშაობს ერთ ქალაქში. ამ ქალაქის რამდენიმე კლინიკა ან ფილიალი შეგიძლიათ დაამატოთ.")}</p>
       </div>
       <div className="space-y-4">
         {rows.map((r, i) => (
           <fieldset key={r.key} className="rounded-xl border border-line bg-surface p-4 shadow-card">
-            <legend className="px-2 text-sm font-semibold text-brand-dark">ლოკაცია {i + 1}</legend>
+            <legend className="px-2 text-sm font-semibold text-brand-dark">{tr("კლინიკა {0}", [i + 1])}</legend>
             <div className="grid items-end gap-3 sm:grid-cols-2">
-              <SelectField label="კლინიკა" value={r.clinicId} onChange={(e) => patch(r.key, { clinicId: Number(e.target.value) })}>
+              <SelectField label={tr("კლინიკა")} value={r.clinicId} onChange={(e) => patch(r.key, { clinicId: Number(e.target.value) })}>
                 {inCity.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -92,16 +93,12 @@ export function LocationsEditor({ clinics, value, saving, error, onSave }: Props
                 ))}
               </SelectField>
               <div>
-                <label htmlFor={`room-${r.key}`} className="mb-1.5 block text-sm font-medium">
-                  კაბინეტი
-                </label>
-                <input id={`room-${r.key}`} className={field} value={r.room} maxLength={40} onChange={(e) => patch(r.key, { room: e.target.value })} placeholder="მაგ: კაბინეტი 204" />
+                <label htmlFor={`room-${r.key}`} className="mb-1.5 block text-sm font-medium">{tr("კაბინეტი")}</label>
+                <input id={`room-${r.key}`} className={field} value={r.room} maxLength={40} onChange={(e) => patch(r.key, { room: e.target.value })} placeholder={tr("მაგ: კაბინეტი 204")} />
               </div>
             </div>
 
-            <p className="mb-1.5 mt-4 text-sm font-medium" id={`days-${r.key}`}>
-              მუშაობის დღეები
-            </p>
+            <p className="mb-1.5 mt-4 text-sm font-medium" id={`days-${r.key}`}>{tr("მუშაობის დღეები")}</p>
             <div role="group" aria-labelledby={`days-${r.key}`} className="flex flex-wrap gap-2">
               {WEEK_ORDER.map((d) => (
                 <button
@@ -118,22 +115,16 @@ export function LocationsEditor({ clinics, value, saving, error, onSave }: Props
 
             <div className="mt-4 grid items-end gap-3 sm:grid-cols-3">
               <div>
-                <label htmlFor={`start-${r.key}`} className="mb-1.5 block text-sm font-medium">
-                  დაწყება
-                </label>
+                <label htmlFor={`start-${r.key}`} className="mb-1.5 block text-sm font-medium">{tr("დაწყება")}</label>
                 <input id={`start-${r.key}`} type="time" className={field} value={r.start} onChange={(e) => patch(r.key, { start: e.target.value })} />
               </div>
               <div>
-                <label htmlFor={`end-${r.key}`} className="mb-1.5 block text-sm font-medium">
-                  დასრულება
-                </label>
+                <label htmlFor={`end-${r.key}`} className="mb-1.5 block text-sm font-medium">{tr("დასრულება")}</label>
                 <input id={`end-${r.key}`} type="time" className={field} value={r.end} onChange={(e) => patch(r.key, { end: e.target.value })} />
               </div>
-              <SelectField label="ხანგრძლივობა" value={r.slotMinutes} onChange={(e) => patch(r.key, { slotMinutes: Number(e.target.value) })}>
+              <SelectField label={tr("ხანგრძლივობა")} value={r.slotMinutes} onChange={(e) => patch(r.key, { slotMinutes: Number(e.target.value) })}>
                 {[10, 15, 20, 30, 45, 60].map((m) => (
-                  <option key={m} value={m}>
-                    {m} წუთი
-                  </option>
+                  <option key={m} value={m}>{tr("{0} წუთი", [m])}</option>
                 ))}
               </SelectField>
             </div>
@@ -144,29 +135,25 @@ export function LocationsEditor({ clinics, value, saving, error, onSave }: Props
               </p>
               {rows.length > 1 && (
                 <button type="button" onClick={() => setRows((x) => x.filter((y) => y.key !== r.key))} className="inline-flex items-center gap-1.5 text-sm font-medium text-danger hover:underline">
-                  <Trash2 size={16} aria-hidden /> წაშლა
-                </button>
+                  <Trash2 size={16} aria-hidden />{' '}{tr("წაშლა")}</button>
               )}
             </div>
           </fieldset>
         ))}
       </div>
 
-      {problems.overlap && <p role="alert" className="mt-3 rounded-md bg-danger-tint px-3 py-2 text-sm text-danger">ერთსა და იმავე დღეს სხვადასხვა კლინიკის საათები არ უნდა იკვეთებოდეს.</p>}
+      {problems.overlap && <p role="alert" className="mt-3 rounded-md bg-danger-tint px-3 py-2 text-sm text-danger">{tr("ერთსა და იმავე დღეს სხვადასხვა კლინიკის საათები არ უნდა იკვეთებოდეს.")}</p>}
       {error && <p role="alert" className="mt-3 rounded-md bg-danger-tint px-3 py-2 text-sm text-danger">{error}</p>}
 
       <div className="mt-4 flex flex-wrap gap-3">
         <Button type="button" variant="secondary" onClick={add} disabled={rows.length >= 6}>
-          <Plus size={16} aria-hidden /> კიდევ ერთი ლოკაცია
-        </Button>
+          <Plus size={16} aria-hidden />{' '}{tr("კლინიკის დამატება")}</Button>
         <Button
           type="button"
           loading={saving}
           disabled={!dirty || invalid}
           onClick={() => onSave({ locations: rows.map((r) => ({ clinicId: r.clinicId, room: r.room.trim(), days: r.days, start: r.start, end: r.end, slotMinutes: r.slotMinutes })) })}
-        >
-          გრაფიკის შენახვა
-        </Button>
+        >{tr("გრაფიკის შენახვა")}</Button>
       </div>
     </div>
   )

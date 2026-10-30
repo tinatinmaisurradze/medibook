@@ -10,6 +10,7 @@ import { StatusBadge } from '@/components/ui/Badges'
 import { Button } from '@/components/ui/Button'
 import { VisitEditor } from '@/components/VisitEditor'
 import { EmptyState, ErrorState } from '@/components/ui/States'
+import { tr } from '@/i18n'
 
 export default function DoctorSchedule() {
   const list = useAsync(() => appointmentService.mine(), [])
@@ -37,25 +38,25 @@ export default function DoctorSchedule() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">ჩემი განრიგი</h1>
+      <h1 className="text-3xl font-bold">{tr("ჩემი განრიგი")}</h1>
 
       <div className="mt-5 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
         <div className="flex items-center gap-4 rounded-lg border border-line bg-surface p-5 shadow-card">
           <div>
             <p className="text-3xl font-bold">{todayCount}</p>
-            <p className="text-sm text-muted">ვიზიტი დღეს</p>
+            <p className="text-sm text-muted">{tr("ვიზიტი დღეს")}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 rounded-lg border border-line bg-surface p-5 shadow-card">
           <div>
             <p className="text-3xl font-bold">{weekCount}</p>
-            <p className="text-sm text-muted">ვიზიტი 7 დღეში</p>
+            <p className="text-sm text-muted">{tr("ვიზიტი 7 დღეში")}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 rounded-lg border border-line bg-surface p-5 shadow-card">
           <div>
             <p className="text-3xl font-bold">{history.filter((a) => a.status === 'completed').length}</p>
-            <p className="text-sm text-muted">დასრულებული ვიზიტი</p>
+            <p className="text-sm text-muted">{tr("დასრულებული ვიზიტი")}</p>
           </div>
         </div>
       </div>
@@ -64,11 +65,11 @@ export default function DoctorSchedule() {
         {list.loading && <div className="skeleton h-40 w-full" />}
         {list.error && <ErrorState message={list.error} onRetry={list.reload} />}
 
-        {list.data && upcoming.length === 0 && <EmptyState title="მომავალი ვიზიტები არ არის" text="ახალი ჯავშნები აქ გამოჩნდება." />}
+        {list.data && upcoming.length === 0 && <EmptyState title={tr("მომავალი ვიზიტები არ არის")} text={tr("ახალი ჯავშნები აქ გამოჩნდება.")} />}
 
         {Object.entries(groups).map(([date, appts]) => (
           <section key={date}>
-            <h2 className="text-lg font-semibold">{date === today ? `დღეს, ${formatDate(date)}` : formatDate(date)}</h2>
+            <h2 className="text-lg font-semibold">{date === today ? tr("დღეს, {0}", [formatDate(date)]) : formatDate(date)}</h2>
             <div className="mt-3 space-y-3">
               {appts.map((a) => (
                 <article key={a.id} className="rounded-lg border border-line bg-surface p-4 shadow-card">
@@ -77,19 +78,15 @@ export default function DoctorSchedule() {
                       <p className="font-medium">
                         {a.time} · {a.patientName}
                       </p>
-                      {a.reason && <p className="text-sm text-muted">მიზეზი: {a.reason}</p>}
+                      {a.reason && <p className="text-sm text-muted">{tr("მიზეზი: {0}", [a.reason])}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <StatusBadge status={a.status} />
                       <Link
                         to={`/doctor/visits/${a.id}`}
                         className="inline-flex min-h-9 items-center rounded-md border border-line px-3 text-sm font-medium hover:border-brand hover:text-brand-dark"
-                      >
-                        ანკეტა
-                      </Link>
-                      <Button size="sm" variant="secondary" onClick={() => setOpenId(openId === a.id ? null : a.id)}>
-                        ჩანაწერის დამატება
-                      </Button>
+                      >{tr("ჩანაწერი")}</Link>
+                      <Button size="sm" variant="secondary" onClick={() => setOpenId(openId === a.id ? null : a.id)}>{tr("ჩანაწერის დამატება")}</Button>
                     </div>
                   </div>
                   {openId === a.id && (
@@ -112,10 +109,8 @@ export default function DoctorSchedule() {
         ))}
 
         <section aria-labelledby="history-title">
-          <h2 id="history-title" className="text-lg font-semibold">
-            ვიზიტების ისტორია და ძებნა
-          </h2>
-          <p className="mb-4 text-sm text-muted">მოძებნეთ პაციენტით, დიაგნოზით, მიზეზით ან თარიღით.</p>
+          <h2 id="history-title" className="text-lg font-semibold">{tr("ვიზიტების ისტორია და ძებნა")}</h2>
+          <p className="mb-4 text-sm text-muted">{tr("მოძებნეთ პაციენტით, დიაგნოზით, მიზეზით ან თარიღით.")}</p>
           <VisitHistory fetcher={appointmentService.search} perspective="doctor" clinics={clinics.data ?? []} />
         </section>
       </div>

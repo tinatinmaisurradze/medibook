@@ -1,3 +1,4 @@
+import { tr } from '@/i18n'
 /** Card helpers shared by the checkout form and the (mock) server. Demo only: no real payment is ever made. */
 
 export const digitsOnly = (s: string) => s.replace(/\D/g, '')
@@ -60,4 +61,4 @@ export const TEST_CARDS = {
 } as const
 
 /** Price in GEL, for example "70 ₾" */
-export const formatPrice = (n: number) => (n > 0 ? `${new Intl.NumberFormat('ka-GE').format(n)} ₾` : 'უფასო')
+export const formatPrice = (n: number) => (n > 0 ? `${new Intl.NumberFormat('ka-GE').format(n)} ₾` : tr("უფასო"))

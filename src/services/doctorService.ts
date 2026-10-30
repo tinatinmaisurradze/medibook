@@ -10,7 +10,7 @@ export interface DoctorFilters {
   network?: string
   minRating?: number | ''
   maxPrice?: number | ''
-  availability?: 'today' | 'tomorrow' | 'week' | ''
+  availability?: 'today' | 'tomorrow' | 'week' | 'month' | ''
   sort?: 'rating' | 'experience' | 'name' | 'soonest' | 'price'
   page?: number
   pageSize?: number

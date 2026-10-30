@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
 import { CheckCircle2, CircleAlert, X } from 'lucide-react'
+import { tr } from '@/i18n'
 
 type ToastKind = 'success' | 'error'
 interface Toast {
@@ -34,7 +35,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           >
             {t.kind === 'success' ? <CheckCircle2 size={18} className="mt-0.5 shrink-0" /> : <CircleAlert size={18} className="mt-0.5 shrink-0" />}
             <span className="flex-1">{t.text}</span>
-            <button onClick={() => dismiss(t.id)} aria-label="დახურვა" className="shrink-0 opacity-70 hover:opacity-100">
+            <button onClick={() => dismiss(t.id)} aria-label={tr("დახურვა")} className="shrink-0 opacity-70 hover:opacity-100">
               <X size={16} />
             </button>
           </div>

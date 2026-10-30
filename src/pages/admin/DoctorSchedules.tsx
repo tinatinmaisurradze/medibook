@@ -15,6 +15,7 @@ import { Tabs } from '@/components/ui/Tabs'
 import { ErrorState } from '@/components/ui/States'
 import { LocationsEditor } from '@/components/LocationsEditor'
 import { ServicesEditor } from '@/components/ServicesEditor'
+import { tr } from '@/i18n'
 
 type Part = 'schedule' | 'prices'
 
@@ -47,7 +48,7 @@ function DoctorRow({ doctor, clinics, onChanged }: { doctor: Doctor; clinics: Cl
           <Avatar name={doctor.fullName} size={48} />
           <div className="min-w-0">
             <h2 className="font-semibold">
-              {doctor.fullName} {!doctor.active && <span className="ml-1 rounded-full bg-danger-tint px-2 py-0.5 text-xs font-medium text-danger">გამორთულია</span>}
+              {doctor.fullName} {!doctor.active && <span className="ml-1 rounded-full bg-danger-tint px-2 py-0.5 text-xs font-medium text-danger">{tr("გამორთულია")}</span>}
             </h2>
             <p className="text-sm text-brand-dark">
               {SPECIALTY_LABELS[doctor.specialty]} · {doctor.city}
@@ -59,15 +60,15 @@ function DoctorRow({ doctor, clinics, onChanged }: { doctor: Doctor; clinics: Cl
                 </li>
               ))}
             </ul>
-            {doctor.priceFrom !== null && <p className="mt-1 text-sm">ფასი {formatPrice(doctor.priceFrom)}-დან</p>}
+            {doctor.priceFrom !== null && <p className="mt-1 text-sm">{tr("ფასი {0}-დან", [formatPrice(doctor.priceFrom)])}</p>}
           </div>
         </div>
         <div className="flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-            {open ? 'დახურვა' : 'გრაფიკი და ფასები'}
+            {open ? tr("დახურვა") : tr("გრაფიკი და ფასები")}
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => run(() => adminService.setActive(doctor.id, !doctor.active), doctor.active ? 'ექიმი გამოირთო' : 'ექიმი ჩაირთო')}>
-            {doctor.active ? 'გამორთვა' : 'ჩართვა'}
+          <Button size="sm" variant="ghost" onClick={() => run(() => adminService.setActive(doctor.id, !doctor.active), doctor.active ? tr("ექიმი გამოირთო") : tr("ექიმი ჩაირთო"))}>
+            {doctor.active ? tr("გამორთვა") : tr("ჩართვა")}
           </Button>
         </div>
       </div>
@@ -75,15 +76,15 @@ function DoctorRow({ doctor, clinics, onChanged }: { doctor: Doctor; clinics: Cl
       {open && (
         <div className="mt-5 border-t border-line pt-5">
           <Tabs<Part>
-            label="გრაფიკი ან ფასები"
+            label={tr("გრაფიკი ან ფასები")}
             value={part}
             onChange={(p) => {
               setPart(p)
               setError(null)
             }}
             tabs={[
-              { id: 'schedule', label: 'გრაფიკი' },
-              { id: 'prices', label: 'ფასები' },
+              { id: 'schedule', label: tr("გრაფიკი") },
+              { id: 'prices', label: tr("ფასები") },
             ]}
           />
           <div className="mt-5">
@@ -94,7 +95,7 @@ function DoctorRow({ doctor, clinics, onChanged }: { doctor: Doctor; clinics: Cl
                 value={doctor.locations}
                 saving={saving}
                 error={error}
-                onSave={(data: LocationsPayload) => run(() => adminService.saveLocations(doctor.id, data), 'გრაფიკი განახლდა')}
+                onSave={(data: LocationsPayload) => run(() => adminService.saveLocations(doctor.id, data), tr("გრაფიკი განახლდა"))}
               />
             ) : (
               <ServicesEditor
@@ -104,7 +105,7 @@ function DoctorRow({ doctor, clinics, onChanged }: { doctor: Doctor; clinics: Cl
                 value={doctor.services}
                 saving={saving}
                 error={error}
-                onSave={(data: ServicesPayload) => run(() => adminService.saveServices(doctor.id, data), 'ფასები განახლდა')}
+                onSave={(data: ServicesPayload) => run(() => adminService.saveServices(doctor.id, data), tr("ფასები განახლდა"))}
               />
             )}
           </div>
@@ -119,8 +120,8 @@ export default function DoctorSchedules() {
   const clinics = useAsync(() => doctorService.clinics(), [])
   return (
     <div>
-      <h1 className="text-3xl font-bold">ექიმების გრაფიკი და ფასები</h1>
-      <p className="mb-6 mt-1 text-muted">ექიმი შეიძლება მუშაობდეს რამდენიმე კლინიკაში. თითოეულ ლოკაციას აქვს საკუთარი დღეები, საათები, კაბინეტი და ფასები.</p>
+      <h1 className="text-3xl font-bold">{tr("ექიმების გრაფიკი და ფასები")}</h1>
+      <p className="mb-6 mt-1 text-muted">{tr("ექიმი შეიძლება მუშაობდეს ერთი ქალაქის რამდენიმე კლინიკაში. თითოეულ კლინიკას აქვს საკუთარი დღეები, საათები, კაბინეტი და ფასები.")}</p>
       {doctors.loading && <div className="skeleton h-48 w-full" aria-hidden />}
       {doctors.error && <ErrorState message={doctors.error} onRetry={doctors.reload} />}
       <div className="space-y-4">

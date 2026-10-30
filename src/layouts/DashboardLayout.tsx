@@ -4,6 +4,8 @@ import { BarChart3, CalendarDays, ClipboardList, LayoutDashboard, Menu, Star, St
 import { useAuth } from '@/context/AuthContext'
 import { BrandMark } from '@/components/BrandMark'
 import { UserMenu } from '@/components/UserMenu'
+import { tr } from '@/i18n'
+import { LanguageSwitch } from '@/components/LanguageSwitch'
 
 interface NavItem {
   to: string
@@ -13,19 +15,19 @@ interface NavItem {
 
 const NAV: Record<'doctor' | 'admin', NavItem[]> = {
   doctor: [
-    { to: '/doctor/dashboard', label: 'დეშბორდი', icon: LayoutDashboard },
-    { to: '/doctor/calendar', label: 'კალენდარი', icon: CalendarDays },
-    { to: '/doctor/schedule', label: 'ვიზიტების სია', icon: ClipboardList },
-    { to: '/doctor/patients', label: 'პაციენტები', icon: Users },
-    { to: '/doctor/reviews', label: 'შეფასებები', icon: Star },
-    { to: '/doctor/profile', label: 'პროფილი', icon: UserCog },
+    { to: '/doctor/dashboard', label: tr("მთავარი"), icon: LayoutDashboard },
+    { to: '/doctor/calendar', label: tr("კალენდარი"), icon: CalendarDays },
+    { to: '/doctor/schedule', label: tr("ვიზიტების სია"), icon: ClipboardList },
+    { to: '/doctor/patients', label: tr("პაციენტები"), icon: Users },
+    { to: '/doctor/reviews', label: tr("შეფასებები"), icon: Star },
+    { to: '/doctor/profile', label: tr("პროფილი"), icon: UserCog },
   ],
   admin: [
-    { to: '/admin/stats', label: 'სტატისტიკა', icon: BarChart3 },
-    { to: '/admin/schedule', label: 'ექიმების გრაფიკი', icon: Stethoscope },
-    { to: '/admin/visits', label: 'ვიზიტები', icon: ListChecks },
-    { to: '/admin/cancellations', label: 'გაუქმებული ვიზიტები', icon: UserRoundX },
-    { to: '/admin/profile', label: 'პროფილი', icon: UserCog },
+    { to: '/admin/stats', label: tr("სტატისტიკა"), icon: BarChart3 },
+    { to: '/admin/schedule', label: tr("ექიმების გრაფიკი"), icon: Stethoscope },
+    { to: '/admin/visits', label: tr("ვიზიტები"), icon: ListChecks },
+    { to: '/admin/cancellations', label: tr("გაუქმებული ვიზიტები"), icon: UserRoundX },
+    { to: '/admin/profile', label: tr("პროფილი"), icon: UserCog },
   ],
 }
 
@@ -35,7 +37,7 @@ export function DashboardLayout() {
   const items = user?.role === 'admin' ? NAV.admin : NAV.doctor
 
   const sidebar = (
-    <nav className="flex flex-col gap-1 p-4" aria-label="სამუშაო სივრცის მენიუ">
+    <nav className="flex flex-col gap-1 p-4" aria-label={tr("სამუშაო სივრცის მენიუ")}>
       {items.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
@@ -60,7 +62,7 @@ export function DashboardLayout() {
         <div className="flex items-center gap-3">
           <button
             className="rounded-md p-2 hover:bg-brand-tint md:hidden"
-            aria-label={open ? 'მენიუს დახურვა' : 'მენიუს გახსნა'}
+            aria-label={open ? tr("მენიუს დახურვა") : tr("მენიუს გახსნა")}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
@@ -68,7 +70,10 @@ export function DashboardLayout() {
           </button>
           <BrandMark />
         </div>
-        <UserMenu />
+        <div className="flex items-center gap-3">
+          <LanguageSwitch />
+          <UserMenu />
+        </div>
       </header>
 
       <aside className="hidden border-r border-line bg-surface md:block">{sidebar}</aside>
@@ -78,9 +83,7 @@ export function DashboardLayout() {
         <Outlet />
       </main>
 
-      <footer className="col-span-full border-t border-line bg-surface px-4 py-4 text-sm text-muted">
-        MediBook სამუშაო სივრცე · სასწავლო პროექტი
-      </footer>
+      <footer className="col-span-full border-t border-line bg-surface px-4 py-4 text-sm text-muted">{tr("MediBook სამუშაო სივრცე · სასწავლო პროექტი")}</footer>
     </div>
   )
 }

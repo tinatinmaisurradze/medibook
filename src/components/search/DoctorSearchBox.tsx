@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { Search, Stethoscope, UserRound, X } from 'lucide-react'
 import type { Doctor, SpecialtyKey } from '@/types'
 import { SPECIALTY_LABELS } from '@/data/seed'
+import { tr } from '@/i18n'
 
 interface Item {
   id: string
@@ -35,7 +36,7 @@ export function DoctorSearchBox({ value, onChange, doctors, onPickSpecialty, onP
     const specialties = (Object.keys(SPECIALTY_LABELS) as SpecialtyKey[])
       .filter((k) => !term || SPECIALTY_LABELS[k].toLowerCase().includes(term))
       .slice(0, term ? 3 : 7)
-      .map<Item>((k) => ({ id: `s-${k}`, kind: 'specialty', label: SPECIALTY_LABELS[k], hint: `${doctors.filter((d) => d.specialty === k).length} ექიმი`, specialty: k }))
+      .map<Item>((k) => ({ id: `s-${k}`, kind: 'specialty', label: SPECIALTY_LABELS[k], hint: tr("{0} ექიმი", [doctors.filter((d) => d.specialty === k).length]), specialty: k }))
     if (!term) return specialties
     const docs = doctors
       .filter((d) => d.fullName.toLowerCase().includes(term))
@@ -83,15 +84,13 @@ export function DoctorSearchBox({ value, onChange, doctors, onPickSpecialty, onP
   const showList = open && items.length > 0
   const indexed = items.map((item, index) => ({ item, index }))
   const groups = [
-    { title: 'ექიმები', list: indexed.filter((x) => x.item.kind === 'doctor') },
-    { title: 'სპეციალობები', list: indexed.filter((x) => x.item.kind === 'specialty') },
+    { title: tr("ექიმები"), list: indexed.filter((x) => x.item.kind === 'doctor') },
+    { title: tr("სპეციალობები"), list: indexed.filter((x) => x.item.kind === 'specialty') },
   ].filter((g) => g.list.length > 0)
 
   return (
     <div ref={wrapRef} className="relative">
-      <label htmlFor={`${listId}-input`} className="sr-only">
-        ექიმის სახელი ან სპეციალობა
-      </label>
+      <label htmlFor={`${listId}-input`} className="sr-only">{tr("ექიმის სახელი ან სპეციალობა")}</label>
       <Search size={20} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand" aria-hidden />
       <input
         id={`${listId}-input`}
@@ -109,7 +108,7 @@ export function DoctorSearchBox({ value, onChange, doctors, onPickSpecialty, onP
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
-        placeholder="ექიმის სახელი ან სპეციალობა"
+        placeholder={tr("ექიმის სახელი ან სპეციალობა")}
         className="h-14 w-full rounded-xl border border-line bg-surface pl-12 pr-12 text-base font-medium text-ink placeholder:font-normal placeholder:text-muted focus:border-brand focus:outline-none focus:ring-4 focus:ring-[#0d7a83]/20"
       />
       {value && (
@@ -119,7 +118,7 @@ export function DoctorSearchBox({ value, onChange, doctors, onPickSpecialty, onP
             onChange('')
             setOpen(true)
           }}
-          aria-label="ძებნის გასუფთავება"
+          aria-label={tr("ძებნის გასუფთავება")}
           className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted hover:bg-brand-tint hover:text-ink"
         >
           <X size={18} aria-hidden />
@@ -130,7 +129,7 @@ export function DoctorSearchBox({ value, onChange, doctors, onPickSpecialty, onP
         <div
           id={listId}
           role="listbox"
-          aria-label="შეთავაზებები"
+          aria-label={tr("შეთავაზებები")}
           className="absolute left-0 right-0 top-full z-30 mt-2 max-h-[22rem] overflow-y-auto rounded-xl border border-line bg-surface p-2 text-ink shadow-[0_20px_40px_-12px_rgba(17,40,58,0.35)]"
         >
           {groups.map((g) => (

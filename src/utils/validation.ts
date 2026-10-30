@@ -171,7 +171,7 @@ export const locationInputSchema = z
   .refine((v) => v.start < v.end, { path: ['end'], message: 'დასასრული დასაწყისზე გვიან უნდა იყოს' })
 
 export const locationsSchema = z.object({
-  locations: z.array(locationInputSchema).min(1, 'მინიმუმ ერთი ლოკაცია საჭიროა').max(6, 'მაქსიმუმ 6 ლოკაცია'),
+  locations: z.array(locationInputSchema).min(1, 'მინიმუმ ერთი კლინიკაა საჭირო').max(6, 'მაქსიმუმ 6 კლინიკა'),
 })
 export type LocationsPayload = z.infer<typeof locationsSchema>
 

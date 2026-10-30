@@ -1,3 +1,4 @@
+import { tr } from '@/i18n'
 import { forwardRef, useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 
 interface BaseProps {
@@ -28,7 +29,7 @@ export const TextField = forwardRef<HTMLInputElement, BaseProps & InputHTMLAttri
         />
         {error ? (
           <p id={`${fieldId}-error`} className="mt-1.5 text-sm text-danger">
-            {error}
+            {tr(error)}
           </p>
         ) : hint ? (
           <p id={`${fieldId}-hint`} className="mt-1.5 text-sm text-muted">
@@ -61,7 +62,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, BaseProps & TextareaHTML
         />
         {error ? (
           <p id={`${fieldId}-error`} className="mt-1.5 text-sm text-danger">
-            {error}
+            {tr(error)}
           </p>
         ) : hint ? (
           <p className="mt-1.5 text-sm text-muted">{hint}</p>

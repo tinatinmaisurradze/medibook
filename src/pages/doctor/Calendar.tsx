@@ -8,6 +8,7 @@ import { formatDate, toISODate } from '@/utils/date'
 import { MonthCalendar } from '@/components/MonthCalendar'
 import { StatusBadge } from '@/components/ui/Badges'
 import { ErrorState } from '@/components/ui/States'
+import { tr } from '@/i18n'
 
 export default function DoctorCalendar() {
   const [month, setMonth] = useState(() => new Date())
@@ -32,8 +33,8 @@ export default function DoctorCalendar() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">კალენდარი</h1>
-      <p className="mt-1 text-muted">აირჩიეთ დღე და ნახეთ ვიზიტები. ციფრი დღეზე ვიზიტების რაოდენობაა.</p>
+      <h1 className="text-3xl font-bold">{tr("კალენდარი")}</h1>
+      <p className="mt-1 text-muted">{tr("აირჩიეთ დღე და ნახეთ ვიზიტები. ციფრი დღეზე ვიზიტების რაოდენობაა.")}</p>
 
       {data.error && (
         <div className="mt-6">
@@ -53,11 +54,11 @@ export default function DoctorCalendar() {
             {formatDate(selected)}
           </h2>
           {free !== undefined && (
-            <p className="mt-1 text-sm text-muted">{slots.data && allSlots.length === 0 ? 'ამ დღეს არ იღებთ' : `თავისუფალი დრო: ${free}`}</p>
+            <p className="mt-1 text-sm text-muted">{slots.data && allSlots.length === 0 ? tr("ამ დღეს არ იღებთ") : tr("თავისუფალი დრო: {0}", [free])}</p>
           )}
 
           {dayItems.length === 0 ? (
-            <p className="mt-4 rounded-md bg-canvas p-4 text-sm text-muted">ამ დღეს ვიზიტები არ არის.</p>
+            <p className="mt-4 rounded-md bg-canvas p-4 text-sm text-muted">{tr("ამ დღეს ვიზიტები არ არის.")}</p>
           ) : (
             <ul className="mt-4 divide-y divide-line">
               {dayItems.map((a) => (

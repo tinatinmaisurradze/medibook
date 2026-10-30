@@ -3,6 +3,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import type { Clinic, DoctorService } from '@/types'
 import type { ServicesPayload } from '@/utils/validation'
 import { Button } from '@/components/ui/Button'
+import { tr } from '@/i18n'
 
 interface Row {
   key: number
@@ -49,20 +50,16 @@ export function ServicesEditor({ clinics, value, clinicIds, saving, error, onSav
               {mine.map((r) => (
                 <div key={r.key} className="grid grid-cols-[1fr_6.5rem_auto] items-end gap-2 sm:grid-cols-[1fr_8rem_auto]">
                   <div>
-                    <label htmlFor={`sn-${r.key}`} className="mb-1 block text-xs font-medium text-muted">
-                      მომსახურება
-                    </label>
+                    <label htmlFor={`sn-${r.key}`} className="mb-1 block text-xs font-medium text-muted">{tr("მომსახურება")}</label>
                     <input id={`sn-${r.key}`} className={field} value={r.name} maxLength={80} onChange={(e) => patch(r.key, { name: e.target.value })} />
                   </div>
                   <div>
-                    <label htmlFor={`sp-${r.key}`} className="mb-1 block text-xs font-medium text-muted">
-                      ფასი, ₾
-                    </label>
+                    <label htmlFor={`sp-${r.key}`} className="mb-1 block text-xs font-medium text-muted">{tr("ფასი, ₾")}</label>
                     <input id={`sp-${r.key}`} inputMode="decimal" className={`${field} ${bad(r) ? 'border-danger' : ''}`} value={r.price} onChange={(e) => patch(r.key, { price: e.target.value.replace(',', '.') })} />
                   </div>
                   <button
                     type="button"
-                    aria-label={`წაშლა: ${r.name}`}
+                    aria-label={tr("წაშლა: {0}", [r.name])}
                     disabled={mine.length <= 1}
                     onClick={() => setRows((x) => x.filter((y) => y.key !== r.key))}
                     className="mb-0.5 flex h-10 w-10 items-center justify-center rounded-lg text-danger transition-colors hover:bg-danger-tint disabled:cursor-not-allowed disabled:opacity-30"
@@ -77,8 +74,7 @@ export function ServicesEditor({ clinics, value, clinicIds, saving, error, onSav
               onClick={() => setRows((r) => [...r, { key: keySeq++, clinicId: cid, name: '', price: '', durationMin: 30 }])}
               className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark hover:underline"
             >
-              <Plus size={16} aria-hidden /> მომსახურების დამატება
-            </button>
+              <Plus size={16} aria-hidden />{' '}{tr("მომსახურების დამატება")}</button>
           </fieldset>
         )
       })}
@@ -88,9 +84,7 @@ export function ServicesEditor({ clinics, value, clinicIds, saving, error, onSav
         loading={saving}
         disabled={!dirty || invalid}
         onClick={() => onSave({ services: rows.map((r) => ({ clinicId: r.clinicId, name: r.name.trim(), price: Number(r.price), durationMin: r.durationMin })) })}
-      >
-        ფასების შენახვა
-      </Button>
+      >{tr("ფასების შენახვა")}</Button>
     </div>
   )
 }
